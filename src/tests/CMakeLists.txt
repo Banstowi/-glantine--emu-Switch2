@@ -21,6 +21,7 @@ add_executable(tests
     common/undefined_fix.cpp
     common/unique_function.cpp
     common/zstd_compression.cpp
+    core/builtin_patches.cpp
     core/core_timing.cpp
     core/ldn.cpp
     core/internal_network/socket_proxy.cpp
