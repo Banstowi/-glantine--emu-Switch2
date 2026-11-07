@@ -110,10 +110,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          app=build/release/bin/eglantine.app
-          test -x "$app/Contents/MacOS/eglantine"
+          app=build/release/bin/banstdog.app
+          test -x "$app/Contents/MacOS/banstdog"
           test -x build/release/bin/eden-cli
-          for binary in "$app/Contents/MacOS/eglantine" build/release/bin/eden-cli; do
+          for binary in "$app/Contents/MacOS/banstdog" build/release/bin/eden-cli; do
             test "$(lipo -archs "$binary")" = arm64
           done
           cp build/release/bin/eden-cli "$app/Contents/MacOS/eden-cli"
@@ -131,7 +131,7 @@ jobs:
               done
           done
           # Libraries that load their dependencies through @rpath find them in the bundle.
-          for program in eglantine eden-cli; do
+          for program in banstdog eden-cli; do
             install_name_tool -add_rpath @executable_path/../Frameworks \
               "$app/Contents/MacOS/$program" 2> /dev/null
           done
@@ -156,9 +156,9 @@ jobs:
           codesign --verify --deep --strict "$app"
           ditto -c -k --keepParent "$app" "eglantine-${SHA}-${PLATFORM}.zip"
           ls -la "eglantine-${SHA}-${PLATFORM}.zip"
-          # Also ship a .dmg (drag eglantine.app onto Applications).
+          # Also ship a .dmg (drag banstdog.app onto Applications).
           dmgdir=$(mktemp -d)
-          ditto "$app" "$dmgdir/eglantine.app"
+          ditto "$app" "$dmgdir/banstdog.app"
           ln -s /Applications "$dmgdir/Applications"
           hdiutil create -volname "Banst dog" -srcfolder "$dmgdir" -ov -format UDZO \
             "eglantine-${SHA}-${PLATFORM}.dmg"

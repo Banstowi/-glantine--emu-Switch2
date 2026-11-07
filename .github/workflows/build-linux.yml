@@ -195,11 +195,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -x build/release/bin/eglantine
+          test -x build/release/bin/banstdog
           test -x build/release/bin/eden-cli
-          strip build/release/bin/eglantine build/release/bin/eden-cli
+          strip build/release/bin/banstdog build/release/bin/eden-cli
           tar -czf "eglantine-${SHA}-${PLATFORM}.tar.gz" \
-            -C build/release/bin eglantine eden-cli
+            -C build/release/bin banstdog eden-cli
           ls -la "eglantine-${SHA}-${PLATFORM}.tar.gz"
 
       # A self-contained AppImage: linuxdeploy bundles every library the two programs need except
@@ -211,7 +211,7 @@ jobs:
           VERSION_LABEL: ${{ inputs.version }}
         run: |
           set -euo pipefail
-          test -x build/release/bin/eglantine
+          test -x build/release/bin/banstdog
           test -x build/release/bin/eden-cli
           tools="$RUNNER_TEMP/linuxdeploy"
           mkdir -p "$tools"
@@ -235,7 +235,7 @@ jobs:
           export OUTPUT="$LDAI_OUTPUT"
           export ARCH="$arch"
           "$tools/linuxdeploy-$arch.AppImage" --appdir AppDir \
-            --executable build/release/bin/eglantine \
+            --executable build/release/bin/banstdog \
             --executable build/release/bin/eden-cli \
             --desktop-file dist/dev.eden_emu.eden.desktop \
             --icon-file "$icon" \
