@@ -56,8 +56,7 @@ jobs:
           key: macos-arm64
           max-size: 3G
 
-      - name: Setup build from checked-out source
-        if: hashFiles('.github/actions/setup-build/action.yml') != ''
+      - name: Setup build
         uses: ./.github/actions/setup-build
         with:
           platform: ${{ env.PLATFORM }}
@@ -66,15 +65,6 @@ jobs:
           tag: ${{ inputs.tag }}
           release: ${{ inputs.release }}
 
-      - name: Setup build from compatibility pin
-        if: hashFiles('.github/actions/setup-build/action.yml') == ''
-        uses: Djihads80/Eglantine/.github/actions/setup-build@5016e217b829b45fda263b05ee00560bd3656397
-        with:
-          platform: ${{ env.PLATFORM }}
-          sha: ${{ inputs.sha }}
-          refspec: ${{ inputs.refspec }}
-          tag: ${{ inputs.tag }}
-          release: ${{ inputs.release }}
 
       # The packages docs/Deps.md lists for macOS, plus ccache.
       - name: Install macOS dependencies

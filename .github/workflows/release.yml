@@ -30,9 +30,6 @@ on:
       macos_runner:
         type: string
         default: macos-15
-    secrets:
-      DISCORD_WEBHOOK_URL:
-        required: false
 
 permissions:
   contents: write
@@ -57,14 +54,15 @@ jobs:
           ref: ${{ github.event.repository.default_branch }}
           fetch-depth: 0
 
-      - name: Fetch build commit and nx2 history
+      - name: Fetch build commit and default branch history
         shell: bash
         env:
           TARGET_SHA: ${{ inputs.sha }}
+          MAIN_BRANCH: ${{ github.event.repository.default_branch }}
         run: |
           set -euo pipefail
           git fetch --no-tags origin "$TARGET_SHA"
-          git fetch --no-tags origin nx2:refs/remotes/origin/nx2 || true
+          git fetch --no-tags origin "$MAIN_BRANCH:refs/remotes/origin/$MAIN_BRANCH" || true
           git cat-file -e "$TARGET_SHA^{commit}"
           # Release notes for stable/RC builds come from the exact source commit being released.
           # Reading the markdown is safe; the script generating the release remains trusted.
@@ -124,6 +122,7 @@ jobs:
           PREV_TAG: ${{ inputs.prev_tag }}
           MACOS_RUNNER: ${{ inputs.macos_runner }}
           ASSET_DIR: release-assets
+          MAIN_BRANCH: ${{ github.event.repository.default_branch }}
         run: |
           set -euo pipefail
           bash tools/ci/release-notes.sh notes.md
@@ -172,18 +171,3 @@ jobs:
               gh release delete "$old" --repo "$GITHUB_REPOSITORY" --cleanup-tag --yes
             done
 
-      - name: Ping Discord
-        if: >-
-          (inputs.kind == 'stable' || inputs.kind == 'rc' || inputs.kind == 'daily') &&
-          github.repository == 'Djihads80/Eglantine'
-        shell: bash
-        env:
-          WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        run: |
-          set -euo pipefail
-          if [ -z "$WEBHOOK" ]; then echo "No DISCORD_WEBHOOK_URL secret, skipping."; exit 0; fi
-          URL="https://github.com/${GITHUB_REPOSITORY}/releases/tag/${TAG}"
-          MSG=$(printf '## <@&1566184315178713190> %s (%s)\n%s' "$TITLE" "${SHA::7}" "$URL")
-          jq -n --arg content "$MSG" \
-            '{content: $content, allowed_mentions: {roles: ["1566184315178713190"]}}' |
-            curl -fsS -H "Content-Type: application/json" -d @- "$WEBHOOK"

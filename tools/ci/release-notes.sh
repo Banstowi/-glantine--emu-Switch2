@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # usage: release-notes.sh <output.md>
-# Env: KIND TAG SHA REPO BRANCH PREV_TAG MACOS_RUNNER ASSET_DIR (default release-assets).
+# Env: KIND TAG SHA REPO BRANCH PREV_TAG MACOS_RUNNER ASSET_DIR (default release-assets)
+# MAIN_BRANCH (default nx2).
 # The download tables include only assets that exist, so one-platform manual builds are supported.
 set -euo pipefail
 
@@ -13,6 +14,7 @@ kind="${KIND:?KIND is required}"
 base="https://github.com/${repo}/releases/download/${tag}"
 short="${sha:0:7}"
 macos_ver="${MACOS_RUNNER:-macos-15}"
+main="${MAIN_BRANCH:-nx2}"
 macos_ver="${macos_ver#macos-}"
 
 link() { if [[ -e "$dir/$2" ]]; then printf '[%s](%s/%s)' "$1" "$base" "$2"; fi; return 0; }
@@ -37,13 +39,13 @@ commits() { git log --no-merges --pretty='- %s (`%h`)' "$@" 2>/dev/null | head -
       printf '%s\n\n' "$section"
       ;;
     daily)
-      printf 'Automatic daily build of `nx2` at `%s`.\n\n## Changes since the previous daily build\n\n' "$short"
+      printf 'Automatic daily build of `%s` at `%s`.\n\n## Changes since the previous daily build\n\n' "$main" "$short"
       if [[ -n "${PREV_TAG:-}" ]]; then commits "$PREV_TAG..$sha"; else commits -n 30 "$sha"; fi
       printf '\n'
       ;;
     branch)
-      printf 'Test build of branch `%s` at `%s`.\n\n**This is not a release.** It is for testing, and the next push to the branch replaces it.\n\n## Commits on top of nx2\n\n' "${BRANCH:-?}" "$short"
-      commits "origin/nx2..$sha"
+      printf 'Test build of branch `%s` at `%s`.\n\n**This is not a release.** It is for testing, and the next push to the branch replaces it.\n\n## Commits on top of %s\n\n' "${BRANCH:-?}" "$short" "$main"
+      commits "origin/$main..$sha"
       printf '\n'
       ;;
     *)

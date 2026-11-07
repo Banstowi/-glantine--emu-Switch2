@@ -6,23 +6,21 @@ run-name: >-
 # Entry point of every build. It decides what the run is (daily / rc / stable / branch), then calls
 # one reusable workflow per OS and a final one that publishes the GitHub release.
 #
-#   push to nx2 touching VERSION   stable or rc release, aborted when that tag already exists
-#   schedule                       daily build of nx2, aborted when nothing changed since the last one
-#   workflow_dispatch              branch build of the chosen ref (or a forced daily, from nx2)
+#   push to the default branch touching VERSION   stable or rc release, aborted when that tag already exists
+#   workflow_dispatch              branch build of the chosen ref (or a daily, from the default branch)
+# (No scheduled daily build here, to spare Actions minutes: run a daily by hand when wanted.)
 #   pull_request + ci:build label  branch build of a same-repo PR, rebuilt on each push
 on:
   push:
     branches:
-      - nx2
+      - ccr-88d1adf7-3obcpe
     paths:
       - VERSION
       - CHANGELOG.md
-  schedule:
-    - cron: "0 3 * * *"
   workflow_dispatch:
     inputs:
       kind:
-        description: What to build (daily is only allowed from nx2)
+        description: What to build (daily is only allowed from the default branch)
         type: choice
         options: [branch, daily]
         default: branch
@@ -94,11 +92,12 @@ jobs:
         shell: bash
         env:
           TARGET_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          MAIN_BRANCH: ${{ github.event.repository.default_branch }}
         run: |
           set -euo pipefail
           if [ "$GITHUB_EVENT_NAME" = schedule ]; then
-            git fetch --no-tags origin nx2:refs/remotes/origin/nx2
-            sha=$(git rev-parse refs/remotes/origin/nx2)
+            git fetch --no-tags origin "$MAIN_BRANCH:refs/remotes/origin/$MAIN_BRANCH"
+            sha=$(git rev-parse "refs/remotes/origin/$MAIN_BRANCH")
           else
             git fetch --no-tags origin "$TARGET_SHA"
             sha="$TARGET_SHA"
@@ -121,6 +120,7 @@ jobs:
           PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
           PR_TITLE: ${{ github.event.pull_request.title }}
           BUILD_SHA: ${{ steps.target.outputs.sha }}
+          MAIN_BRANCH: ${{ github.event.repository.default_branch }}
         run: bash tools/ci/prepare.sh
 
   linux:
@@ -185,8 +185,6 @@ jobs:
     permissions:
       contents: write
     uses: ./.github/workflows/release.yml
-    secrets:
-      DISCORD_WEBHOOK_URL: ${{ github.event_name != 'pull_request' && secrets.DISCORD_WEBHOOK_URL || '' }}
     with:
       kind: ${{ needs.prepare.outputs.kind }}
       tag: ${{ needs.prepare.outputs.tag }}

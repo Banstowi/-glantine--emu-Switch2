@@ -1,13 +1,11 @@
 name: cleanup-branch
 
 # Branch builds publish a rolling pre-release per branch (branch-<slug>). This removes it when the
-# PR closes or the branch is deleted, and a weekly sweep removes any left behind.
+# PR closes or the branch is deleted; run it by hand to sweep any left behind.
 on:
   pull_request:
     types: [closed]
   delete:
-  schedule:
-    - cron: "30 4 * * 1"
   workflow_dispatch:
 
 permissions:
@@ -46,7 +44,7 @@ jobs:
 
       # Branch releases whose branch no longer exists.
       - name: Sweep orphaned branch releases
-        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch'
         shell: bash
         run: |
           set -euo pipefail
