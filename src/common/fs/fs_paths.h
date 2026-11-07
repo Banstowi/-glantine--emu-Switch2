@@ -8,7 +8,7 @@
 
 // yuzu data directories
 
-#define EDEN_DIR "eglantine"
+#define EDEN_DIR "banstdog"
 #define EDEN_LEGACY_DIR "eden"
 #define PORTABLE_DIR "user"
 
