@@ -33,6 +33,7 @@ on:
 
 permissions:
   contents: write
+  actions: read # list this run's artifacts
 
 jobs:
   release:
@@ -84,6 +85,19 @@ jobs:
           set -euo pipefail
           rm -rf release-assets
           mkdir -p release-assets
+          # When the pattern matches a single artifact (a one-OS build), download-artifact extracts it
+          # straight into artifacts/ instead of artifacts/<name>/: put it back in its folder.
+          if ! compgen -G 'artifacts/eglantine-*/' > /dev/null; then
+            name=$(gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts" \
+              --jq ".artifacts[].name | select(startswith(\"eglantine-\") and endswith(\"-$SHA\"))")
+            [[ -n "$name" && "$name" != *$'\n'* ]] || {
+              echo "Cannot tell which artifact was downloaded: '$name'" >&2
+              exit 1
+            }
+            mv artifacts artifacts-flat
+            mkdir artifacts
+            mv artifacts-flat "artifacts/$name"
+          fi
           shopt -s nullglob
           strip_sha() { sed "s/-${SHA}//" <<< "$1"; }
           artifacts=(artifacts/*/)

@@ -184,6 +184,7 @@ jobs:
       !contains(needs.*.result, 'cancelled')
     permissions:
       contents: write
+      actions: read
     uses: ./.github/workflows/release.yml
     with:
       kind: ${{ needs.prepare.outputs.kind }}
