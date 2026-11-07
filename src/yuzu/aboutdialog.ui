@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-    <string>About Eglantine</string>
+    <string>About Banst dog</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
@@ -69,7 +69,7 @@
           </sizepolicy>
          </property>
          <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:28pt;&quot;&gt;Eglantine&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:28pt;&quot;&gt;Banst dog&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
@@ -144,7 +144,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
           </sizepolicy>
          </property>
          <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;&amp;quot;Nintendo Switch&amp;quot; is a trademark of Nintendo. Eglantine is not affiliated with Nintendo in any way.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;&amp;quot;Nintendo Switch&amp;quot; is a trademark of Nintendo. Banst dog is based on Eglantine, Eden and yuzu, and is not affiliated with Nintendo in any way.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
