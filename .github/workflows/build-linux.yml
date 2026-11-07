@@ -198,9 +198,9 @@ jobs:
           test -x build/release/bin/banstdog
           test -x build/release/bin/eden-cli
           strip build/release/bin/banstdog build/release/bin/eden-cli
-          tar -czf "eglantine-${SHA}-${PLATFORM}.tar.gz" \
+          tar -czf "banstdog-${SHA}-${PLATFORM}.tar.gz" \
             -C build/release/bin banstdog eden-cli
-          ls -la "eglantine-${SHA}-${PLATFORM}.tar.gz"
+          ls -la "banstdog-${SHA}-${PLATFORM}.tar.gz"
 
       # A self-contained AppImage: linuxdeploy bundles every library the two programs need except
       # the base system ones (glibc, X11/Wayland client libraries, the GPU driver and Vulkan loader),
@@ -231,7 +231,7 @@ jobs:
           export EXTRA_PLATFORM_PLUGINS='libqwayland-egl.so;libqwayland-generic.so'
           # Embedded in the AppImage metadata: the version label of this build.
           export LDAI_VERSION="$VERSION_LABEL"
-          export LDAI_OUTPUT="eglantine-${SHA}-${PLATFORM}.AppImage"
+          export LDAI_OUTPUT="banstdog-${SHA}-${PLATFORM}.AppImage"
           export OUTPUT="$LDAI_OUTPUT"
           export ARCH="$arch"
           "$tools/linuxdeploy-$arch.AppImage" --appdir AppDir \
@@ -248,10 +248,10 @@ jobs:
       - name: Upload Linux binary
         uses: actions/upload-artifact@v7
         with:
-          name: eglantine-${{ env.PLATFORM }}-${{ inputs.sha }}
+          name: banstdog-${{ env.PLATFORM }}-${{ inputs.sha }}
           path: |
-            eglantine-${{ inputs.sha }}-${{ env.PLATFORM }}.tar.gz
-            eglantine-${{ inputs.sha }}-${{ env.PLATFORM }}.AppImage
+            banstdog-${{ inputs.sha }}-${{ env.PLATFORM }}.tar.gz
+            banstdog-${{ inputs.sha }}-${{ env.PLATFORM }}.AppImage
           if-no-files-found: error
           compression-level: 0
           retention-days: 7

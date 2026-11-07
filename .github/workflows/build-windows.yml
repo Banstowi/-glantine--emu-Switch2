@@ -136,7 +136,7 @@ jobs:
       - name: Upload Windows binary
         uses: actions/upload-artifact@v7
         with:
-          name: eglantine-windows-x86_64-${{ inputs.sha }}
+          name: banstdog-windows-x86_64-${{ inputs.sha }}
           path: build/release/bin/
           if-no-files-found: error
           retention-days: 7
@@ -271,7 +271,7 @@ jobs:
       - name: Upload MinGW binary
         uses: actions/upload-artifact@v7
         with:
-          name: eglantine-windows-x86_64-pgo-${{ inputs.sha }}
+          name: banstdog-windows-x86_64-pgo-${{ inputs.sha }}
           path: build/release/bin/
           if-no-files-found: error
           retention-days: 7

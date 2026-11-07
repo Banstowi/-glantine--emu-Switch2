@@ -154,24 +154,24 @@ jobs:
             codesign --force --sign - --entitlements dist/eglantine.entitlements "$app"
           fi
           codesign --verify --deep --strict "$app"
-          ditto -c -k --keepParent "$app" "eglantine-${SHA}-${PLATFORM}.zip"
-          ls -la "eglantine-${SHA}-${PLATFORM}.zip"
+          ditto -c -k --keepParent "$app" "banstdog-${SHA}-${PLATFORM}.zip"
+          ls -la "banstdog-${SHA}-${PLATFORM}.zip"
           # Also ship a .dmg (drag banstdog.app onto Applications).
           dmgdir=$(mktemp -d)
           ditto "$app" "$dmgdir/banstdog.app"
           ln -s /Applications "$dmgdir/Applications"
           hdiutil create -volname "Banst dog" -srcfolder "$dmgdir" -ov -format UDZO \
-            "eglantine-${SHA}-${PLATFORM}.dmg"
-          ls -la "eglantine-${SHA}-${PLATFORM}.dmg"
+            "banstdog-${SHA}-${PLATFORM}.dmg"
+          ls -la "banstdog-${SHA}-${PLATFORM}.dmg"
 
       # Zipped with ditto beforehand: the bundle's framework symlinks don't survive artifact zipping.
       - name: Upload macOS app
         uses: actions/upload-artifact@v7
         with:
-          name: eglantine-${{ env.PLATFORM }}-${{ inputs.sha }}
+          name: banstdog-${{ env.PLATFORM }}-${{ inputs.sha }}
           path: |
-            eglantine-${{ inputs.sha }}-${{ env.PLATFORM }}.zip
-            eglantine-${{ inputs.sha }}-${{ env.PLATFORM }}.dmg
+            banstdog-${{ inputs.sha }}-${{ env.PLATFORM }}.zip
+            banstdog-${{ inputs.sha }}-${{ env.PLATFORM }}.dmg
           if-no-files-found: error
           compression-level: 0
           retention-days: 7

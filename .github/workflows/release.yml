@@ -74,7 +74,7 @@ jobs:
       - name: Download binaries
         uses: actions/download-artifact@v8
         with:
-          pattern: eglantine-*-${{ inputs.sha }}
+          pattern: banstdog-*-${{ inputs.sha }}
           path: artifacts
 
       # Asset names drop the commit sha: the tag already identifies the build, and stable names let
@@ -87,9 +87,9 @@ jobs:
           mkdir -p release-assets
           # When the pattern matches a single artifact (a one-OS build), download-artifact extracts it
           # straight into artifacts/ instead of artifacts/<name>/: put it back in its folder.
-          if ! compgen -G 'artifacts/eglantine-*/' > /dev/null; then
+          if ! compgen -G 'artifacts/banstdog-*/' > /dev/null; then
             name=$(gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts" \
-              --jq ".artifacts[].name | select(startswith(\"eglantine-\") and endswith(\"-$SHA\"))")
+              --jq ".artifacts[].name | select(startswith(\"banstdog-\") and endswith(\"-$SHA\"))")
             [[ -n "$name" && "$name" != *$'\n'* ]] || {
               echo "Cannot tell which artifact was downloaded: '$name'" >&2
               exit 1
