@@ -25,6 +25,8 @@ add_executable(yuzu
     aboutdialog.ui
     compatibility_report.cpp
     compatibility_report.h
+    local_report.cpp
+    local_report.h
     applets/qt_amiibo_settings.cpp
     applets/qt_amiibo_settings.h
     applets/qt_amiibo_settings.ui

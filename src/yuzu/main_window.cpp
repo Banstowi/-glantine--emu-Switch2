@@ -130,6 +130,7 @@ static FileSys::VirtualFile VfsDirectoryCreateFileWrapper(const FileSys::Virtual
 #ifdef ENABLE_UPDATE_CHECKER
 #include "frontend_common/update_checker.h"
 #include "frontend_common/update_installer.h"
+#include "yuzu/local_report.h"
 #endif
 
 // Common //
@@ -1484,7 +1485,7 @@ void MainWindow::ConnectWidgetEvents() {
             boot_in_progress || close_pending) {
             return;
         }
-        CompatibilityReporting::Dialog dialog(*report_session, this);
+        LocalReport::Dialog dialog(*report_session, this);
         dialog.exec();
     });
     connect(game_list, &GameList::BootGame, this, &MainWindow::BootGameFromList);
