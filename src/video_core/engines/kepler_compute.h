@@ -19,6 +19,7 @@
 #include "common/common_types.h"
 #include "video_core/engines/engine_interface.h"
 #include "video_core/engines/engine_upload.h"
+#include "video_core/fire_emblem_upscale.h"
 #include "video_core/game_dlss_status.h"
 #include "video_core/macro.h"
 #include "video_core/native_qmd.h"
@@ -65,8 +66,6 @@ public:
     /// Binds a rasterizer to this engine.
     void BindRasterizer(VideoCore::RasterizerInterface* rasterizer);
 
-    /// Whether a write to `method` can write memory (a dispatch, upload or report): with the
-    /// native class, every method besides those that only store their value; macros always.
     [[nodiscard]] bool MayWriteMemory(u32 method) const {
         if (method >= native_plain_methods.size()) {
             return true;
@@ -253,15 +252,12 @@ public:
     }
 
     bool IsNativeMode() const { return native_mode; }
-    /// Whether the dispatch being run is a pass of a game DLSS evaluation (Fortune's Weave).
-    bool IsDlssDispatch() const { return native_mode && dlss_chain.active; }
-    /// Whether the matrix multiplies (tensor-core instructions) of the program being dispatched
-    /// are emulated: in a game DLSS evaluation when the game's own network may draw, and always
-    /// for Donkey Kong Bananza and Ocarina of Time.
-    [[nodiscard]] bool EmulatesNativeTensorPrograms() const;
-    /// Whether those matrix multiplies use the compact software form (one shared helper per
-    /// program) instead of the inline expansion: Ocarina of Time's network.
-    [[nodiscard]] bool UsesCompactTensorPrograms() const;
+    bool ProcessGameDlss(u64 program_id, u64 native_key);
+    /// Ocarina of Time with anti-aliasing at No sharpening (oot_network.h): true when this
+    /// dispatch of the game's network is skipped, or its output pass replaced by a copy of the
+    /// tonemapped image.
+    bool BypassOotNetwork(u64 program_id, u64 native_key);
+    void TraceDlssContract(u64 native_key, bool warn_unvalidated = true);
 
     /// GPU thread split with macros on its front half (gpu_split.h, EDEN_NX2_SPLIT=2), called by
     /// the front instead of CallMethod for native compute engines: runs their macros and macro
@@ -287,23 +283,24 @@ private:
     bool DispatchNativeCompute(const NativeQmdScheduler::Descriptor& descriptor);
     void ProcessNativeReportSemaphore(u32 argument);
     void DescribeNativeResources(const NativeQmdScheduler::Descriptor& qmd);
-    bool RememberDlssMotionVectors();
-    bool IsDlssOutputPass();
+    /// Texture descriptor that the handle at `offset` in constant buffer 0 selects.
+    std::optional<Texture::TICEntry> ConstBuffer0Image(u32 offset) const;
+    void RememberDlssMotionVectors();
+    bool TryFireEmblemUpscale(bool allow_history = true);
+    void CaptureFireEmblemJitter();
     bool FinishDlssEvaluation();
     void CheckDlssNetwork();
     [[nodiscard]] VideoCore::GameDlssReason GameDlssBlocker() const;
     void UpdateGameDlssStatus(bool complete, VideoCore::GameDlssReason blocker);
     std::pair<std::vector<u32>, std::vector<u32>> NativeImageHandles(GPUVAddr program);
-    bool UpscaleInsteadOfNativeProgram();
     void RememberNativeUpscaleInput();
-    bool ReadConstBufferWords(u32 slot, std::vector<u32>& words) const;
-    void FollowPhotoUpscale();
-    bool UpscaleFromConstBuffers();
 
     /// This frame's DLSS evaluation (Fortune's Weave): whether its passes all ran, and whether
     /// the game's own network output is shown instead of the replacement upscale.
     struct DlssChain {
         bool active{};
+        bool spatial_only{};
+        bool output_pass{};
         u32 rejected{};
         u32 clean_evaluations{};
         bool native{};
@@ -314,12 +311,12 @@ private:
         u32 good_checks{};
         u32 bad_checks{};
         VideoCore::GameDlssReason failure{};
-        /// Programs of evaluations that reached their output pass; they no longer run while the
-        /// network can't be shown.
-        std::unordered_set<GPUVAddr> programs;
+        /// Programs of evaluations that reached their output pass; they are skipped only after
+        /// the network fails its health checks.
+        std::unordered_set<u64> programs;
         /// This evaluation's programs and dispatches so far. Its programs join `programs` only
         /// at its output pass, so compute work after a look-alike first pass keeps running.
-        std::unordered_set<GPUVAddr> pending;
+        std::unordered_set<u64> pending;
         u32 dispatches{};
         u32 evaluations{};
         /// What the Graphics tab was last told.
@@ -328,35 +325,23 @@ private:
 
     /// Ocarina of Time's movie network: a pass that reads one colour image and stores none
     /// retains its input here; the pass that stores an image upscaling it is replaced by a plain
-    /// copy (the network's matrix passes cost seconds per frame on Pascal-class GPUs). Cleared
-    /// after the copy.
+    /// copy (the network's matrix passes cost tens of milliseconds per frame). Cleared after the
+    /// copy.
     std::optional<Texture::TICEntry> native_upscale_input;
     /// Native dispatches left to skip while a retained network is being replaced (bounded, so a
     /// non-network pass cannot silence the engine forever).
     u32 network_skip_remaining{};
-
-    /// Mario Kart World's docked photo mode upscales 2560x1440 to 3840x2160 with a tensor-core
-    /// network whose passes can't run. After its first rejected pass the next dispatches are
-    /// searched for a pass that has both images in its constant buffers.
-    struct PhotoUpscale {
-        u32 window_left{};
-        u32 evaluations{};
-        GPUVAddr last_input{};
-        GPUVAddr last_output{};
-        /// The pass that has both images and where in its constant buffer, once found.
-        GPUVAddr output_program{};
-        u32 slot{};
-        u32 input_offset{};
-        u32 output_offset{};
-    } photo_upscale;
+    /// Set when the replacement copy fails, so the full network runs from then on.
+    bool native_upscale_disabled{};
 
     /// Motion vectors and depth of Fire Emblem: Fortune's Weave's DLSS evaluation, from its first
     /// pass (run earlier in the frame than the network pass the stand-in replaces), with the input
     /// colour image and camera jitter they go with.
     std::optional<Texture::TICEntry> dlss_motion_vectors;
     std::optional<Texture::TICEntry> dlss_depth;
+    u32 dlss_contract_trace_count{};
     GPUVAddr dlss_motion_color{};
-    std::array<f32, 2> dlss_jitter{};
+    VideoCommon::FireEmblemUpscale::FrameJitter fe_upscale_jitter;
     bool ProcessNativeMethod(Core::System& system, u32 method, u32 argument, bool is_last_call);
     NativeQmdScheduler native_qmd;
     std::array<u32, 0xc00>* native_data_ram{};

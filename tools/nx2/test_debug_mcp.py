@@ -12,12 +12,9 @@ import tempfile
 import threading
 import unittest
 
+import debug_mcp
+
 HERE = os.path.dirname(os.path.abspath(__file__))
-# -I leaves the script's directory off sys.path.
-sys.path.insert(0, HERE)
-
-import debug_mcp  # noqa: E402
-
 PNG_BYTES = b"\x89PNG fake"
 PNG = base64.b64encode(PNG_BYTES).decode()
 
@@ -38,6 +35,8 @@ class FakeEmulator:
         method = request["method"]
         if method == "status":
             return {"result": {"title": "Test", "presents": 3}}
+        if method == "frame_times":
+            return {"result": {"frames": 2, "intervals_ms": [16.7, 33.3], "truncated": False}}
         if method == "screenshot":
             return {"result": {"width": 1280, "height": 720, "png_base64": PNG}}
         if method == "capture_frame":
@@ -48,9 +47,6 @@ class FakeEmulator:
             return {"error": "GPU address 0x5000 is not mapped"}
         if method in ("input", "input_sequence"):
             return {"result": {"controller": "player1", "frames": 3}}
-        if method == "write_memory":
-            return {"error": "write_memory is off: start the emulator with "
-                             "EDEN_NX2_DEBUG_WRITE=1 to allow it"}
         return {"error": f"unknown method \"{method}\""}
 
     def serve(self):
@@ -102,11 +98,25 @@ class AdapterTest(unittest.TestCase):
         self.assertIsNone(self.adapter.handle({"method": "notifications/initialized"}))
         names = [tool["name"] for tool in self.adapter.handle({"id": 2, "method": "tools/list"})
                  ["result"]["tools"]]
-        self.assertEqual(names, ["status", "screenshot", "log_tail", "log_filter", "capture_frame",
+        self.assertEqual(names, ["status", "frame_times", "screenshot", "log_tail", "log_filter", "capture_frame",
                                  "capture_image", "reject_shaders", "sample", "read_memory",
-                                 "search_memory", "write_memory", "read_gpu_memory", "input",
+                                 "search_memory", "read_gpu_memory", "input",
                                  "input_sequence"])
         self.assertEqual(self.adapter.handle({"id": 3, "method": "bogus"})["error"]["code"], -32601)
+
+    def test_frame_times_is_forwarded(self):
+        arguments = {"seconds": 0.5, "refresh_hz": 59.94}
+        result = self.call("frame_times", arguments)
+        self.assertFalse(result["isError"])
+        self.assertEqual(json.loads(result["content"][0]["text"]),
+                         {"frames": 2, "intervals_ms": [16.7, 33.3], "truncated": False})
+        self.assertEqual(self.fake.requests[-1]["params"], arguments)
+        # A null where a number belongs answers with a tool error; the adapter keeps serving.
+        self.assertTrue(self.call("frame_times", {"seconds": None})["isError"])
+        self.assertFalse(self.call("frame_times", {})["isError"])
+        self.assertEqual(debug_mcp.default_timeout("frame_times", {}), 6)
+        self.assertEqual(debug_mcp.default_timeout("frame_times", {"seconds": 59.5}), 61)
+        self.assertEqual(debug_mcp.default_timeout("capture_frame", {}), 120)
 
     def test_status_is_forwarded(self):
         result = self.call("status", {"fps_window_ms": 0})
@@ -123,13 +133,6 @@ class AdapterTest(unittest.TestCase):
         unmapped = self.call("read_gpu_memory", {"gpu_address": "0x5000", "size": 4})
         self.assertTrue(unmapped["isError"])
         self.assertIn("0x5000 is not mapped", unmapped["content"][0]["text"])
-
-    def test_write_memory_is_forwarded_and_its_refusal_shown(self):
-        arguments = {"address": "0x8000001000", "f32": [1.0]}
-        result = self.call("write_memory", arguments)
-        self.assertTrue(result["isError"])
-        self.assertIn("EDEN_NX2_DEBUG_WRITE=1", result["content"][0]["text"])
-        self.assertEqual(self.fake.requests[-1]["params"], arguments)
 
     def test_input_waits_as_long_as_the_emulator(self):
         self.assertEqual(debug_mcp.default_timeout("input", {"frames": 600}), 40)

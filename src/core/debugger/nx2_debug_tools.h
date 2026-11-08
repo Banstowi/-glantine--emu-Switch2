@@ -4,7 +4,6 @@
 #pragma once
 
 #include <chrono>
-#include <filesystem>
 #include <memory>
 #include <optional>
 #include <span>
@@ -36,7 +35,7 @@ struct ToolState;
 class Service {
 public:
     explicit Service(System& system, std::string title, u64 program_id, const Endpoint& endpoint,
-                     std::filesystem::path dump_directory);
+                     std::string dump_directory);
     ~Service();
 
     Service(const Service&) = delete;
@@ -92,7 +91,10 @@ struct InputStep {
 /// The input of the step active at present count now, for steps starting at present count start;
 /// nothing before start and from the end of the last step on.
 [[nodiscard]] std::optional<HID::InjectedInput> InputAt(std::span<const InputStep> steps, u64 start,
-                                                        u64 now);
+                                                       u64 now);
+/// Guest-present intervals within [begin_ns, end_ns], using only retained ring timestamps.
+[[nodiscard]] nlohmann::json ReadFrameTimes(u64 before, u64 after, u64 begin_ns, u64 end_ns,
+                                          double refresh_hz);
 
 /// The service when EDEN_NX2_DEBUG_SERVER is set and it can listen, otherwise null.
 [[nodiscard]] std::unique_ptr<Service> MaybeStartService(System& system, std::string title,

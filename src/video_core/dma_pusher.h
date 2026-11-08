@@ -9,6 +9,7 @@
 #include <array>
 #include <atomic>
 #include <condition_variable>
+#include <cstdlib>
 #include <optional>
 #include <span>
 #include <vector>
@@ -187,6 +188,11 @@ public:
     void BindRasterizer(VideoCore::RasterizerInterface* rasterizer);
 
 private:
+    friend struct DmaPusherTestAccess;
+
+    static bool IsMemoryWriter(const Engines::EngineInterface& engine, Engines::EngineTypes type,
+                               u32 method);
+
     static constexpr u32 non_puller_methods = 0x40;
     static constexpr u32 max_subchannels = 8;
     bool Step();
@@ -230,7 +236,7 @@ public:
     /// flushes and reads guest memory.
     bool ReadGpuWrittenCommands(GPUVAddr address, u32 count);
     /// Brings command list words the GPU wrote (still only in host buffers) to guest memory.
-    void FlushGpuWrittenCommands(GPUVAddr address, size_t size);
+    bool FlushGpuWrittenCommands(GPUVAddr address, size_t size);
 
 private:
 
@@ -270,6 +276,17 @@ public:
     void ResolveSplitMethod(GPUVAddr entry_address);
     static constexpr size_t MaxParkedMethods = 16;
 
+    // Read per channel, not at static initialization, which runs before the frontend loads
+    // nx2_switches.txt.
+    // EDEN_NX2_SEM_WATCH=<gpu address>: log every method whose argument is the low word of an
+    // address in the 16 bytes there (finds the engine and method that release a semaphore).
+    const u32 semaphore_watch = [] {
+        const char* value = std::getenv("EDEN_NX2_SEM_WATCH");
+        return value ? static_cast<u32>(std::strtoull(value, nullptr, 16)) : 0U;
+    }();
+    // EDEN_NX2_PB_CHECK also keeps the last parsed entries, for DumpCurrentEntry.
+    const bool record_parsed_entries = std::getenv("EDEN_NX2_PB_CHECK") != nullptr;
+
     // Debug aid: hashes of the words of the last entries as they were parsed.
     struct ParsedEntry {
         GPUVAddr address;
@@ -290,10 +307,12 @@ public:
 
     VideoCore::RasterizerInterface* rasterizer = nullptr;
 
-    const bool ib_enable : 1 = true; ///< IB mode enabled
-    bool dma_increment_once : 1 = false;
-    bool signal_sync : 1 = false;
-    bool synced : 1 = false;
+    // Not bitfields: the fence thread sets synced, and a bitfield write would rewrite the byte it
+    // shares with dma_increment_once and signal_sync (#479).
+    const bool ib_enable = true; ///< IB mode enabled
+    bool dma_increment_once = false;
+    bool signal_sync = false;
+    std::atomic<bool> synced{false};
 };
 
 } // namespace Tegra

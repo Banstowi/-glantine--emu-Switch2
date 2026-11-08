@@ -4,25 +4,22 @@
 // SPDX-FileCopyrightText: Copyright 2018 yuzu Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
-#include <algorithm>
 #include <array>
 #include <atomic>
 #include <chrono>
 #include <condition_variable>
 #include <list>
 #include <memory>
-#include <mutex>
 #include <utility>
-#include <vector>
 
 #include "common/assert.h"
 #include "common/settings.h"
 #include "common/settings_enums.h"
 #include "core/core.h"
 #include "core/core_timing.h"
+#include "core/gpu_dirty_memory_manager.h"
 #include "core/frontend/emu_window.h"
 #include "core/frontend/graphics_context.h"
-#include "core/gpu_dirty_memory_manager.h"
 #include "core/hle/service/nvdrv/nvdata.h"
 #include "core/perf_stats.h"
 #include "video_core/cdma_pusher.h"
@@ -35,27 +32,17 @@
 #include "video_core/engines/maxwell_3d.h"
 #include "video_core/engines/maxwell_dma.h"
 #include "video_core/gpu.h"
+#include "video_core/pending_maps.h"
 #include "video_core/gpu_thread.h"
+#include "video_core/gpu_timestamp.h"
 #include "video_core/host1x/host1x.h"
 #include "video_core/host1x/syncpoint_manager.h"
 #include "video_core/memory_manager.h"
+#include "video_core/nx2.h"
 #include "video_core/renderer_base.h"
 #include "video_core/shader_notify.h"
 
 namespace Tegra {
-
-namespace {
-constexpr u64 GpuClockMultiplier(Settings::GpuClock clock) {
-    switch (clock) {
-    case Settings::GpuClock::Boost:
-        return 256;
-    case Settings::GpuClock::Overclock:
-        return 512;
-    default:
-        return 1;
-    }
-}
-} // Anonymous namespace
 
 struct GPU::Impl {
     explicit Impl(Core::System& system_, bool is_async_, bool use_nvdec_)
@@ -66,7 +53,12 @@ struct GPU::Impl {
         , is_async{is_async_}
     {}
 
-    ~Impl() = default;
+    ~Impl() {
+        NotifyShutdown();
+        // Rasterizer teardown flushes commands and invalidates the bound engine's dirty flags.
+        // Keep channels, their scheduler references, and the graphics context alive until then.
+        renderer.reset();
+    }
 
     std::shared_ptr<Control::ChannelState> CreateChannel(s32 channel_id) {
         auto channel_state = std::make_shared<Tegra::Control::ChannelState>(channel_id);
@@ -178,11 +170,16 @@ struct GPU::Impl {
     }
 
     [[nodiscard]] u64 GetTicks() const {
-        const u64 gpu_tick = system.CoreTiming().GetGPUTicks();
-        return gpu_tick / GpuClockMultiplier(Settings::values.gpu_clock.GetValue());
+        return ReadGpuTimestamp(system.CoreTiming(), g_nx2_ampere.load(std::memory_order_relaxed),
+                                Settings::values.gpu_clock.GetValue(),
+                                ampere_anchor.load(std::memory_order_relaxed));
     }
 
     void RendererFrameEndNotify() {
+        ampere_anchor.store(
+            AmpereAnchor::At(static_cast<u64>(system.CoreTiming().GetGlobalTimeNs().count()),
+                             Settings::values.gpu_clock.GetValue()),
+            std::memory_order_relaxed);
         system.GetPerfStats().EndGameFrame();
     }
 
@@ -224,31 +221,17 @@ struct GPU::Impl {
     }
 
     void MapInOrder(GPUVAddr gpu_addr, u64 size, std::function<void()>&& func) {
-        u64 id;
-        {
-            std::scoped_lock lock{pending_maps_mutex};
-            id = ++last_pending_map;
-            pending_maps.push_back({id, gpu_addr, gpu_addr + size});
-            pending_map_count.store(pending_maps.size(), std::memory_order_release);
-        }
+        const u64 id = pending_maps.Add(gpu_addr, size);
         gpu_thread.Run(
             [this, id, func = std::move(func)] {
                 func();
-                std::scoped_lock lock{pending_maps_mutex};
-                std::erase_if(pending_maps, [id](const PendingMap& map) { return map.id == id; });
-                pending_map_count.store(pending_maps.size(), std::memory_order_release);
+                pending_maps.Remove(id);
             },
             is_async, true);
     }
 
     bool IsMapPending(GPUVAddr gpu_addr, u64 size) const {
-        if (pending_map_count.load(std::memory_order_acquire) == 0 || size == 0) {
-            return false;
-        }
-        std::scoped_lock lock{pending_maps_mutex};
-        return std::ranges::any_of(pending_maps, [&](const PendingMap& map) {
-            return gpu_addr < map.end && map.begin < gpu_addr + size;
-        });
+        return pending_maps.Overlaps(gpu_addr, size);
     }
 
     /// Notify rasterizer that any caches of the specified region should be flushed to Switch memory
@@ -394,18 +377,10 @@ struct GPU::Impl {
 
     std::list<std::function<void()>> sync_requests;
     std::atomic<u64> current_sync_fence{};
+    std::atomic<AmpereAnchor> ampere_anchor{};
     u64 last_sync_fence{};
 
-    // Maps queued by MapInOrder and not run yet, by the GPU addresses they change.
-    struct PendingMap {
-        u64 id;
-        GPUVAddr begin;
-        GPUVAddr end;
-    };
-    mutable std::mutex pending_maps_mutex;
-    std::vector<PendingMap> pending_maps;
-    u64 last_pending_map{};
-    std::atomic<size_t> pending_map_count{};
+    VideoCommon::PendingMaps pending_maps;
     std::mutex sync_request_mutex;
     std::condition_variable sync_request_cv;
 
@@ -460,6 +435,15 @@ void GPU::FlushCommands() {
 
 void GPU::InvalidateGPUCache() {
     impl->InvalidateGPUCache();
+}
+
+bool GPU::HasPendingCPUWrites(DAddr addr, u64 size) {
+    for (auto& manager : impl->system.GetGPUDirtyMemoryManager()) {
+        if (manager.Overlaps(addr, size)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void GPU::ForEachPendingCpuWrite(const std::function<void(DAddr, size_t)>& callback) {

@@ -62,7 +62,7 @@ struct Fixture {
 
     std::vector<u32> Emit(const std::string& name) {
         auto code = Backend::SPIRV::EmitSPIRV(profile, program);
-        if (const char* directory = std::getenv("EGLANTINE_STORAGE_ALIGNMENT_TEST_OUTPUT")) {
+        if (const char* directory = std::getenv("EDEN_STORAGE_ALIGNMENT_TEST_OUTPUT")) {
             std::filesystem::create_directories(directory);
             std::ofstream file{std::filesystem::path{directory} / (name + ".spv"),
                                std::ios::binary};
@@ -160,8 +160,7 @@ TEST_CASE("Storage vector accesses use the vector view only where its index is e
 
 TEST_CASE("Global vector accesses read words from the buffer the address falls in",
           "[video_core][spirv][storage_alignment]") {
-    // The NVN storage descriptor path needs descriptor aliasing, as before.
-    for (const bool aliasing : {true}) {
+    for (const bool aliasing : {true, false}) {
         for (const u32 alignment : {4U, 8U, 16U}) {
             CAPTURE(aliasing, alignment);
             Fixture fixture{aliasing, alignment};
@@ -187,8 +186,9 @@ TEST_CASE("Global vector accesses read words from the buffer the address falls i
             // Each vector function looks in both buffers.
             CHECK(VectorAccessChains(code, 2) == (aliasing && alignment >= 8 ? 4U : 0U));
             CHECK(VectorAccessChains(code, 4) == (aliasing && alignment >= 16 ? 4U : 0U));
-            // The split functions search the buffers themselves.
-            const size_t word_calls = 0;
+            // Without aliasing the vector functions call the word functions once per word, as
+            // before; the split functions search the buffers themselves.
+            const size_t word_calls = aliasing ? 0 : 2 * (2 + 4);
             CHECK(Instructions(code, spv::Op::OpFunctionCall).size() == 4 + word_calls);
         }
     }

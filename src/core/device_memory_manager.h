@@ -12,6 +12,7 @@
 #include <deque>
 #include <memory>
 #include <mutex>
+#include <source_location>
 #include <vector>
 #include <span>
 
@@ -94,6 +95,11 @@ public:
         }
     }
 
+    /// Whether p points into the emulated physical memory, the only memory with device addresses.
+    bool IsPhysicalPointer(const u8* p) const {
+        return (GetRawPhysicalAddr(p) >> page_bits) < compressed_device_addr.size();
+    }
+
     template <typename Func>
     void ApplyOpOnPointer(const u8* p, Common::ScratchBuffer<u32>& buffer, Func&& operation) {
         PAddr address = GetRawPhysicalAddr<u8>(p);
@@ -118,8 +124,10 @@ public:
     u8* GetSpan(const DAddr src_addr, const std::size_t size);
     const u8* GetSpan(const DAddr src_addr, const std::size_t size) const;
 
-    void ReadBlock(DAddr address, void* dest_pointer, size_t size);
-    void ReadBlockUnsafe(DAddr address, void* dest_pointer, size_t size);
+    void ReadBlock(DAddr address, void* dest_pointer, size_t size,
+                   std::source_location caller = std::source_location::current());
+    void ReadBlockUnsafe(DAddr address, void* dest_pointer, size_t size,
+                         std::source_location caller = std::source_location::current());
     void WriteBlock(DAddr address, const void* src_pointer, size_t size);
     void WriteBlockUnsafe(DAddr address, const void* src_pointer, size_t size);
 

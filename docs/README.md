@@ -2,7 +2,7 @@
 
 Are you just a casual user? Take a look at our [User Handbook](./user) then!
 
-If you want to register/signup as a contributor, take a gander at [CONTRIBUTING.md](../CONTRIBUTING.md).
+To contribute to this fork, see [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 This contains documentation created by developers, build instructions, guidelines, instructions/layouts for [cool stuff we made](./CPMUtil.md), and more.
 
@@ -16,6 +16,7 @@ This contains documentation created by developers, build instructions, guideline
 - **[CPM - CMake Package Manager](./CPMUtil.md)**
 - **[Platform-Specific Caveats](./Caveats.md)**
 - **[The NVIDIA SM86 (Maxwell) GPU](./NvidiaGpu.md)**
+- **[AMD GPUs and Switch 2 titles](./nx2/amd.md)**
 - **[Driver Bugs](./DriverBugs.md)**
 - **[Building Older Commits](./build/OlderCommits.md)**
 - Subsystems:
@@ -24,12 +25,9 @@ This contains documentation created by developers, build instructions, guideline
   - **[HOS Kernel](./HosKernel.md)**
   - **[Settings](./Settings.md)**
 
-## Policies
+## Contributing
 
-Policies and information on development.
-
-- **[AI and LLM Usage](./policies/AI.md)**
-- **[Coding guidelines](./policies/Coding.md)**
+- **[Coding guidelines](./Coding.md)**
 - **[Contributing](../CONTRIBUTING.md)**
 
 ## Externals

@@ -21,6 +21,7 @@
 #include "common/polyfill_thread.h"
 #include "common/unique_function.h"
 #include "shader_recompiler/environment.h"
+#include "shader_recompiler/frontend/ampere/instruction.h"
 #include "video_core/engines/maxwell_3d.h"
 
 namespace Tegra {
@@ -32,12 +33,11 @@ namespace VideoCommon {
 /// A native (Switch 2) program after capture and lowering to Maxwell code. The shader cache keeps
 /// it so the environments built for the program's pipelines don't capture and lower it again.
 struct LoweredNativeCode {
-    u64 diagnostic_key{};
-    /// Shader::Ampere::NativeProgramKey of the captured program (shader dump file names).
     u64 native_program_key{};
     /// Shader header, lowered instructions with Maxwell scheduling words, then the native
     /// address map (what the environment's `code` used to be filled with).
     std::vector<u64> code;
+    std::vector<Shader::Ampere::Instruction> trap_prefix;
     /// Bytes of the native program that were read, header included.
     size_t source_size{};
     /// Constant buffer holding the texture handles if the program requires one, otherwise ~0U
@@ -72,6 +72,14 @@ public:
     [[nodiscard]] bool IsCbufIndirectStorageBufferPointer(u32 index, u32 offset,
                                                           u32 indirect) override;
 
+    [[nodiscard]] std::vector<std::pair<u32, u32>> NullStoragePointerSlots() const override;
+
+    [[nodiscard]] std::vector<u64> MappedStoragePointerKeys() const override;
+
+    /// Answers the classification of these keys (see MappedStoragePointerKeys) as storage buffer
+    /// pointers, whatever the slots hold now; called before the program is translated
+    void KeepStoragePointers(std::span<const u64> keys);
+
     [[nodiscard]] std::optional<u64> Analyze();
 
     void SetCachedSize(size_t size_bytes);
@@ -96,34 +104,23 @@ public:
 
     void Dump(u64 pipeline_hash, u64 shader_hash) override;
 
-    /// with_mesh_state: also the mesh registers and pass-through header of task and mesh
-    /// programs (only the mesh pipeline file carries them).
-    void Serialize(std::ofstream& file, bool with_mesh_state = false) const;
-
-    /// Native programs: the constant buffer slots (index << 32 | offset) storage tracking took as
-    /// pointers, and the ones it left out because they held null when the program was translated.
-    void StoragePointerSlots(std::vector<u64>& pointers, std::vector<u64>& null_slots) const;
-
-    /// Takes these slots as pointers without reading them: a rebuild keeps its earlier buffers.
-    void SeedStoragePointers(std::span<const u64> slots);
+    void Serialize(std::ofstream& file) const;
 
     bool HasHLEMacroState() const override {
         return has_hle_engine_state;
     }
+    bool HasNativeInstructions() const override;
 
 protected:
     std::optional<u64> TryFindSize();
+    virtual std::optional<u32> ReadTrapGuardConstant(u32, u32) { return std::nullopt; }
 
     /// Adopts an already lowered native program, or captures and lowers it when there is none.
     void InitializeNativeCode(std::shared_ptr<const LoweredNativeCode> lowered,
-                              u32 source_header_size = 128, bool geometry = false);
+                              u32 source_header_size = 128, bool geometry_stage = false);
     std::shared_ptr<const LoweredNativeCode> LowerNativeCode(u32 source_header_size,
-                                                              bool geometry = false);
+                                                          bool geometry_stage);
     size_t native_source_size{};
-    /// Lower matrix multiplies too (KeplerCompute::EmulatesNativeTensorPrograms).
-    bool native_tensor{};
-    /// ... in the compact form (KeplerCompute::UsesCompactTensorPrograms).
-    bool native_compact_tensor{};
     std::shared_ptr<const LoweredNativeCode> lowered_native;
 
     Tegra::Texture::TICEntry ReadTextureInfo(GPUVAddr tic_addr, u32 tic_limit,
@@ -211,8 +208,12 @@ public:
     }
 
 private:
+    std::optional<u32> ReadTrapGuardConstant(u32 bank, u32 offset) override;
     Tegra::Engines::KeplerCompute* kepler_compute{};
 };
+
+std::optional<u32> ReadNativeGuardConstant(Tegra::Engines::KeplerCompute& compute,
+                                         Tegra::MemoryManager& memory, u32 bank, u32 offset);
 
 class FileEnvironment final : public Shader::Environment {
 public:
@@ -225,10 +226,9 @@ public:
     FileEnvironment& operator=(const FileEnvironment&) = delete;
     FileEnvironment(const FileEnvironment&) = delete;
 
-    void Deserialize(std::ifstream& file, bool with_mesh_state = false);
+    void Deserialize(std::ifstream& file);
 
-    /// See GenericEnvironment::StoragePointerSlots.
-    void StoragePointerSlots(std::vector<u64>& pointers, std::vector<u64>& null_slots) const;
+    [[nodiscard]] size_t MemorySize() const;
 
     [[nodiscard]] u64 ReadInstruction(u32 address) override;
 
@@ -240,6 +240,10 @@ public:
 
     [[nodiscard]] bool IsCbufIndirectStorageBufferPointer(u32 index, u32 offset,
                                                           u32 indirect) override;
+
+    [[nodiscard]] std::vector<std::pair<u32, u32>> NullStoragePointerSlots() const override;
+
+    [[nodiscard]] std::vector<u64> MappedStoragePointerKeys() const override;
 
     [[nodiscard]] u32 ReadCbufValue(u32 cbuf_index, u32 cbuf_offset) override;
 
@@ -265,6 +269,7 @@ public:
     [[nodiscard]] bool HasHLEMacroState() const override {
         return cbuf_replacements.size() != 0;
     }
+    bool HasNativeInstructions() const override;
 
     void Dump(u64 pipeline_hash, u64 shader_hash) override;
 
@@ -286,21 +291,17 @@ private:
 };
 
 void SerializePipeline(std::span<const char> key, std::span<const GenericEnvironment* const> envs,
-                       const std::filesystem::path& filename, u32 cache_version,
-                       bool with_mesh_state = false);
+                       const std::filesystem::path& filename, u32 cache_version);
 
 template <typename Key, typename Envs>
     requires std::is_trivially_copyable_v<Key>
         && std::has_unique_object_representations_v<Key>
-void SerializePipeline(const Key& key, const Envs& envs, const std::filesystem::path& filename, u32 cache_version,
-                       bool with_mesh_state = false) {
-    SerializePipeline(std::span(reinterpret_cast<const char*>(&key), sizeof(key)), std::span(envs.data(), envs.size()), filename, cache_version,
-                      with_mesh_state);
+void SerializePipeline(const Key& key, const Envs& envs, const std::filesystem::path& filename, u32 cache_version) {
+    SerializePipeline(std::span(reinterpret_cast<const char*>(&key), sizeof(key)), std::span(envs.data(), envs.size()), filename, cache_version);
 }
 
 void LoadPipelines(std::stop_token stop_loading, const std::filesystem::path& filename, u32 expected_cache_version,
     Common::UniqueFunction<void, std::ifstream&, FileEnvironment> load_compute,
-    Common::UniqueFunction<void, std::ifstream&, std::vector<FileEnvironment>> load_graphics,
-    bool with_mesh_state = false);
+    Common::UniqueFunction<void, std::ifstream&, std::vector<FileEnvironment>> load_graphics);
 
 } // namespace VideoCommon

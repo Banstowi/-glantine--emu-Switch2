@@ -6,7 +6,8 @@
 
 #include "core/hle/service/audio/hardware_opus_decoder.h"
 #include "core/hle/service/audio/hardware_opus_decoder_manager.h"
-#include "core/hle/service/audio/nx2_hwacod.h"
+#include "core/hle/service/audio/hardware_audio_codec.h"
+#include "core/hle/service/audio/errors.h"
 #include "core/hle/service/cmif_serialization.h"
 
 namespace Service::Audio {
@@ -14,7 +15,8 @@ namespace Service::Audio {
 using namespace AudioCore::OpusDecoder;
 
 IHardwareOpusDecoderManager::IHardwareOpusDecoderManager(Core::System& system_)
-    : ServiceFramework{system_, "hwopus"}, system{system_}, impl{system} {
+    : ServiceFramework{system_, "hwopus"}, system{system_}, impl{system},
+      codec_tags{std::make_shared<HardwareAudioCodecTags>()} {
     // clang-format off
     static const FunctionInfo functions[] = {
         {0, D<&IHardwareOpusDecoderManager::OpenHardwareOpusDecoder>, "OpenHardwareOpusDecoder"},
@@ -27,7 +29,7 @@ IHardwareOpusDecoderManager::IHardwareOpusDecoderManager(Core::System& system_)
         {7, D<&IHardwareOpusDecoderManager::GetWorkBufferSizeForMultiStreamEx>, "GetWorkBufferSizeForMultiStreamEx"},
         {8, D<&IHardwareOpusDecoderManager::GetWorkBufferSizeExEx>, "GetWorkBufferSizeExEx"},
         {9, D<&IHardwareOpusDecoderManager::GetWorkBufferSizeForMultiStreamExEx>, "GetWorkBufferSizeForMultiStreamExEx"},
-        {100, &IHardwareOpusDecoderManager::OpenHwacodClient, "OpenHwacodClient"},
+        {100, &IHardwareOpusDecoderManager::GetClientSessionRequest, "GetClientSession"},
     };
     // clang-format on
     RegisterHandlers(functions);
@@ -35,10 +37,21 @@ IHardwareOpusDecoderManager::IHardwareOpusDecoderManager(Core::System& system_)
 
 IHardwareOpusDecoderManager::~IHardwareOpusDecoderManager() = default;
 
-void IHardwareOpusDecoderManager::OpenHwacodClient(HLERequestContext& ctx) {
-    IPC::ResponseBuilder rb{ctx, 2, 0, 1};
-    rb.Push(ResultSuccess);
-    rb.PushIpcInterface<IHwacodClient>(ctx, system);
+void IHardwareOpusDecoderManager::GetClientSessionRequest(HLERequestContext& ctx) {
+    if (!GuardHardwareAudioCodecRequest(ctx, {0, 0, Hwacod::InputBuffer::None})) {
+        return;
+    }
+    try {
+        CmifReplyWrap<true, &IHardwareOpusDecoderManager::GetClientSession>(ctx);
+    } catch (const std::bad_alloc&) {
+        IPC::ResponseBuilder reply{ctx, 2};
+        reply.Push(ResultLibOpusAllocFail);
+    }
+}
+
+Result IHardwareOpusDecoderManager::GetClientSession(Out<SharedPointer<IClientSession>> out_client) {
+    *out_client = std::make_shared<IClientSession>(system, codec_tags);
+    R_SUCCEED();
 }
 
 Result IHardwareOpusDecoderManager::OpenHardwareOpusDecoder(

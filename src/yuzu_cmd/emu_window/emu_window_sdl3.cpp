@@ -30,6 +30,7 @@
 
 EmuWindow_SDL3::EmuWindow_SDL3(InputCommon::InputSubsystem* input_subsystem_, Core::System& system_)
     : input_subsystem{input_subsystem_}, system{system_} {
+    UpdateCurrentFramebufferLayout(Layout::ScreenUndocked::Width, Layout::ScreenUndocked::Height);
     input_subsystem->Initialize();
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD)) {
         LOG_CRITICAL(Frontend, "Failed to initialize SDL3: {}, Exiting...", SDL_GetError());
@@ -42,6 +43,11 @@ EmuWindow_SDL3::EmuWindow_SDL3(InputCommon::InputSubsystem* input_subsystem_, Co
         // Timers run on their own thread and AppKit throws when a title is set off the main
         // thread: ApplyPendingTitle sets it from the main loop.
         delete this_->pending_title.exchange(title);
+        static const bool log_fps = std::getenv("EDEN_NX2_FPS_LOG") != nullptr;
+        if (log_fps) {
+            LOG_INFO(Frontend, "FPS: {:.1f} speed: {:.0f}% frametime: {:.2f} ms", results.average_game_fps,
+                     results.emulation_speed * 100.0, results.frametime * 1000.0);
+        }
         return 2000;
     }, this);
     mouse_timer = SDL_AddTimer(100, [](void *userdata, SDL_TimerID, Uint32) -> Uint32 {
@@ -165,13 +171,17 @@ void EmuWindow_SDL3::ApplyPendingTitle() {
 }
 
 bool EmuWindow_SDL3::IsShown() const {
-    return is_shown;
+    return window_state.IsShown();
 }
 
 void EmuWindow_SDL3::OnResize() {
-    int width, height;
-    SDL_GetWindowSizeInPixels(render_window, &width, &height);
-    UpdateCurrentFramebufferLayout(width, height);
+    int width = 0, height = 0;
+    const bool size_available = SDL_GetWindowSizeInPixels(render_window, &width, &height);
+    const auto extent =
+        window_state.Update(SDL_GetWindowFlags(render_window), size_available, width, height);
+    if (extent) {
+        UpdateCurrentFramebufferLayout(extent->first, extent->second);
+    }
 }
 
 void EmuWindow_SDL3::ShowCursor(bool show_cursor) {
@@ -220,23 +230,15 @@ void EmuWindow_SDL3::Fullscreen() {
 }
 
 void EmuWindow_SDL3::OnEvent(SDL_Event& event) {
+    if (SdlWindowState::NeedsUpdate(event.type)) {
+        return OnResize();
+    }
     // Notice how we skip the "update title" aspect on most events
     // this is because some WMs do NOT like changing titles while resizing
     // so let's just... not do that, thanks :)
     // Afterall we don't really expect the user to pay attention to the titlebar
     // while they're moving a lot of shit around...
     switch (event.type) {
-    case SDL_EVENT_WINDOW_RESIZED:
-    case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
-    case SDL_EVENT_WINDOW_MAXIMIZED:
-    case SDL_EVENT_WINDOW_RESTORED:
-        return OnResize();
-    case SDL_EVENT_WINDOW_MINIMIZED:
-        is_shown = false;
-        return OnResize();
-    case SDL_EVENT_WINDOW_EXPOSED:
-        is_shown = true;
-        return OnResize();
     case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
         LOG_INFO(Frontend, "Window close requested");
         is_open = false;

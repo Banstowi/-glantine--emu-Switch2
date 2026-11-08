@@ -7,6 +7,8 @@
 #pragma once
 
 #include <array>
+#include <utility>
+#include <vector>
 #include "common/container/unordered_map.h"
 
 #include "common/common_types.h"
@@ -91,6 +93,17 @@ public:
         return true;
     }
 
+    /// Native programs: (index, offset) slots classified as non-pointers because they were null.
+    [[nodiscard]] virtual std::vector<std::pair<u32, u32>> NullStoragePointerSlots() const {
+        return {};
+    }
+
+    /// Native programs: the classified slots bound as storage buffer pointers, as the sorted keys
+    /// of their classification (direct and pointer-table slots).
+    [[nodiscard]] virtual std::vector<u64> MappedStoragePointerKeys() const {
+        return {};
+    }
+
     [[nodiscard]] virtual u32 ReadCbufValue(u32 cbuf_index, u32 cbuf_offset) = 0;
 
     [[nodiscard]] virtual TextureType ReadTextureType(u32 raw_handle) = 0;
@@ -110,6 +123,8 @@ public:
     [[nodiscard]] virtual std::array<u32, 3> WorkgroupSize() const = 0;
 
     [[nodiscard]] virtual bool HasHLEMacroState() const = 0;
+
+    [[nodiscard]] virtual bool HasNativeInstructions() const { return false; }
 
     [[nodiscard]] virtual std::optional<ReplaceConstant> GetReplaceConstBuffer(u32 bank,
                                                                                u32 offset) = 0;

@@ -80,7 +80,7 @@ void WritePortablePixmap(const std::filesystem::path& path, const std::string& m
 void WriteGrayscalePgm(const std::filesystem::path& path, VkExtent2D extent,
                        std::span<const u8> pixels) {
     const size_t expected = static_cast<size_t>(extent.width) * extent.height;
-    WritePortablePixmap(path, "P5", extent, pixels.subspan(0, std::min(expected, pixels.size())));
+    WritePortablePixmap(path, "P5", extent, pixels.subspan(0, (std::min)(expected, pixels.size())));
 }
 
 void WriteRaw(const std::filesystem::path& path, std::span<const u8> pixels) {
@@ -214,16 +214,21 @@ void FrameGen::Process(const Device& device, Frame* frame, VkFormat format,
 
     if (!shaders->IsValid() && Settings::values.frame_gen_type.GetValue() != Settings::FrameGenType::Fsr3) {
         unavailable = true;
+        state.store(shaders->IsDeviceSupported() ? VideoCore::FrameGenState::MissingLosslessDll
+                                                 : VideoCore::FrameGenState::UnsupportedGpu,
+                    std::memory_order_relaxed);
         return;
     }
 
     if (!frame->storage_view) {
+        state.store(VideoCore::FrameGenState::UnsupportedSurface, std::memory_order_relaxed);
         warm_streak = 0;
         return;
     }
+    state.store(VideoCore::FrameGenState::Running, std::memory_order_relaxed);
 
-    peak_guest_extent.width = std::max(peak_guest_extent.width, guest_extent.width);
-    peak_guest_extent.height = std::max(peak_guest_extent.height, guest_extent.height);
+    peak_guest_extent.width = (std::max)(peak_guest_extent.width, guest_extent.width);
+    peak_guest_extent.height = (std::max)(peak_guest_extent.height, guest_extent.height);
 
     const VkExtent2D extent{.width = frame->width, .height = frame->height};
     const f32 flow_scale = ConfiguredFlowScale(peak_guest_extent, extent);
@@ -239,6 +244,7 @@ void FrameGen::Process(const Device& device, Frame* frame, VkFormat format,
     const bool warm = plan.warm && count + 1 >= LSFG_REQUIRED_FRAMES;
     warm_streak = warm ? warm_streak + 1 : 0;
     generated = warm && warm_streak >= LSFG_RECURRENCE_FRAMES && plan.generations > 0;
+    generated_frames.fetch_add(GeneratedFrameCount(), std::memory_order_relaxed);
 
     const bool use_fsr3 = Settings::values.frame_gen_type.GetValue() == Settings::FrameGenType::Fsr3;
 
@@ -286,7 +292,8 @@ void FrameGen::GenerateInto(const Device& device, Frame* destination, size_t gen
         const f32 flow_scale = ConfiguredFlowScale(peak_guest_extent, built_extent);
 
         scheduler.RequestOutsideRenderPassOperationContext();
-        fsr3_chain->Generate(device, scheduler, *destination->storage_view, blend, flow_scale);
+        fsr3_chain->Generate(device, scheduler, *destination->image, *destination->storage_view,
+                             blend, flow_scale);
     } else if (chain) {
         chain->SetTarget(device, last_generations, generation, destination->index,
                          *destination->storage_view);

@@ -7,9 +7,12 @@
 #include <algorithm>
 #include <limits>
 #include <array>
+#include <atomic>
 #include <cstdlib>
 #include <optional>
+#include <set>
 #include <span>
+#include <tuple>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -21,13 +24,19 @@
 #include "common/div_ceil.h"
 #include "common/literals.h"
 #include "common/settings.h"
+#include "shader_recompiler/byte_addressed_image.h"
+#include "shader_recompiler/exception.h"
 
-#include "video_core/renderer_vulkan/vk_texture_cache.h"
-#include "video_core/nx2.h"
+#include <atomic>
 #include "video_core/gpu_logging/gpu_logging.h"
+#include "video_core/nx2.h"
+#include "video_core/render_trace.h"
+#include "video_core/renderer_vulkan/vk_texture_cache.h"
+#include "video_core/texture_cache/host_mip_limits.h"
 
 #include "video_core/engines/fermi_2d.h"
 #include "video_core/renderer_vulkan/blit_image.h"
+#include "video_core/renderer_vulkan/framebuffer_limits.h"
 #include "video_core/renderer_vulkan/maxwell_to_vk.h"
 #include "video_core/renderer_vulkan/vk_compute_pass.h"
 #include "video_core/renderer_vulkan/vk_render_pass_cache.h"
@@ -37,11 +46,12 @@
 #include "video_core/texture_cache/formatter.h"
 #include "video_core/texture_cache/samples_helper.h"
 #include "video_core/texture_cache/util.h"
+#include "video_core/dlss_contract.h"
 #include "video_core/vulkan_common/vulkan_device.h"
-#include "video_core/vulkan_common/vulkan_memory_allocator.h"
 #ifdef EGLANTINE_STREAMLINE
 #include "video_core/vulkan_common/streamline.h"
 #endif
+#include "video_core/vulkan_common/vulkan_memory_allocator.h"
 #include "video_core/vulkan_common/vulkan_wrapper.h"
 #include "video_core/textures/decoders.h"
 
@@ -63,6 +73,28 @@ using VideoCore::Surface::IsPixelFormatSRGB;
 using VideoCore::Surface::SurfaceType;
 
 namespace {
+[[nodiscard]] u32 HostMipCount(const VideoCommon::ImageInfo& info) {
+    if (info.num_samples > 1)
+        return 1;
+    return VideoCommon::HostMipLevelCount(info.size.width, info.size.height, info.size.depth,
+                                          static_cast<u32>(info.resources.levels));
+}
+
+[[nodiscard]] std::span<const VideoCommon::ImageCopy> HostImageCopies(
+    const Image& dst, const Image& src, std::span<const VideoCommon::ImageCopy> copies,
+    boost::container::small_vector<VideoCommon::ImageCopy, 16>& filtered) {
+    if (src.HostMipLevels() >= static_cast<u32>(src.info.resources.levels) &&
+        dst.HostMipLevels() >= static_cast<u32>(dst.info.resources.levels))
+        return copies;
+    for (const auto& copy : copies) {
+        if (VideoCommon::IsHostMipLevel(copy.src_subresource.base_level, src.HostMipLevels()) &&
+            VideoCommon::IsHostMipLevel(copy.dst_subresource.base_level, dst.HostMipLevels())) {
+            filtered.push_back(copy);
+        }
+    }
+    return filtered;
+}
+
 constexpr bool ENABLE_MSAA_TILER_RESOLVE = true;
 constexpr bool ENABLE_MSAA_RESOLVE_CONSUME = true;
 constexpr bool ENABLE_MSAA_COLOR_DISCARD = true;
@@ -165,11 +197,47 @@ constexpr VkBorderColor ConvertBorderColor(const std::array<float, 4>& color) {
         return false;
     }
     u64 bytes = 0;
-    for (s32 level = 0; level < info.resources.levels; ++level) {
+    for (s32 level = 0; level < static_cast<s32>(HostMipCount(info)); ++level) {
         bytes += u64{(std::max)(info.size.width >> level, 1U)} *
                  (std::max)(info.size.height >> level, 1U) * 4;
     }
     return bytes * info.resources.layers > (u64{1} << 30);
+}
+
+// Whether a block-compressed copy of `info` has a mip level whose size in 4x4 blocks is not its
+// level 0 block count shifted down (341 texels: 86 blocks at level 0, 85 texels = 22 blocks at
+// level 2, not 86 >> 2 = 21). On AMD (RX 6600 XT, Windows driver) the BC1/BC3 copies of such
+// images show dark lines along the seams of distant terrain in title 1; RGBA8 copies don't.
+[[nodiscard]] bool HasUnevenBlockMips(const ImageInfo& info) {
+    const u32 blocks_x = Common::DivCeil(info.size.width, 4U);
+    const u32 blocks_y = Common::DivCeil(info.size.height, 4U);
+    for (s32 level = 1; level < info.resources.levels; ++level) {
+        const u32 level_x = Common::DivCeil((std::max)(info.size.width >> level, 1U), 4U);
+        const u32 level_y = Common::DivCeil((std::max)(info.size.height >> level, 1U), 4U);
+        if (level_x != (std::max)(blocks_x >> level, 1U) ||
+            level_y != (std::max)(blocks_y >> level, 1U)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// ASTC that would be re-compressed to BC1/BC3 but has uneven block mips (HasUnevenBlockMips) on
+// an AMD driver, which samples those wrong: kept as the GPU decoder's RGBA8 instead, like huge
+// arrays.
+[[nodiscard]] bool IsUnevenMipRgba8Astc(const Device& device, const ImageInfo& info) {
+    if (!IsPixelFormatASTC(info.format) || device.IsOptimalAstcSupported() ||
+        info.type != ImageType::e2D || info.size.depth != 1 || info.resources.levels <= 1 ||
+        Settings::values.accelerate_astc.GetValue() != Settings::AstcDecodeMode::Gpu ||
+        Settings::GetAstcRecompression() == Settings::AstcRecompression::Uncompressed) {
+        return false;
+    }
+    const VkDriverIdKHR id = device.GetDriverID();
+    if (id != VK_DRIVER_ID_AMD_PROPRIETARY && id != VK_DRIVER_ID_AMD_OPEN_SOURCE &&
+        id != VK_DRIVER_ID_MESA_RADV) {
+        return false;
+    }
+    return HasUnevenBlockMips(info) && !IsHugeAstcArray(device, info);
 }
 
 // A large image over Switch 2 sparse blocks nobody has written (title 1's terrain layer pools, 2.9
@@ -283,9 +351,10 @@ enum class SparseTilesMode {
                                                            : (VkDeviceSize{768} << 20);
 }
 
-// The host format of a huge ASTC array: the GPU decoder's RGBA8 (sRGB kept for sampling).
+// The host format of a huge ASTC array or of ASTC with uneven block mips: the GPU decoder's RGBA8
+// (sRGB kept for sampling).
 [[nodiscard]] std::optional<VkFormat> HugeAstcHostFormat(const Device& device, const ImageInfo& info) {
-    if (!IsHugeAstcArray(device, info)) {
+    if (!IsHugeAstcArray(device, info) && !IsUnevenMipRgba8Astc(device, info)) {
         return std::nullopt;
     }
     return VideoCore::Surface::IsPixelFormatSRGB(info.format) ? VK_FORMAT_A8B8G8R8_SRGB_PACK32
@@ -297,7 +366,8 @@ constexpr std::array<VkFormat, 2> HugeAstcViewFormats{VK_FORMAT_A8B8G8R8_UNORM_P
 
 // Opaque ASTC (ImageInfo::astc_opaque) re-compressed to BC1 instead of BC3.
 [[nodiscard]] bool IsOpaqueBc1Astc(const Device& device, const ImageInfo& info) {
-    return info.astc_opaque && IsPixelFormatASTC(info.format) && !IsHugeAstcArray(device, info);
+    return info.astc_opaque && IsPixelFormatASTC(info.format) && !IsHugeAstcArray(device, info) &&
+           !IsUnevenMipRgba8Astc(device, info);
 }
 
 constexpr std::array<VkFormat, 2> OpaqueAstcViewFormats{VK_FORMAT_BC1_RGBA_UNORM_BLOCK,
@@ -315,7 +385,8 @@ constexpr std::array<VkFormat, 2> OpaqueAstcViewFormats{VK_FORMAT_BC1_RGBA_UNORM
 // decode, so streamed textures are ready the frame they are first used instead of seconds later.
 [[nodiscard]] bool WillUseGpuBcnTranscode(const Device& device, const ImageInfo& info) {
     if (!IsPixelFormatASTC(info.format) || device.IsOptimalAstcSupported() ||
-        IsHugeAstcArray(device, info) || info.type != ImageType::e2D || info.size.depth != 1) {
+        IsHugeAstcArray(device, info) || IsUnevenMipRgba8Astc(device, info) ||
+        info.type != ImageType::e2D || info.size.depth != 1) {
         return false;
     }
     return Settings::values.accelerate_astc.GetValue() == Settings::AstcDecodeMode::Gpu &&
@@ -326,7 +397,7 @@ constexpr std::array<VkFormat, 2> OpaqueAstcViewFormats{VK_FORMAT_BC1_RGBA_UNORM
     if (!IsPixelFormatASTC(info.format) || device.IsOptimalAstcSupported()) {
         return false;
     }
-    if (IsHugeAstcArray(device, info)) {
+    if (IsHugeAstcArray(device, info) || IsUnevenMipRgba8Astc(device, info)) {
         return true;
     }
     if (Settings::values.accelerate_astc.GetValue() != Settings::AstcDecodeMode::Gpu) {
@@ -361,7 +432,8 @@ constexpr std::array<VkFormat, 2> OpaqueAstcViewFormats{VK_FORMAT_BC1_RGBA_UNORM
     }
     const auto decoded_bytes = [&](u32 skip) {
         u64 bytes = 0;
-        for (s32 level = static_cast<s32>(skip); level < info.resources.levels; ++level) {
+        for (s32 level = static_cast<s32>(skip); level < static_cast<s32>(HostMipCount(info));
+             ++level) {
             bytes += u64{(std::max)(info.size.width >> level, 1U)} *
                      (std::max)(info.size.height >> level, 1U) * 4;
         }
@@ -371,7 +443,7 @@ constexpr std::array<VkFormat, 2> OpaqueAstcViewFormats{VK_FORMAT_BC1_RGBA_UNORM
         return info;
     }
     const u64 limit = TrimmedAstcArrayLimit(device);
-    while (level_offset + 1 < static_cast<u32>(info.resources.levels) &&
+    while (level_offset + 1 < static_cast<u32>(HostMipCount(info)) &&
            decoded_bytes(level_offset) > limit) {
         ++level_offset;
     }
@@ -385,6 +457,11 @@ constexpr std::array<VkFormat, 2> OpaqueAstcViewFormats{VK_FORMAT_BC1_RGBA_UNORM
     return host;
 }
 
+[[nodiscard]] bool IsCubeCompatible(const Device& device, const ImageInfo& info) {
+    return info.type == ImageType::e2D && info.resources.layers >= 6 &&
+           info.size.width == info.size.height && !device.HasBrokenCubeImageCompatibility();
+}
+
 [[nodiscard]] VkImageCreateInfo MakeImageCreateInfo(const Device& device, const ImageInfo& info,
                                                     std::optional<VkFormat> format_override = {}) {
     auto format_info =
@@ -395,8 +472,7 @@ constexpr std::array<VkFormat, 2> OpaqueAstcViewFormats{VK_FORMAT_BC1_RGBA_UNORM
         format_info.storage = true;
     }
     VkImageCreateFlags flags{};
-    if (info.type == ImageType::e2D && info.resources.layers >= 6 &&
-        info.size.width == info.size.height && !device.HasBrokenCubeImageCompatibility()) {
+    if (IsCubeCompatible(device, info)) {
         flags |= VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
     }
     if (info.type == ImageType::e3D) {
@@ -405,6 +481,15 @@ constexpr std::array<VkFormat, 2> OpaqueAstcViewFormats{VK_FORMAT_BC1_RGBA_UNORM
     const auto [samples_x, samples_y] = VideoCommon::SamplesLog2(info.num_samples);
     const bool allow_storage =
         info.num_samples == 1 || device.IsStorageImageMultisampleSupported();
+    if (HostMipCount(info) < static_cast<u32>(info.resources.levels)) {
+        static std::atomic<u32> reported{};
+        if (reported.fetch_add(1, std::memory_order_relaxed) < 8) {
+            LOG_WARNING(Render_Vulkan,
+                        "Host mip limit: {}x{}x{} requested={} host={}; guest layout retained",
+                        info.size.width, info.size.height, info.size.depth, info.resources.levels,
+                        HostMipCount(info));
+        }
+    }
     return VkImageCreateInfo{
         .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
         .pNext = nullptr,
@@ -416,7 +501,7 @@ constexpr std::array<VkFormat, 2> OpaqueAstcViewFormats{VK_FORMAT_BC1_RGBA_UNORM
             .height = info.size.height >> samples_y,
             .depth = info.size.depth,
         },
-        .mipLevels = static_cast<u32>(info.resources.levels),
+        .mipLevels = static_cast<u32>(HostMipCount(info)),
         .arrayLayers = static_cast<u32>(info.resources.layers),
         .samples = ConvertSampleCount(info.num_samples),
         .tiling = VK_IMAGE_TILING_OPTIMAL,
@@ -443,7 +528,8 @@ constexpr std::array<VkFormat, 2> OpaqueAstcViewFormats{VK_FORMAT_BC1_RGBA_UNORM
 [[nodiscard]] vk::Image MakeImage(const Device& device, const MemoryAllocator& allocator,
                                   const ImageInfo& info, std::span<const VkFormat> view_formats,
                                   std::optional<VkFormat> format_override = {},
-                                  bool unbacked = false, bool aliased = false) {
+                                  bool unbacked = false, bool aliased = false,
+                                  bool may_fail = false) {
     if (info.type == ImageType::Buffer) {
         return vk::Image{};
     }
@@ -476,7 +562,7 @@ constexpr std::array<VkFormat, 2> OpaqueAstcViewFormats{VK_FORMAT_BC1_RGBA_UNORM
             return image;
         }
     }
-    return allocator.CreateImage(image_ci);
+    return may_fail ? allocator.TryCreateImage(image_ci) : allocator.CreateImage(image_ci);
 }
 
 [[nodiscard]] vk::ImageView MakeStorageView(const vk::Device& device, u32 level, VkImage image,
@@ -762,14 +848,11 @@ TransformBufferCopies(std::span<const VideoCommon::BufferCopy> copies, size_t bu
 // A guest view's levels on a host image that keeps only levels >= host_level_offset.
 [[nodiscard]] SubresourceRange HostRange(const Image& image, SubresourceRange range) {
     const s32 skip = static_cast<s32>(image.host_level_offset);
-    if (skip == 0) {
-        return range;
-    }
-    const s32 host_levels = image.info.resources.levels - skip;
-    const s32 base = std::clamp(range.base.level - skip, 0, host_levels - 1);
-    const s32 end = std::clamp(range.base.level + range.extent.levels - skip, base + 1, host_levels);
-    range.base.level = base;
-    range.extent.levels = end - base;
+    const s32 host_levels = static_cast<s32>(HostMipCount(image.info)) - skip;
+    const auto limited = VideoCommon::LimitHostMipRange(
+        range.base.level - skip, range.extent.levels, static_cast<u32>(host_levels));
+    range.base.level = limited.base;
+    range.extent.levels = limited.count;
     return range;
 }
 
@@ -1042,7 +1125,8 @@ void BlitScale(Scheduler& scheduler, VkImage src_image, VkImage dst_image, const
                VkImageAspectFlags aspect_mask, const Settings::ResolutionScalingInfo& resolution,
                bool up_scaling = true) {
     const bool is_2d = info.type == ImageType::e2D;
-    const auto resources = info.resources;
+    auto resources = info.resources;
+    resources.levels = static_cast<s32>(HostMipCount(info));
     const VkExtent2D extent{
         .width = info.size.width,
         .height = info.size.height,
@@ -1230,7 +1314,8 @@ TextureCacheRuntime::TextureCacheRuntime(const Device& device_, Scheduler& sched
     }
     for (size_t index_a = 0; index_a < VideoCore::Surface::MaxPixelFormat; index_a++) {
         const auto image_format = static_cast<PixelFormat>(index_a);
-        if (IsPixelFormatASTC(image_format) && !device.IsOptimalAstcSupported()) {
+        if (IsPixelFormatASTC(image_format) && !device.IsOptimalAstcSupported() &&
+            Settings::GetAstcRecompression() == Settings::AstcRecompression::Uncompressed) {
             view_formats[index_a].push_back(VK_FORMAT_A8B8G8R8_UNORM_PACK32);
         }
         for (size_t index_b = 0; index_b < VideoCore::Surface::MaxPixelFormat; index_b++) {
@@ -1406,8 +1491,178 @@ void TextureCacheRuntime::BarrierFeedbackLoop() {
     scheduler.RequestOutsideRenderPassOperationContext();
 }
 
+ByteAddressedShadow TextureCacheRuntime::CreateByteAddressedShadow(const ImageView& view) {
+    const auto* image{view.BackingImage()};
+    const auto extent{PackedByteAddressedExtent(view.size.width, view.size.height)};
+    if (!image || !extent || view.format != PixelFormat::R16_FLOAT ||
+        (view.type != VideoCommon::ImageViewType::e2D &&
+         view.type != VideoCommon::ImageViewType::Rect) ||
+        view.Samples() != VK_SAMPLE_COUNT_1_BIT || view.range.base.level != 0 ||
+        view.range.base.layer != 0 || view.range.extent.layers != 1 ||
+        view.range.extent.levels != 1 || view.size.depth != 1 || view.IsRescaled() ||
+        image->info.is_sparse || image->info.type != ImageType::e2D ||
+        True(image->flags & (ImageFlagBits::SparseLayers | ImageFlagBits::SparseTiles)) ||
+        HostMipCount(image->info) != 1 || image->info.resources.layers != 1 ||
+        image->info.size != view.size || image->info.format != PixelFormat::R16_FLOAT ||
+        view.ImageHandle() != image->Handle() ||
+        (image->UsageFlags() &
+         (VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT)) !=
+            (VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT) ||
+        !device.IsFormatSupported(VK_FORMAT_R16_SFLOAT,
+                                  VK_FORMAT_FEATURE_TRANSFER_SRC_BIT |
+                                      VK_FORMAT_FEATURE_TRANSFER_DST_BIT,
+                                  FormatType::Optimal) ||
+        !device.IsFormatSupported(VK_FORMAT_R32_UINT,
+                                  VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT |
+                                      VK_FORMAT_FEATURE_TRANSFER_SRC_BIT |
+                                      VK_FORMAT_FEATURE_TRANSFER_DST_BIT,
+                                  FormatType::Optimal)) {
+        throw Shader::RuntimeError("Unsupported packed R16 byte-addressed image binding");
+    }
+    PendingByteAddressedShadow pending{
+        .tick = (std::numeric_limits<u64>::max)(),
+        .image = memory_allocator.CreateImage(VkImageCreateInfo{
+            .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+            .imageType = VK_IMAGE_TYPE_2D,
+            .format = VK_FORMAT_R32_UINT,
+            .extent = {extent->width, extent->height, 1},
+            .mipLevels = 1,
+            .arrayLayers = 1,
+            .samples = VK_SAMPLE_COUNT_1_BIT,
+            .tiling = VK_IMAGE_TILING_OPTIMAL,
+            .usage = VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+                     VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+            .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+            .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+        }),
+        .view = {},
+        .bridge = memory_allocator.CreateBuffer(VkBufferCreateInfo{
+            .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+            .size = u64{view.size.width} * view.size.height * 2,
+            .usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+            .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+        }, MemoryUsage::DeviceLocal),
+    };
+    pending.view = device.GetLogical().CreateImageView(VkImageViewCreateInfo{
+        .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+        .image = *pending.image,
+        .viewType = VK_IMAGE_VIEW_TYPE_2D,
+        .format = VK_FORMAT_R32_UINT,
+        .subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1},
+    });
+    const ByteAddressedShadow result{
+        .original = image->Handle(),
+        .packed = *pending.image,
+        .view = *pending.view,
+        .bridge = *pending.bridge,
+        .extent = *extent,
+    };
+    pending_byte_addressed_shadows.push_back(std::move(pending));
+    return result;
+}
+
+void TextureCacheRuntime::RetireByteAddressedShadow(const ByteAddressedShadow& shadow) {
+    for (auto& pending : pending_byte_addressed_shadows) {
+        if (*pending.image == shadow.packed) {
+            pending.tick = scheduler.CurrentTick();
+            return;
+        }
+    }
+}
+
+void TextureCacheRuntime::CopyByteAddressedShadow(vk::CommandBuffer cmdbuf,
+                                                 const ByteAddressedShadow& shadow, bool unpack) {
+    const VkImage src{unpack ? shadow.packed : shadow.original};
+    const VkImage dst{unpack ? shadow.original : shadow.packed};
+    const VkImageSubresourceRange range{VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
+    const std::array pre{
+        VkImageMemoryBarrier{
+            .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            .srcAccessMask = VK_ACCESS_MEMORY_WRITE_BIT,
+            .dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT,
+            .oldLayout = VK_IMAGE_LAYOUT_GENERAL,
+            .newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .image = src,
+            .subresourceRange = range,
+        },
+        VkImageMemoryBarrier{
+            .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            .srcAccessMask = unpack ? VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT : 0U,
+            .dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
+            .oldLayout = unpack ? VK_IMAGE_LAYOUT_GENERAL : VK_IMAGE_LAYOUT_UNDEFINED,
+            .newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .image = dst,
+            .subresourceRange = range,
+        },
+    };
+    const VkBufferMemoryBarrier bridge_reuse{
+        .sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+        .srcAccessMask = unpack ? VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT : 0U,
+        .dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .buffer = shadow.bridge,
+        .offset = 0,
+        .size = VK_WHOLE_SIZE,
+    };
+    cmdbuf.PipelineBarrier(VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
+                           0, {}, bridge_reuse, pre);
+    const VkBufferImageCopy src_copy{
+        .imageSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1},
+        .imageExtent = {shadow.extent.width * (unpack ? 1U : 2U), shadow.extent.height, 1},
+    };
+    const VkBufferImageCopy dst_copy{
+        .imageSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1},
+        .imageExtent = {shadow.extent.width * (unpack ? 2U : 1U), shadow.extent.height, 1},
+    };
+    cmdbuf.CopyImageToBuffer(src, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, shadow.bridge, src_copy);
+    const VkMemoryBarrier bridge_barrier{
+        .sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER,
+        .srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
+        .dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT,
+    };
+    cmdbuf.PipelineBarrier(VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT,
+                           0, bridge_barrier);
+    cmdbuf.CopyBufferToImage(shadow.bridge, dst, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, dst_copy);
+    const std::array post{
+        VkImageMemoryBarrier{
+            .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            .srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT,
+            .dstAccessMask = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT,
+            .oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            .newLayout = VK_IMAGE_LAYOUT_GENERAL,
+            .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .image = src,
+            .subresourceRange = range,
+        },
+        VkImageMemoryBarrier{
+            .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            .srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
+            .dstAccessMask = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT,
+            .oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            .newLayout = VK_IMAGE_LAYOUT_GENERAL,
+            .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .image = dst,
+            .subresourceRange = range,
+        },
+    };
+    cmdbuf.PipelineBarrier(VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                           0, {}, {}, post);
+}
+
 void TextureCacheRuntime::ReinterpretImage(Image& dst, Image& src,
                                            std::span<const VideoCommon::ImageCopy> copies) {
+    boost::container::small_vector<VideoCommon::ImageCopy, 16> host_copies;
+    copies = HostImageCopies(dst, src, copies, host_copies);
+    if (copies.empty())
+        return;
+
     if (ENABLE_MSAA_RESOLVE_CONSUME) {
         InvalidateResolveShadow(dst.Handle());
     }
@@ -1562,7 +1817,15 @@ bool TextureCacheRuntime::WantsTemporalUpscaleDepth() const {
         const char* const value = std::getenv("EDEN_NX2_DLSS_REPLACEMENT");
         return value && std::string_view{value} == "standin";
     }();
-    return !force_standin && !fsr3_unsupported;
+    if (force_standin) {
+        return false;
+    }
+#ifdef EGLANTINE_STREAMLINE
+    if (Streamline::IsDlssAvailable() && !dlss_unsupported) {
+        return true;
+    }
+#endif
+    return !fsr3_unsupported;
 }
 
 bool TextureCacheRuntime::UsesNvidiaDlss() const {
@@ -1610,6 +1873,9 @@ bool TextureCacheRuntime::UpscaleWithFsr3(Framebuffer* dst_framebuffer, ImageVie
         return true;
     }
 #endif
+    if (fsr3_unsupported) {
+        return false;
+    }
     if (!fsr3_upscaler) {
         if (!Fsr3Upscaler::IsSupported(device)) {
             LOG_WARNING(Render_Vulkan, "FSR 3.1 needs formats or features this device lacks; "
@@ -1639,20 +1905,27 @@ bool TextureCacheRuntime::UpscaleWithFsr3(Framebuffer* dst_framebuffer, ImageVie
         sharpen = std::string_view{sharpen_override} != "off";
         stops = static_cast<f32>(std::strtod(sharpen_override, nullptr));
     }
-    fsr3_upscaler->Upscale({
-        .color = input_color.Handle(Shader::TextureType::Color2D),
-        .depth = depth.DepthView(),
-        .motion_vectors = motion_vectors.Handle(Shader::TextureType::Color2D),
-        .render_size = {render_size[0], render_size[1]},
-        .upscale_size = extent,
-        .jitter = jitter,
-        .motion_vector_scale = {motion_scale[0] * static_cast<f32>(render_size[0]),
-                                motion_scale[1] * static_cast<f32>(render_size[1])},
-        .frame_time_ms = frame_time_ms,
-        .reset = reset,
-        .sharpen = sharpen,
-        .sharpness = 1.0f - stops / 2.0f,
-    });
+    try {
+        fsr3_upscaler->Upscale({
+            .color = input_color.Handle(Shader::TextureType::Color2D),
+            .depth = depth.DepthView(),
+            .motion_vectors = motion_vectors.Handle(Shader::TextureType::Color2D),
+            .render_size = {render_size[0], render_size[1]},
+            .upscale_size = extent,
+            .jitter = jitter,
+            .motion_vector_scale = {motion_scale[0] * static_cast<f32>(render_size[0]),
+                                    motion_scale[1] * static_cast<f32>(render_size[1])},
+            .frame_time_ms = frame_time_ms,
+            .reset = reset,
+            .sharpen = sharpen,
+            .sharpness = 1.0f - stops / 2.0f,
+        });
+    } catch (const vk::Exception& exception) {
+        LOG_ERROR(Render_Vulkan, "FSR 3.1 evaluation unavailable ({}); using the temporal stand-in",
+                  exception.what());
+        fsr3_unsupported = true;
+        return false;
+    }
     DrawUpscaledOutput(dst_framebuffer, fsr3_upscaler->OutputView(), fsr3_upscaler->OutputImage(),
                        fsr3_upscaler->PointSampler());
     static bool logged{};
@@ -1748,20 +2021,26 @@ bool TextureCacheRuntime::UpscaleWithDlss(Framebuffer* dst_framebuffer, ImageVie
         };
     };
     const VkExtent2D extent = dst_framebuffer->RenderArea();
-    const bool upscaled = dlss_upscaler->Upscale({
-        .color = image(input_color, input_color.Handle(Shader::TextureType::Color2D),
-                       VK_IMAGE_ASPECT_COLOR_BIT),
-        .depth = image(depth, depth.DepthView(), VK_IMAGE_ASPECT_DEPTH_BIT),
-        .motion_vectors = image(motion_vectors,
-                                motion_vectors.Handle(Shader::TextureType::Color2D),
-                                VK_IMAGE_ASPECT_COLOR_BIT),
-        .render_size = {render_size[0], render_size[1]},
-        .upscale_size = extent,
-        .jitter = jitter,
-        .motion_vector_scale = {motion_scale[0] * static_cast<f32>(render_size[0]),
-                                motion_scale[1] * static_cast<f32>(render_size[1])},
-        .reset = reset,
-    });
+    bool upscaled{};
+    try {
+        upscaled = dlss_upscaler->Upscale({
+            .color = image(input_color, input_color.Handle(Shader::TextureType::Color2D),
+                           VK_IMAGE_ASPECT_COLOR_BIT),
+            .depth = image(depth, depth.DepthView(), VK_IMAGE_ASPECT_DEPTH_BIT),
+            .motion_vectors = image(motion_vectors,
+                                    motion_vectors.Handle(Shader::TextureType::Color2D),
+                                    VK_IMAGE_ASPECT_COLOR_BIT),
+            .render_size = {render_size[0], render_size[1]},
+            .upscale_size = extent,
+            .jitter = jitter,
+            .motion_vector_scale = {motion_scale[0] * static_cast<f32>(render_size[0]),
+                                    motion_scale[1] * static_cast<f32>(render_size[1])},
+            .reset = reset,
+        });
+    } catch (const vk::Exception& exception) {
+        LOG_WARNING(Render_Vulkan, "NVIDIA DLSS evaluation unavailable ({}); using FSR 3.1",
+                    exception.what());
+    }
     if (!upscaled) {
         dlss_unsupported = true;
         return false;
@@ -1782,11 +2061,47 @@ bool TextureCacheRuntime::TemporalUpscale(Framebuffer* dst_framebuffer, ImageVie
                                           ImageView& input_color, ImageView& motion_vectors,
                                           ImageView* depth, std::array<u32, 2> render_size,
                                           std::array<f32, 2> jitter,
-                                          std::array<f32, 2> motion_scale) {
+                                          std::array<f32, 2> motion_scale, bool use_history) {
     if (dst.Samples() != VK_SAMPLE_COUNT_1_BIT || ImageAspectMask(dst.format) != VK_IMAGE_ASPECT_COLOR_BIT) {
         return false;
     }
-    if (depth && UpscaleWithFsr3(dst_framebuffer, input_color, motion_vectors, *depth, render_size,
+    const auto plain = [](const ImageView& view) {
+        return view.Samples() == VK_SAMPLE_COUNT_1_BIT && view.range.base.level == 0 &&
+               view.range.base.layer == 0;
+    };
+    const auto fits = [&](const ImageView& view, std::array<u32, 2> requested) {
+        const Image* image = view.BackingImage();
+        if (!image) {
+            return false;
+        }
+        const std::array<u32, 2> extent = image->IsRescaled()
+            ? std::array{resolution.ScaleUp(view.size.width), resolution.ScaleUp(view.size.height)}
+            : std::array{view.size.width, view.size.height};
+        return VideoCommon::DlssContract::FitsExtent(requested, extent);
+    };
+    const VkExtent2D output_extent = dst_framebuffer->RenderArea();
+    if (!plain(dst) || !plain(input_color) || !fits(input_color, render_size) ||
+        !fits(dst, {output_extent.width, output_extent.height}) ||
+        !VideoCommon::DlssContract::ValidColorFormats(input_color.format, dst.format, use_history) ||
+        input_color.ImageHandle() == dst.ImageHandle() ||
+        !VideoCommon::DlssContract::ValidGeometry(render_size,
+                                                 {output_extent.width, output_extent.height},
+                                                 jitter, motion_scale)) {
+        return false;
+    }
+    if (use_history && (!plain(motion_vectors) || !fits(motion_vectors, render_size) ||
+                        motion_vectors.format != PixelFormat::R16G16_FLOAT ||
+                        input_color.size.width != motion_vectors.size.width ||
+                        input_color.size.height != motion_vectors.size.height)) {
+        return false;
+    }
+    if (use_history && depth && (!plain(*depth) || !fits(*depth, render_size) ||
+                                depth->format != PixelFormat::D32_FLOAT ||
+                                input_color.size.width != depth->size.width ||
+                                input_color.size.height != depth->size.height)) {
+        return false;
+    }
+    if (use_history && depth && UpscaleWithFsr3(dst_framebuffer, input_color, motion_vectors, *depth, render_size,
                                  jitter, motion_scale)) {
         return true;
     }
@@ -1911,7 +2226,7 @@ bool TextureCacheRuntime::TemporalUpscale(Framebuffer* dst_framebuffer, ImageVie
     blit_image_helper.TemporalUpscale(dst_framebuffer, input_color, motion_vectors,
                                       *temporal_history.views[read_index],
                                       *temporal_history.views[write_index], dst_region, jitter,
-                                      motion_scale, reset ? 1.0f : current_weight, kernel_scale,
+                                      motion_scale, !use_history ? -1.0f : reset ? 1.0f : current_weight, kernel_scale,
                                       clip_width, clip_motion, kernel_motion);
     // RCAS on the output, set by the FSR sharpness slider (stops as FSR takes them, 0% = stored 200
     // turns it off). It reads the unsharpened result just stored, which stays the history.
@@ -2144,6 +2459,9 @@ void TextureCacheRuntime::ConvertImage(Framebuffer* dst, ImageView& dst_view, Im
         }
         break;
     case PixelFormat::A8B8G8R8_UNORM:
+        if (src_view.format == PixelFormat::X8_D24_UNORM) {
+            return blit_image_helper.ConvertX8D24ToABGR8(dst, src_view);
+        }
         if (src_view.format == PixelFormat::S8_UINT_D24_UNORM) {
             return blit_image_helper.ConvertD24S8ToABGR8(dst, src_view);
         }
@@ -2162,6 +2480,11 @@ void TextureCacheRuntime::ConvertImage(Framebuffer* dst, ImageView& dst_view, Im
     case PixelFormat::D16_UNORM:
         if (src_view.format == PixelFormat::R16_UNORM) {
             return blit_image_helper.ConvertR16ToD16(dst, src_view);
+        }
+        break;
+    case PixelFormat::X8_D24_UNORM:
+        if (src_view.format == PixelFormat::A8B8G8R8_UNORM) {
+            return blit_image_helper.ConvertABGR8ToX8D24(dst, src_view);
         }
         break;
     case PixelFormat::S8_UINT_D24_UNORM:
@@ -2247,6 +2570,11 @@ bool TextureCacheRuntime::IsFormatScalable(PixelFormat format) {
 
 void TextureCacheRuntime::CopyImage(Image& dst, Image& src,
                                     std::span<const VideoCommon::ImageCopy> copies) {
+    boost::container::small_vector<VideoCommon::ImageCopy, 16> host_copies;
+    copies = HostImageCopies(dst, src, copies, host_copies);
+    if (copies.empty())
+        return;
+
     if (ENABLE_MSAA_RESOLVE_CONSUME) {
         InvalidateResolveShadow(dst.Handle());
     }
@@ -2362,6 +2690,11 @@ void TextureCacheRuntime::CopyImage(Image& dst, Image& src,
 
 void TextureCacheRuntime::CopyImageMSAA(Image& dst, Image& src,
                                         std::span<const VideoCommon::ImageCopy> copies) {
+    boost::container::small_vector<VideoCommon::ImageCopy, 16> host_copies;
+    copies = HostImageCopies(dst, src, copies, host_copies);
+    if (copies.empty())
+        return;
+
     const bool msaa_to_non_msaa = src.info.num_samples > 1 && dst.info.num_samples == 1;
     const u32 num_samples = msaa_to_non_msaa ? src.info.num_samples : dst.info.num_samples;
     if (ENABLE_MSAA_RESOLVE_CONSUME && msaa_to_non_msaa && copies.size() == 1 &&
@@ -2598,6 +2931,10 @@ void TextureCacheRuntime::ReleaseMsaaScratchImage(VkImage image) {
 }
 
 void TextureCacheRuntime::TickFrame() {
+    while (!pending_byte_addressed_shadows.empty() &&
+           scheduler.IsFree(pending_byte_addressed_shadows.front().tick)) {
+        pending_byte_addressed_shadows.pop_front();
+    }
     static constexpr u32 MAX_UNUSED_SCRATCH_FRAMES = 60;
     // Finished decode images wait for the next texture of their shape, up to this much memory.
     static constexpr u64 MaxFreeTranscodeBytes = u64{256} << 20;
@@ -2643,7 +2980,8 @@ Image::Image(TextureCacheRuntime& runtime_, const ImageInfo& info_, GPUVAddr gpu
       runtime{&runtime_},
       original_image(MakeImage(runtime_.device, runtime_.memory_allocator,
                                TrimmedHostInfo(runtime_.device, info, host_level_offset),
-                               IsHugeAstcArray(runtime_.device, info)
+                               IsHugeAstcArray(runtime_.device, info) ||
+                                       IsUnevenMipRgba8Astc(runtime_.device, info)
                                    ? std::span<const VkFormat>{HugeAstcViewFormats}
                                : IsOpaqueBc1Astc(runtime_.device, info)
                                    ? std::span<const VkFormat>{OpaqueAstcViewFormats}
@@ -2653,8 +2991,12 @@ Image::Image(TextureCacheRuntime& runtime_, const ImageInfo& info_, GPUVAddr gpu
                                    UsesSparseTiles(runtime_.device, info, gpu_addr_) ||
                                    IsUnwrittenSparse(runtime_.device, info, gpu_addr_),
                                UsesSparseTiles(runtime_.device, info, gpu_addr_) &&
-                                   SparseTilesModeOf(runtime_.device) == SparseTilesMode::Aliased)),
+                                   SparseTilesModeOf(runtime_.device) == SparseTilesMode::Aliased,
+                               true)),
       aspect_mask(ImageAspectMask(info.format)) {
+    if (OutOfMemory()) {
+        return;
+    }
     if (original_image.IsUnbacked()) {
         flags |= VideoCommon::ImageFlagBits::Unbacked;
         const ImageInfo host_info = TrimmedHostInfo(runtime_.device, info, host_level_offset);
@@ -2684,6 +3026,17 @@ Image::Image(TextureCacheRuntime& runtime_, const ImageInfo& info_, GPUVAddr gpu
                 WillUseGpuBcnTranscode(runtime->device, info)) {
                 flags |= VideoCommon::ImageFlagBits::AcceleratedUpload;
             }
+            if (IsUnevenMipRgba8Astc(runtime->device, info)) {
+                static std::atomic<u32> uneven_images{0};
+                const u32 count = ++uneven_images;
+                if (count <= 4 || (count & (count - 1)) == 0) {
+                    LOG_INFO(Render_Vulkan,
+                             "ASTC {}x{}x{} with {} levels kept as RGBA8 (uneven BC block mips), "
+                             "{} images so far",
+                             info.size.width, info.size.height, info.resources.layers,
+                             info.resources.levels, count);
+                }
+            }
             break;
         case Settings::AstcDecodeMode::CpuAsynchronous:
             flags |= VideoCommon::ImageFlagBits::AsynchronousDecode;
@@ -2702,7 +3055,8 @@ Image::Image(TextureCacheRuntime& runtime_, const ImageInfo& info_, GPUVAddr gpu
         original_image.SetObjectNameEXT(VideoCommon::Name(*this).c_str());
     }
     current_image = &Image::original_image;
-    const s32 host_levels = info.resources.levels - static_cast<s32>(host_level_offset);
+    const s32 host_levels =
+        static_cast<s32>(HostMipCount(info)) - static_cast<s32>(host_level_offset);
     storage_image_views.resize(host_levels);
     if (WillUseAcceleratedAstcDecode(runtime->device, info)) {
         const auto& device = runtime->device.GetLogical();
@@ -2771,6 +3125,16 @@ void Image::AllocateComputeUnswizzleBuffer(u32 max_slices) {
 
 void Image::UploadMemory(VkBuffer buffer, VkDeviceSize offset,
                          std::span<const VideoCommon::BufferImageCopy> copies) {
+    boost::container::small_vector<VideoCommon::BufferImageCopy, 16> host_copies;
+    if (HostMipLevels() < static_cast<u32>(info.resources.levels)) {
+        VideoCommon::AppendHostMipEntries(
+            copies, host_copies, HostMipLevels(),
+            [](const auto& copy) { return copy.image_subresource.base_level; });
+        copies = host_copies;
+        if (copies.empty())
+            return;
+    }
+
     // TODO: Move this to another API
     if (ENABLE_MSAA_RESOLVE_CONSUME && runtime != nullptr) {
         runtime->InvalidateResolveShadow(Handle());
@@ -2885,6 +3249,16 @@ void Image::DownloadMemory(VkBuffer buffer, size_t offset,
 
 void Image::DownloadMemory(std::span<VkBuffer> buffers_span, std::span<size_t> offsets_span,
                             std::span<const VideoCommon::BufferImageCopy> copies) {
+    boost::container::small_vector<VideoCommon::BufferImageCopy, 16> host_copies;
+    if (HostMipLevels() < static_cast<u32>(info.resources.levels)) {
+        VideoCommon::AppendHostMipEntries(
+            copies, host_copies, HostMipLevels(),
+            [](const auto& copy) { return copy.image_subresource.base_level; });
+        copies = host_copies;
+        if (copies.empty())
+            return;
+    }
+
     if (!original_image) {
         LOG_CRITICAL(Render_Vulkan, "Missing image at download: gpu={:#x}, cpu={:#x}, type={}, format={}, flags={:#x}, size={}, dimensions={}x{}",
                      gpu_addr, cpu_addr, static_cast<u32>(info.type), static_cast<u32>(info.format),
@@ -3126,6 +3500,10 @@ void Image::DownloadMemory(const StagingBufferRef& map, std::span<const BufferIm
     DownloadMemory(buffers, offsets, copies);
 }
 
+u32 Image::HostMipLevels() const noexcept {
+    return HostMipCount(info) - host_level_offset;
+}
+
 VkImageView Image::StorageImageView(s32 level) noexcept {
     auto& view = storage_image_views[level];
     if (!view) {
@@ -3158,7 +3536,7 @@ bool Image::InitSparseLayers() {
     const ImageInfo host = TrimmedHostInfo(device, info, offset);
     s.width = host.size.width;
     s.height = host.size.height;
-    s.levels = static_cast<u32>(host.resources.levels);
+    s.levels = HostMipCount(host);
     // Sparse block size in texels (drivers give it in texels or in compressed blocks).
     const bool huge_astc = IsHugeAstcArray(device, info);
     const u32 block_width = huge_astc ? 1 : VideoCore::Surface::DefaultBlockWidth(info.format);
@@ -3235,7 +3613,7 @@ bool Image::InitSparseTiles() {
     s.sparse = *it;
     s.width = info.size.width;
     s.height = info.size.height;
-    s.levels = static_cast<u32>(info.resources.levels);
+    s.levels = static_cast<u32>(HostMipCount(info));
     s.tile_width = granularity.width;
     s.tile_height = granularity.height;
     s.tail_level = (std::min)(it->imageMipTailFirstLod, s.levels);
@@ -3773,6 +4151,16 @@ bool Image::ScaleUp(bool ignore) {
         return false;
     }
     ASSERT(info.type != ImageType::Linear);
+    const bool host_is_2d = info.type == ImageType::e2D;
+    const u32 host_scaled_width = resolution.ScaleUp(info.size.width);
+    const u32 host_scaled_height =
+        host_is_2d ? resolution.ScaleUp(info.size.height) : info.size.height;
+    if (VideoCommon::HostMipLevelCount(host_scaled_width, host_scaled_height, info.size.depth,
+                                       HostMipCount(info)) < HostMipCount(info)) {
+        // Keep both images on the same mip chain; downscaling can otherwise lose its tail.
+        return false;
+    }
+
     flags |= ImageFlagBits::Rescaled;
     has_scaled = true;
     if (!scaled_image) {
@@ -3925,6 +4313,8 @@ ImageView::ImageView(TextureCacheRuntime& runtime, const VideoCommon::ImageViewI
       device{&runtime.device}, image_handle{image.Handle()},
       samples(ConvertSampleCount(image.info.num_samples)) {
     using Shader::TextureType;
+    if (image.host_level_offset == 0)
+        range = HostRange(image, range);
 
     const VkImageAspectFlags aspect_mask = ImageViewAspectMask(info);
     std::array<SwizzleSource, 4> swizzle{
@@ -3944,7 +4334,7 @@ ImageView::ImageView(TextureCacheRuntime& runtime, const VideoCommon::ImageViewI
         }
     }
     auto format_info = MaxwellToVK::SurfaceFormat(*device, FormatType::Optimal, true, format);
-    if (IsHugeAstcArray(*device, image.info)) {
+    if (IsHugeAstcArray(*device, image.info) || IsUnevenMipRgba8Astc(*device, image.info)) {
         format_info.format = VideoCore::Surface::IsPixelFormatSRGB(format)
                                  ? VK_FORMAT_A8B8G8R8_SRGB_PACK32
                                  : VK_FORMAT_A8B8G8R8_UNORM_PACK32;
@@ -3966,6 +4356,18 @@ ImageView::ImageView(TextureCacheRuntime& runtime, const VideoCommon::ImageViewI
         supports_minmax_filter =
             (device->GetPhysical().GetFormatProperties(format_info.format).optimalTilingFeatures &
              VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_MINMAX_BIT) != 0;
+    }
+    if (VideoCommon::RenderTrace::Enabled() &&
+        (aspect_mask & (VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT)) != 0) {
+        LOG_DEBUG(Render_Vulkan,
+                  "Render trace depth view: docked={} address={:#x} guest_format={} vk_format={} "
+                  "image={}x{} layers={} view={}x{} base_level={} base_layer={} layers={} "
+                  "aspects={:#x} compare_supported={} render_target={}",
+                  Settings::IsDockedMode(), image.gpu_addr, info.format,
+                  static_cast<u32>(format_info.format), image.info.size.width, image.info.size.height,
+                  image.info.resources.layers, size.width, size.height, range.base.level,
+                  range.base.layer, range.extent.layers, aspect_mask, supports_depth_comparison,
+                  info.IsRenderTarget());
     }
     requires_border_color_format = NeedsExplicitBorderColorFormat(format_info.format);
     swizzle_mapping = VkComponentMapping{
@@ -4028,6 +4430,15 @@ ImageView::ImageView(TextureCacheRuntime& runtime, const VideoCommon::ImageViewI
         create(TextureType::Color2D, 1);
         create(TextureType::ColorArray2D, std::nullopt);
         render_target = Handle(Shader::TextureType::ColorArray2D);
+        // Native shaders can sample six layers of a 2D array as a cube (point-light shadows).
+        // Adapted from Duck912/eden-fefw a1b23ac3.
+        if (info.type == VideoCommon::ImageViewType::e2DArray && info.range.extent.layers >= 6 &&
+            image.info.num_samples == 1 && IsCubeCompatible(*device, image.info)) {
+            create(TextureType::ColorCube, 6);
+            if (info.range.extent.layers % 6 == 0) {
+                create(TextureType::ColorArrayCube, std::nullopt);
+            }
+        }
         break;
     case VideoCommon::ImageViewType::e3D:
         create(TextureType::Color3D, std::nullopt);
@@ -4110,7 +4521,19 @@ VkImageView ImageView::ColorView() {
 }
 
 VkImageView ImageView::StorageView(Shader::TextureType texture_type,
-                                   Shader::ImageFormat image_format) {
+                                   Shader::ImageFormat image_format, bool is_byte_addressed) {
+    if (is_byte_addressed &&
+        (texture_type != Shader::TextureType::Color2D ||
+         image_format != Shader::ImageFormat::R32_UINT ||
+         !Shader::IsByteAddressed32BitColorFormat(static_cast<Shader::TexturePixelFormat>(format)) ||
+         (type != VideoCommon::ImageViewType::e2D && type != VideoCommon::ImageViewType::Rect) ||
+         samples != VK_SAMPLE_COUNT_1_BIT || range.extent.layers != 1 || range.extent.levels != 1 ||
+         size.depth != 1 || size.width == 0 || size.height == 0 || !image_handle)) {
+        throw Shader::RuntimeError("Unsupported byte-addressed B32 image binding: format {} type {} "
+                                   "samples {} layers {} levels {} size {}x{}x{}",
+                                   format, type, samples, range.extent.layers,
+                                   range.extent.levels, size.width, size.height, size.depth);
+    }
     if (image_handle) {
         if (image_format == Shader::ImageFormat::Typeless) {
             if (!typeless_storage_view) {
@@ -4119,11 +4542,9 @@ VkImageView ImageView::StorageView(Shader::TextureType texture_type,
             }
             return *typeless_storage_view;
         }
-        const bool is_signed = image_format == Shader::ImageFormat::R8_SINT
-            || image_format == Shader::ImageFormat::R16_SINT;
         if (!storage_views)
             storage_views.emplace();
-        auto& views{is_signed ? storage_views->signeds : storage_views->unsigneds};
+        auto& views{storage_views->formats[static_cast<size_t>(image_format)]};
         auto& view{views[size_t(texture_type)]};
         if (!view)
             view = MakeView(Format(image_format), VK_IMAGE_ASPECT_COLOR_BIT, texture_type);
@@ -4213,10 +4634,10 @@ void CustomBorderColorBudget::Release() noexcept {
     held = 0;
 }
 
-Sampler::Sampler(TextureCacheRuntime& runtime, const Tegra::Texture::TSCEntry& tsc)
-    : descriptor{tsc} {
+Sampler::Sampler(TextureCacheRuntime& runtime, const Tegra::Texture::TSCEntry& tsc) {
     const auto& device = runtime.device;
     device_ptr = &device;
+    descriptor = tsc;
     border_color = tsc.BorderColor();
     srgb_border_color = tsc.SrgbBorderColor();
 
@@ -4303,6 +4724,10 @@ Sampler::VariantKey Sampler::MakeKey(const ImageView& image_view, bool is_depth)
     key.drop_reduction = has_minmax_reduction && !image_view.SupportsMinmaxFilter();
     key.drop_custom_border = has_custom_border_colors && image_view.RequiresBorderColorFormat();
     key.srgb_border = has_srgb_border_color && IsPixelFormatSRGB(image_view.format);
+    // A compare-enabled TSC read by a plain (non-Dref) sample: Maxwell ignores the comparison,
+    // Vulkan leaves it undefined and AMD returns the 0/1 compare result (Ocarina forest fog
+    // composite read alpha 0 -> black screen). Use a variant without comparison.
+    key.drop_compare = has_depth_comparison && !is_depth;
     if (needs_swizzle_mapping && !key.drop_custom_border && !image_view.HasIdentitySwizzle()) {
         const VkComponentMapping& mapping = image_view.Swizzle();
         key.swizzle = {mapping.r, mapping.g, mapping.b, mapping.a};
@@ -4366,6 +4791,9 @@ VkSampler Sampler::Emplace(VariantKey key) {
     }
 
     VkSamplerCreateInfo create_info = base_ci;
+    if (key.drop_compare) {
+        create_info.compareEnable = VK_FALSE;
+    }
     create_info.pNext = chain;
     if (key.force_nearest) {
         create_info.magFilter = VK_FILTER_NEAREST;
@@ -4393,10 +4821,32 @@ VkSampler Sampler::HandleFor(const ImageView& image_view, bool is_depth) {
         key.srgb_border = false;
         key.swizzle = {};
     }
-    if (const VkSampler existing = Find(key); existing != VK_NULL_HANDLE) {
-        return existing;
+    VkSampler handle = Find(key);
+    if (handle == VK_NULL_HANDLE) {
+        handle = Emplace(key);
     }
-    return Emplace(key);
+    if (VideoCommon::RenderTrace::Enabled() && (is_depth || has_depth_comparison)) {
+        static thread_local std::set<std::tuple<VkSampler, VkImage, s32, s32, s32, bool, bool>> seen;
+        if (seen.size() < 4096 &&
+            seen.emplace(handle, image_view.ImageHandle(), image_view.range.base.level,
+                         image_view.range.base.layer, image_view.range.extent.layers,
+                         is_depth, Settings::IsDockedMode()).second) {
+            LOG_DEBUG(Render_Vulkan,
+                      "Render trace depth sampler: docked={} address={:#x} format={} {}x{} "
+                      "base_level={} base_layer={} layers={} shader_depth={} compare_enable={} compare_op={} "
+                      "compare_supported={} min_filter={} mag_filter={} border={} address_modes={}/{}/{}",
+                      Settings::IsDockedMode(), image_view.GpuAddr(), image_view.format,
+                      image_view.size.width, image_view.size.height, image_view.range.base.level,
+                      image_view.range.base.layer,
+                      image_view.range.extent.layers, is_depth, base_ci.compareEnable,
+                      static_cast<u32>(base_ci.compareOp), image_view.SupportsDepthComparison(),
+                      static_cast<u32>(key.force_nearest ? VK_FILTER_NEAREST : base_ci.minFilter),
+                      static_cast<u32>(key.force_nearest ? VK_FILTER_NEAREST : base_ci.magFilter),
+                      static_cast<u32>(base_ci.borderColor), static_cast<u32>(base_ci.addressModeU),
+                      static_cast<u32>(base_ci.addressModeV), static_cast<u32>(base_ci.addressModeW));
+        }
+    }
+    return handle;
 }
 
 Framebuffer::Framebuffer(TextureCacheRuntime& runtime, std::span<ImageView*, NUM_RT> color_buffers,
@@ -4479,6 +4929,11 @@ void Framebuffer::CreateFramebuffer(TextureCacheRuntime& runtime,
     if (num_layers == (std::numeric_limits<s32>::max)()) {
         num_layers = 1;
     }
+    layers = static_cast<u32>((std::max)(num_layers, 1));
+    LOG_DEBUG(Render_Vulkan,
+              "Framebuffer layers: layers={}, color0_layers={}, depth_layers={}, attachments={}",
+              layers, color_buffers[0] ? color_buffers[0]->range.extent.layers : 0,
+              depth_buffer ? depth_buffer->range.extent.layers : 0, attachments.size());
     renderpass_key.samples = samples;
     const bool do_resolve_color = ENABLE_MSAA_TILER_RESOLVE &&
         samples != VK_SAMPLE_COUNT_1_BIT && num_colors > 0 && runtime.device.IsTiler();
@@ -4501,9 +4956,14 @@ void Framebuffer::CreateFramebuffer(TextureCacheRuntime& runtime,
     runtime_ptr = &runtime;
     render_area.width = (std::min)(render_area.width, width);
     render_area.height = (std::min)(render_area.height, height);
+    const FramebufferSize size = ClampFramebufferSize(
+        {render_area.width, render_area.height, layers},
+        {runtime.device.GetMaxFramebufferWidth(), runtime.device.GetMaxFramebufferHeight(),
+         runtime.device.GetMaxFramebufferLayers()});
+    render_area = VkExtent2D{.width = size.width, .height = size.height};
+    layers = size.layers;
 
     if (do_resolve_color) {
-        const u32 layers = static_cast<u32>((std::max)(num_layers, 1));
         for (size_t index = 0; index < NUM_RT; ++index) {
             const PixelFormat format = renderpass_key.color_formats[index];
             if (format == PixelFormat::Invalid) {
@@ -4519,7 +4979,6 @@ void Framebuffer::CreateFramebuffer(TextureCacheRuntime& runtime,
     }
 
     if (do_resolve_depth_stencil) {
-        const u32 layers = static_cast<u32>((std::max)(num_layers, 1));
         const VkFormat vk_format =
             MaxwellToVK::SurfaceFormat(runtime.device, FormatType::Optimal, true,
                                        renderpass_key.depth_format)
@@ -4539,7 +4998,7 @@ void Framebuffer::CreateFramebuffer(TextureCacheRuntime& runtime,
         .pAttachments = attachments.data(),
         .width = render_area.width,
         .height = render_area.height,
-        .layers = static_cast<u32>((std::max)(num_layers, 1)),
+        .layers = layers,
     });
 }
 
@@ -4621,9 +5080,11 @@ void TextureCacheRuntime::TranscodeAstcToBcn(
     const ImageInfo& info = image.info;
     const u32 width = info.size.width;
     const u32 height = info.size.height;
-    const u32 levels = static_cast<u32>(info.resources.levels);
+    const u32 levels = static_cast<u32>(HostMipCount(info));
     const u32 layers = static_cast<u32>(info.resources.layers);
-    constexpr VkFormat DecodeFormat = VK_FORMAT_A8B8G8R8_UNORM_PACK32;
+    // The BC encoder declares layout(rgba8). Identical byte layout is not enough:
+    // its storage image view must have the matching R8G8B8A8_UNORM format.
+    constexpr VkFormat DecodeFormat = VK_FORMAT_R8G8B8A8_UNORM;
     // A decode image of the same shape the GPU is done with: title 1's title screen decodes
     // dozens of textures a frame, mostly of a few shapes. Making one took 263 us; from VMA's
     // shared blocks 90 us, but freeing them there left ~1 GB of those blocks unused.
@@ -4635,25 +5096,44 @@ void TextureCacheRuntime::TranscodeAstcToBcn(
         pending = std::move(*reusable);
         free_transcodes.erase(reusable);
     } else {
+        const VkImageCreateInfo decode_ci{
+            .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+            .pNext = nullptr,
+            .flags = 0,
+            .imageType = VK_IMAGE_TYPE_2D,
+            .format = DecodeFormat,
+            .extent = {width, height, 1},
+            .mipLevels = levels,
+            .arrayLayers = layers,
+            .samples = VK_SAMPLE_COUNT_1_BIT,
+            .tiling = VK_IMAGE_TILING_OPTIMAL,
+            .usage = VK_IMAGE_USAGE_STORAGE_BIT,
+            .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+            .queueFamilyIndexCount = 0,
+            .pQueueFamilyIndices = nullptr,
+            .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+        };
+        vk::Image decode = memory_allocator.TryCreateImage(decode_ci, true);
+        if (!decode && !free_transcodes.empty()) {
+            // The GPU is done with these: their memory goes back to the driver now.
+            free_transcodes.clear();
+            decode = memory_allocator.TryCreateImage(decode_ci, true);
+        }
+        if (!decode) {
+            static u32 logged{};
+            if (logged++ < 32) {
+                LOG_ERROR(Render_Vulkan,
+                          "No memory to decode ASTC image {:#x} ({}x{}, {} levels); uploading it "
+                          "again when it is next used",
+                          image.gpu_addr, width, height, levels);
+            }
+            image.flags |= VideoCommon::ImageFlagBits::CpuModified;
+            TransitionImageLayout(image);
+            return;
+        }
         pending = PendingTranscode{
             .tick = 0,
-            .image = memory_allocator.CreateImage(VkImageCreateInfo{
-                .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
-                .pNext = nullptr,
-                .flags = 0,
-                .imageType = VK_IMAGE_TYPE_2D,
-                .format = DecodeFormat,
-                .extent = {width, height, 1},
-                .mipLevels = levels,
-                .arrayLayers = layers,
-                .samples = VK_SAMPLE_COUNT_1_BIT,
-                .tiling = VK_IMAGE_TILING_OPTIMAL,
-                .usage = VK_IMAGE_USAGE_STORAGE_BIT,
-                .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
-                .queueFamilyIndexCount = 0,
-                .pQueueFamilyIndices = nullptr,
-                .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-            }, true),
+            .image = std::move(decode),
             .views = {},
             .width = width,
             .height = height,
@@ -4674,6 +5154,7 @@ void TextureCacheRuntime::TranscodeAstcToBcn(
             .initialized = false,
             .level_view = [&pending](s32 level) { return *pending.views[level]; },
             .wait = true,
+            .levels = levels,
         },
         map, swizzles);
 

@@ -37,7 +37,8 @@ ComputePipeline::ComputePipeline(const Device& device, TextureCache& texture_cac
                                  const Shader::Info& info_, std::string code,
                                  std::vector<u32> code_v, bool force_context_flush)
     : texture_cache{texture_cache_}, buffer_cache{buffer_cache_},
-      program_manager{program_manager_}, info{info_} {
+      program_manager{program_manager_}, info{info_},
+      storage_buffer_alignment{device.GetShaderStorageBufferAlignment()} {
     switch (::Settings::values.renderer_backend.GetValue()) {
     case Settings::RendererBackend::OpenGL_GLSL:
         source_program = CreateProgram(code, GL_COMPUTE_SHADER);
@@ -116,7 +117,8 @@ void ComputePipeline::Configure() {
                                                        1) != 0
                                                   ? cbufs[cbuf].Address()
                                                   : GPUVAddr{};
-                                   }),
+                                   },
+                                   storage_buffer_alignment),
                                via_header_index);
         }
         ASSERT(((qmd.const_buffer_enable_mask >> desc.cbuf_index) & 1) != 0);
@@ -127,7 +129,7 @@ void ComputePipeline::Configure() {
                       std::is_same_v<decltype(desc), const Shader::TextureBufferDescriptor&>) {
             if (desc.has_secondary) {
                 ASSERT(((qmd.const_buffer_enable_mask >> desc.secondary_cbuf_index) & 1) != 0);
-                const u32 secondary_offset{desc.secondary_cbuf_offset + index_offset};
+                const u32 secondary_offset{desc.secondary_cbuf_offset};
                 const GPUVAddr separate_addr{cbufs[desc.secondary_cbuf_index].Address() +
                                              secondary_offset};
                 const u32 lhs_raw{gpu_memory->Read<u32>(addr) << desc.shift_left};
@@ -241,10 +243,11 @@ void ComputePipeline::Configure() {
     for (const auto& desc : info.image_descriptors) {
         for (u32 index = 0; index < desc.count; ++index) {
             ImageView& image_view{texture_cache.GetImageView((views_it++)->id)};
+            images[image_binding] =
+                image_view.StorageView(desc.type, desc.format, desc.is_byte_addressed);
             if (desc.is_written) {
                 texture_cache.MarkModification(image_view.image_id);
             }
-            images[image_binding] = image_view.StorageView(desc.type, desc.format);
             if (texture_cache.IsRescaling(image_view)) {
                 image_scaling_mask |= 1u << image_binding;
             }

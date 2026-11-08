@@ -5,80 +5,93 @@
 # SPDX-FileCopyrightText: 2018 yuzu Emulator Project
 # SPDX-License-Identifier: GPL-2.0-or-later
 -->
-<!-- lang: en-GB -->
-
-<h1 align="center">
-  <br>
-  <a href="https://git.eden-emu.dev/eden-emu/eden"><img src="https://github.com/user-attachments/assets/35031845-4bfa-4916-8bf5-bc3bce67d5e2" alt="Eglantine" width="200"></a>
-  <br>
-  <b>Eglantine</b>
-  <br>
-</h1>
-
-<h4 align="center"><b>Eglantine</b> is a free and opensource (FOSS) Switch 2 emulator, derived from Eden, Yuzu and Sudachi - started by developer Camille LaVey.
-It's written in C++ with portability in mind, with builds for Windows, Linux and macOS
-</h4>
 
 <p align="center">
-    </a>
-    <a href="https://discord.gg/XkS5NVPTUY">
-        <img src="https://img.shields.io/discord/1367654015269339267?color=5865F2&label=Eglantine&logo=discord&logoColor=white"
-            alt="Discord">
-    </a>
-  
+  <img src="dist/branding/lichii_icon_with_logo.png" alt="Lichii" width="600">
 </p>
 
-<p align="center">
-  <a href="#compatibility">Compatibility</a> |
-  <a href="#development">Development</a> |
-  <a href="#building">Building</a> |
-  <a href="#download">Download</a> |
-  <a href="#support">Support</a> |
-  <a href="#license">License</a>
-</p>
+# Lichii
 
-## Compatibility
+Lichii is an experimental, open-source Nintendo Switch and Switch 2 emulator written in C++. It builds on Eglantine, Eden, yuzu and Sudachi, preserving their contributions while developing this fork's game compatibility and renderer fixes.
 
-The emulator is capable of running Mario Kart World at decent/full speed depending on specs and configurations, and Splatoon Raiders at variable performances
+This is an independent fork, not an official release of those upstream projects. Lichii is not affiliated with Nintendo.
 
-A list of supported games will be available in future. Please be patient.
+Visit the [official Lichii website](https://lichii.zortos.me) to find games and compare community compatibility reports.
 
-## Development
+## Downloads and setup
 
-For development discussions, please join us on [Discord](https://discord.gg/XkS5NVPTUY)
+Download Lichii only from this repository's [releases page](https://github.com/zortos293/Lichii/releases). Lichii has no other download site: archives offered elsewhere, such as lichii.org, are not built by this project, and one has been reported to install malware ([#545](https://github.com/zortos293/Lichii/issues/545)).
 
-If you would like to contribute, we are open to new developers and pull requests. Please ensure that your work is of a high standard and properly documented. You can also contact any of the developers on Discord or Stoat to learn more about the current state of the emulator.
+On Windows, extract the entire build archive and run **lichii.exe**. Only use games and system files you have legally obtained. Games, keys and firmware are not included.
 
-## Documentation
+### Existing saves and settings
 
-We have a user manual! See our [User Handbook](./docs/user/README.md).
+The rebrand intentionally retains the existing Eden/Eglantine data directories and configuration keys. It does not move or delete saves, settings or shader caches. Back up your saves before testing experimental builds.
 
-## Building
+## Compatibility and issue reports
 
-See the [General Build Guide](docs/Build.md)
+Compatibility and performance vary by game, hardware and driver. Rendering errors, stutters and crashes remain possible. Passing automated tests does not establish that a game renders correctly, and this project makes no universal frame-rate guarantee.
 
-For information on provided development tooling, see the [Tools directory](./tools)
+Browse [community compatibility reports](https://lichii.zortos.me/reports) for results with each player's build and setup.
 
-## Download
+Desktop reporting requires a build containing [PR #303](https://github.com/zortos293/Lichii/pull/303) and is not available in build 88. In builds that include it, play and stop a Switch 2 game, then right-click that game and choose **Submit compatibility report**. Only the latest session in the current Lichii process is eligible.
 
-You can download the latest releases from [here](https://github.com/Djihads80/Eglantine/releases).
+Confirm the matching website catalog entry and review the editable machine, game, setup, and enabled add-on details prefilled where available. Check the public preview and give explicit consent before submitting. Nothing uploads automatically, and the native v1 reporter does not read or upload logs or files.
 
-## Support
+When [reporting an issue](https://github.com/zortos293/Eglantine/issues), include:
 
-We currently do not take in any donations for the time being
+- The exact build, game version, CPU, GPU and driver version.
+- Relevant settings and steps to reproduce the problem.
+- A screenshot and the log from the affected session, after checking it for personal information.
 
-If you would prefer to support us in a different way, please join our [Discord](https://discord.gg/XkS5NVPTUY)
+Do not upload game files, keys, firmware or private account information.
 
-## Star History
+## Building and contributing
 
-<a href="https://www.star-history.com/?repos=djihads80%2Feglantine&type=date&legend=bottom-right">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=djihads80/eglantine&type=date&theme=dark&legend=bottom-right" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=djihads80/eglantine&type=date&legend=bottom-right" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=djihads80/eglantine&type=date&legend=bottom-right" />
- </picture>
-</a>
+See the [build guide](docs/Build.md), [user documentation](docs/user/README.md) and [coding guidelines](docs/Coding.md). Some inherited documentation and internal build target names still use upstream names. The GUI build target remains `yuzu`; its output is `lichii.exe` on Windows and `lichii` on other desktop platforms.
 
-## License
+Keep changes focused and distinguish code-level checks from actual gameplay testing.
 
-Eglantine is licensed under the GPLv3 (or any later version). Refer to the [LICENSE.txt](https://github.com/Djihads80/Eglantine/blob/nx2/LICENSE.txt) file.
+## Artwork
+Art created by YOB (yobslab)
+The supplied Lichii logo, icon and library artwork are in [dist/branding](dist/branding). Windows, Linux and macOS icon resources are generated from that artwork by [Generate-LichiiIcons.ps1](tools/Generate-LichiiIcons.ps1).
+
+## Support Lichii
+
+Lichii is free and stays free. If you want to help, you can donate in crypto. Donations help pay for the AI tools and build machines used to develop this open-source project faster.
+
+**Solana (SOL)**
+```text
+JepEjfyWjGjhJvHSrqj52KtLjcbbbmUh1iGqerYBF4w
+```
+
+**Ethereum (ETH)**
+```text
+0x055ABa1b80Bc35C836Ce7E9F47c2b3d6C75b5534
+```
+
+**Bitcoin (BTC)**
+```text
+bc1qcvxdpf4qvdhqp8ee4s355cjmxrzsphsdwpl8w4
+```
+
+**BNB Smart Chain (BNB)**
+```text
+0x055ABa1b80Bc35C836Ce7E9F47c2b3d6C75b5534
+```
+
+**Polygon**
+```text
+0x055ABa1b80Bc35C836Ce7E9F47c2b3d6C75b5534
+```
+
+Send each coin on its matching network. Coins sent on the wrong network can't be recovered.
+
+> [!NOTE]
+> Donations are voluntary gifts and are non-refundable. A donation does not buy any product, service, perk, early access, exclusive build, priority support or say in the project. Every release stays free and public for everyone.
+
+## Credits and license
+
+Lichii inherits the work of the Eglantine, Eden, yuzu and Sudachi projects and their contributors, including Eglantine's original developer Camille LaVey. Original copyright notices and third-party licenses are retained.
+
+See [LICENSE.txt](LICENSE.txt) and the source files for applicable license terms.

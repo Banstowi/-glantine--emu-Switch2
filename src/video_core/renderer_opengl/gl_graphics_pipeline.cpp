@@ -185,7 +185,8 @@ GraphicsPipeline::GraphicsPipeline(const Device& device, TextureCache& texture_c
                                    const std::array<const Shader::Info*, 5>& infos,
                                    const GraphicsPipelineKey& key_, bool force_context_flush)
     : texture_cache{texture_cache_}, buffer_cache{buffer_cache_}, program_manager{program_manager_},
-      state_tracker{state_tracker_}, key{key_} {
+      state_tracker{state_tracker_}, key{key_},
+      storage_buffer_alignment{device.GetShaderStorageBufferAlignment()} {
     if (shader_notify) {
         shader_notify->MarkShaderBuilding();
     }
@@ -318,7 +319,8 @@ bool GraphicsPipeline::ConfigureImpl(bool is_indexed) {
                                            return cbuf < cbufs.size() && cbufs[cbuf].enabled
                                                       ? cbufs[cbuf].address
                                                       : GPUVAddr{};
-                                       }),
+                                       },
+                                       storage_buffer_alignment),
                                    via_header_index);
             }
             ASSERT(cbufs[desc.cbuf_index].enabled);
@@ -329,7 +331,7 @@ bool GraphicsPipeline::ConfigureImpl(bool is_indexed) {
                           std::is_same_v<decltype(desc), const TextureBufferDescriptor&>) {
                 if (desc.has_secondary) {
                     ASSERT(cbufs[desc.secondary_cbuf_index].enabled);
-                    const u32 second_offset{desc.secondary_cbuf_offset + index_offset};
+                    const u32 second_offset{desc.secondary_cbuf_offset};
                     const GPUVAddr separate_addr{cbufs[desc.secondary_cbuf_index].address +
                                                  second_offset};
                     const u32 lhs_raw{gpu_memory->Read<u32>(addr) << desc.shift_left};
@@ -513,10 +515,11 @@ bool GraphicsPipeline::ConfigureImpl(bool is_indexed) {
         for (const auto& desc : info.image_descriptors) {
             for (u32 index = 0; index < desc.count; ++index) {
                 ImageView& image_view{texture_cache.GetImageView((views_it++)->id)};
+                images[image_binding] =
+                    image_view.StorageView(desc.type, desc.format, desc.is_byte_addressed);
                 if (desc.is_written) {
                     texture_cache.MarkModification(image_view.image_id);
                 }
-                images[image_binding] = image_view.StorageView(desc.type, desc.format);
                 if (texture_cache.IsRescaling(image_view)) {
                     image_scaling_mask |= 1u << stage_image_binding;
                 }

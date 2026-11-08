@@ -440,8 +440,13 @@ void NvidiaDlssPanel::Download() {
         for (const auto& [title, entry_name] : texts) {
             const ZipEntry* const entry = zip.Find(entry_name);
             const std::optional<std::string> text = entry ? zip.Read(*entry) : std::nullopt;
+            if (!text || text->empty()) {
+                busy.close();
+                fail("could not retrieve NVIDIA's licence text");
+                return;
+            }
             licences += fmt::format("==== {} ====\n\n{}\n\n", title.toStdString(),
-                                    text ? *text : std::string{"(see the release on GitHub)"});
+                                    *text);
         }
     }
 

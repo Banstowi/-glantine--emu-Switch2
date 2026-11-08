@@ -14,6 +14,7 @@
 
 #include "audio_core/audio_core.h"
 #include "audio_core/common/common.h"
+#include "audio_core/sink/input_processing.h"
 #include "audio_core/sink/sink_stream.h"
 #include "common/common_types.h"
 #include "common/fixed_point.h"
@@ -35,6 +36,8 @@ void SinkStream::AppendBuffer(SinkBuffer& buffer, std::span<s16> samples) {
     if (yuzu_volume > 1.0f)
         yuzu_volume = 0.6f + 20.0f * std::log10(yuzu_volume);
     auto const volume = system_volume * device_volume * yuzu_volume;
+    std::size_t pushed{};
+    const auto device_samples = samples.size() / system_channels * device_channels;
 
     if (system_channels > device_channels) {
         static constexpr std::array<f32, 4> tcoeff{1.0f, 0.596f, 0.354f, 0.707f};
@@ -59,46 +62,61 @@ void SinkStream::AppendBuffer(SinkBuffer& buffer, std::span<s16> samples) {
             samples[w_offs + 1] = s16(std::clamp(s32(right * volume), min, max));
         }
 
-        queue.EmplaceWait(buffer);
-        samples_buffer.Push(samples.subspan(0, samples.size() / system_channels * device_channels));
+        pushed = samples_buffer.Push(samples.subspan(0, device_samples));
     } else if (system_channels < device_channels) {
         std::vector<s16> new_samples(samples.size() / system_channels * device_channels);
         for (u32 r_offs = 0, w_offs = 0; r_offs < samples.size(); r_offs += system_channels, w_offs += device_channels)
             for (u32 channel = 0; channel < system_channels; ++channel)
                 new_samples[w_offs + channel] = s16(std::clamp(s32(f32(samples[r_offs + channel]) * volume), min, max));
 
-        queue.EmplaceWait(buffer);
-        samples_buffer.Push(new_samples);
+        pushed = samples_buffer.Push(new_samples);
     } else {
         if (volume != 1.0f) {
             for (u32 i = 0; i < samples.size(); ++i)
                 samples[i] = s16(std::clamp(s32(f32(samples[i]) * volume), min, max));
         }
 
-        queue.EmplaceWait(buffer);
-        samples_buffer.Push(samples);
+        pushed = samples_buffer.Push(samples);
     }
 
+    if (type == StreamType::Sysmix) {
+        ASSERT(pushed == device_samples);
+    }
     ++queued_buffers;
+    if (type == StreamType::Sysmix) {
+        const bool queued = queue.TryEmplace(buffer);
+        ASSERT(queued);
+    } else {
+        queue.EmplaceWait(buffer);
+    }
 }
 
+bool SinkStream::TryAppendOutputBlock(SinkBuffer& buffer, std::span<s16> samples) {
+    if (type != StreamType::Sysmix || !IsReady() || buffer.frames != TargetSampleCount ||
+        buffer.frames_played != 0 || buffer.consumed || system_channels != 2 ||
+        (device_channels != 2 && device_channels != 6) ||
+        samples.size() != TargetSampleCount * system_channels || queued_buffers.load() >= 3) {
+        return false;
+    }
+    AppendBuffer(buffer, samples);
+    return true;
+}
+
+/// Return a guest-sized capture buffer with gain, channel conversion, and underrun padding.
 std::vector<s16> SinkStream::ReleaseBuffer(u64 num_samples) {
-    auto samples{samples_buffer.Pop(num_samples)};
+    const auto frames = num_samples / system_channels;
+    const auto captured = samples_buffer.Pop(frames * device_channels);
+    const auto volume{system_volume * device_volume};
+    return ConvertInputSamples(captured, num_samples, device_channels, system_channels, volume);
+}
 
-    // TODO: Up-mix to 6 channels if the game expects it.
-    // For audio input this is unlikely to ever be the case though.
-
-    // Incoming mic volume seems to always be very quiet, so multiply by an additional 8 here.
-    // TODO: Play with this and find something that works better.
-    constexpr s32 min = (std::numeric_limits<s16>::min)();
-    constexpr s32 max = (std::numeric_limits<s16>::max)();
-    auto volume{system_volume * device_volume * 8};
-    for (u32 i = 0; i < samples.size(); i++)
-        samples[i] = s16(std::clamp(s32(f32(samples[i]) * volume), min, max));
-
-    if (samples.size() < num_samples)
-        samples.resize(num_samples, 0);
-    return samples;
+/// Consume fresh input without inventing frames during capture underruns.
+std::vector<s16> SinkStream::DrainInputSamples(u64 max_frames) {
+    const auto captured = samples_buffer.Pop(max_frames * device_channels);
+    const auto frames = captured.size() / device_channels;
+    const auto volume = system_volume * device_volume;
+    return ConvertInputSamples(captured, frames * system_channels, device_channels, system_channels,
+                               volume);
 }
 
 void SinkStream::ClearQueue() {
@@ -113,7 +131,15 @@ void SinkStream::ClearQueue() {
     playing_buffer.consumed = true;
 }
 
+/// Update a preview peak or queue guest capture; previews also run while emulation is paused.
 void SinkStream::ProcessAudioIn(std::span<const s16> input_buffer, std::size_t num_frames) {
+    if (input_preview) {
+        const auto peak = InputPeak(input_buffer, input_preview_gain.load());
+        auto previous = input_peak.load();
+        while (previous < peak && !input_peak.compare_exchange_weak(previous, peak)) {
+        }
+        return;
+    }
     const std::size_t num_channels = GetDeviceChannels();
     const std::size_t frame_size = num_channels;
     const std::size_t frame_size_bytes = frame_size * sizeof(s16);
@@ -167,13 +193,17 @@ void SinkStream::ProcessAudioIn(std::span<const s16> input_buffer, std::size_t n
 }
 
 void SinkStream::ProcessAudioOutAndRender(std::span<s16> output_buffer, std::size_t num_frames) {
+    if (num_frames == 0) {
+        return;
+    }
     const std::size_t num_channels = GetDeviceChannels();
     const std::size_t frame_size = num_channels;
     const std::size_t frame_size_bytes = frame_size * sizeof(s16);
     size_t frames_written{0};
     size_t actual_frames_written{0};
 
-    if (system.IsPaused() || system.IsShuttingDown()) {
+    if (system.IsPaused() || system.IsShuttingDown() ||
+        (type == StreamType::Sysmix && !IsReady())) {
         if (system.IsShuttingDown()) {
             std::scoped_lock lk{release_mutex};
             queued_buffers.store(0);
@@ -190,8 +220,13 @@ void SinkStream::ProcessAudioOutAndRender(std::span<s16> output_buffer, std::siz
 
             if (!queue.TryPop(playing_buffer)) {
                 lk.unlock();
-                for (size_t i = frames_written; i < num_frames; i++)
-                    std::memcpy(&output_buffer[i * frame_size], last_frame.data(), frame_size_bytes);
+                for (size_t i = frames_written; i < num_frames; i++) {
+                    if (type == StreamType::Sysmix) {
+                        std::memset(&output_buffer[i * frame_size], 0, frame_size_bytes);
+                    } else {
+                        std::memcpy(&output_buffer[i * frame_size], last_frame.data(), frame_size_bytes);
+                    }
+                }
                 frames_written = num_frames;
                 continue;
             }
@@ -216,7 +251,8 @@ void SinkStream::ProcessAudioOutAndRender(std::span<s16> output_buffer, std::siz
     std::memcpy(last_frame.data(), &output_buffer[(frames_written - 1) * frame_size], frame_size_bytes);
 
     // EDEN_NX2_AUDIO_LEVEL: log the output peak about every two seconds (is a game audible?).
-    if (static const bool meter = std::getenv("EDEN_NX2_AUDIO_LEVEL") != nullptr; meter) {
+    if (static const bool meter = std::getenv("EDEN_NX2_AUDIO_LEVEL") != nullptr;
+        meter || type == StreamType::Sysmix) {
         for (size_t i = 0; i < num_frames * frame_size; ++i) {
             level_peak = std::max<s32>(level_peak, std::abs(static_cast<s32>(output_buffer[i])));
         }
