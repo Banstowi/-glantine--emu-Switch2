@@ -314,7 +314,7 @@ void TextureCache<P>::TickFrame() {
         // unused. Both thresholds stay under it with a margin (1/8 of it, at most 1 GiB): past it
         // allocations fail and images end up unbacked (garbage textures), and Windows shrinks the
         // budget as the card fills (16 GB card: 13.5 GB left mid-race), hence the re-read every 30
-        // frames. EDEN_NX2_TC_*_MIB overrides still win.
+        // frames. EDEN_NX2_TC_*_MIB overrides can raise the thresholds up to this budget.
         if constexpr (requires { runtime.GetDeviceMemoryBudget(); }) {
             if constexpr (requires { runtime.MemoryPressureEvents(); }) {
                 // Images that did not fit (made in host memory or with nothing bound) mean the
