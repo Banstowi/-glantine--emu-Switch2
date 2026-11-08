@@ -5,6 +5,8 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 add_executable(tests
+    video_core/invalidation_accumulator.cpp
+    video_core/virtual_range_cache.cpp
     common/addon_config.cpp
     common/bit_field.cpp
     common/cityhash.cpp
