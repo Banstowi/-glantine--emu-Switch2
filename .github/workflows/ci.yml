@@ -6,17 +6,11 @@ run-name: >-
 # Entry point of every build. It decides what the run is (daily / rc / stable / branch), then calls
 # one reusable workflow per OS and a final one that publishes the GitHub release.
 #
-#   push to the default branch touching VERSION   stable or rc release, aborted when that tag already exists
-#   workflow_dispatch              branch build of the chosen ref (or a daily, from the default branch)
+#   workflow_dispatch              build-N release from the default branch, or a branch build
+#                                  of another ref (pushes never start a build, to spare minutes)
 # (No scheduled daily build here, to spare Actions minutes: run a daily by hand when wanted.)
 #   pull_request + ci:build label  branch build of a same-repo PR, rebuilt on each push
 on:
-  push:
-    branches:
-      - ccr-88d1adf7-3obcpe
-    paths:
-      - VERSION
-      - CHANGELOG.md
   workflow_dispatch:
     inputs:
       kind:
@@ -28,7 +22,7 @@ on:
         description: Which OS builds to run
         type: choice
         options: [all, linux, windows, macos]
-        default: all
+        default: windows
       pgo:
         description: Also build the PGO variants
         type: choice
