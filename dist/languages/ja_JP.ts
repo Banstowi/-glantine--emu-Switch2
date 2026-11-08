@@ -10096,7 +10096,7 @@ Most mods are RomFS mods, but patches (.pchtxt) are typically ExeFS mods.</sourc
     </message>
     <message>
         <location filename="../../src/qt_common/qt_string_lookup.h" line="96"/>
-        <source>Firmware installation cancelled, firmware may be in a bad state or corrupted. Restart Banst dog or re-install firmware.</source>
+        <source>Firmware installation cancelled, firmware may be in a bad state or corrupted. Restart Banst Family or re-install firmware.</source>
         <translation>ファームウェアのインストールがキャンセルされました。ファームウェアが不完全または破損している可能性があります。Edenを再起動するか、ファームウェアを再インストールしてください。</translation>
     </message>
     <message>
@@ -10111,12 +10111,12 @@ Most mods are RomFS mods, but patches (.pchtxt) are typically ExeFS mods.</sourc
     </message>
     <message>
         <location filename="../../src/qt_common/qt_string_lookup.h" line="110"/>
-        <source>Banst dog has detected user data for the following emulators:</source>
+        <source>Banst Family has detected user data for the following emulators:</source>
         <translation>以下のエミュレーターのユーザーデータが検出されました:</translation>
     </message>
     <message>
         <location filename="../../src/qt_common/qt_string_lookup.h" line="112"/>
-        <source>Would you like to migrate your data for use in Banst dog?
+        <source>Would you like to migrate your data for use in Banst Family?
 Select the corresponding button to migrate data from that emulator.
 This may take a while.</source>
         <translation>Edenで使用するためにデータを移行しますか？
@@ -10146,7 +10146,7 @@ This is recommended on devices with space constraints.</source>
     </message>
     <message>
         <location filename="../../src/qt_common/qt_string_lookup.h" line="124"/>
-        <source>Creates a filesystem link between the old directory and Banst dog directory.
+        <source>Creates a filesystem link between the old directory and Banst Family directory.
 This is recommended if you want to share data between emulators.</source>
         <translation>古いディレクトリとEdenのディレクトリの間にファイルシステムリンクを作成します。
 エミュレーター間でデータを共有したい場合におすすめです。</translation>

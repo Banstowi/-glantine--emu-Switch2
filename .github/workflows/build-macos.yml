@@ -160,7 +160,7 @@ jobs:
           dmgdir=$(mktemp -d)
           ditto "$app" "$dmgdir/banstdog.app"
           ln -s /Applications "$dmgdir/Applications"
-          hdiutil create -volname "Banst dog" -srcfolder "$dmgdir" -ov -format UDZO \
+          hdiutil create -volname "Banst Family" -srcfolder "$dmgdir" -ov -format UDZO \
             "banstdog-${SHA}-${PLATFORM}.dmg"
           ls -la "banstdog-${SHA}-${PLATFORM}.dmg"
 

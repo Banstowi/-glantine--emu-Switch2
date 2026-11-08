@@ -211,7 +211,7 @@ HttpResult HttpGet(const std::string& full_url, std::chrono::steady_clock::time_
 #ifdef YUZU_BUNDLED_OPENSSL
         client.load_ca_cert_store(kCert, sizeof(kCert));
 #endif
-        httplib::Headers headers{{"User-Agent", "Banst dog"}};
+        httplib::Headers headers{{"User-Agent", "Banst Family"}};
         if (!bearer_token.empty()) {
             headers.emplace("Authorization", "Bearer " + bearer_token);
         }

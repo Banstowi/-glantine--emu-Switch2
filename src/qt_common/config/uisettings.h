@@ -170,7 +170,8 @@ struct Values {
     bool game_dir_deprecated_deepscan;
     QVector<GameDir> game_dirs;
     QStringList recent_files;
-    Setting<std::string> language{linkage, {}, "language", Category::Paths};
+    // French by default; an empty value follows the system language.
+    Setting<std::string> language{linkage, "fr", "language", Category::Paths};
 
     // Optional key that enables the SteamGridDB icon fallback
     Setting<std::string> steamgriddb_api_key{linkage, {}, "steamgriddb_api_key", Category::Ui};

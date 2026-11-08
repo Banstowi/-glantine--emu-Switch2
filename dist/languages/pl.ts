@@ -10072,7 +10072,7 @@ Most mods are RomFS mods, but patches (.pchtxt) are typically ExeFS mods.</sourc
     </message>
     <message>
         <location filename="../../src/qt_common/qt_string_lookup.h" line="96"/>
-        <source>Firmware installation cancelled, firmware may be in a bad state or corrupted. Restart Banst dog or re-install firmware.</source>
+        <source>Firmware installation cancelled, firmware may be in a bad state or corrupted. Restart Banst Family or re-install firmware.</source>
         <translation>Instalacja firmware’u została anulowana — firmware może być w złym stanie lub uszkodzony. Uruchom ponownie Eden lub zainstaluj firmware ponownie.</translation>
     </message>
     <message>
@@ -10087,12 +10087,12 @@ Most mods are RomFS mods, but patches (.pchtxt) are typically ExeFS mods.</sourc
     </message>
     <message>
         <location filename="../../src/qt_common/qt_string_lookup.h" line="110"/>
-        <source>Banst dog has detected user data for the following emulators:</source>
+        <source>Banst Family has detected user data for the following emulators:</source>
         <translation>Eden wykrył dane użytkownika dla następujących emulatorów:</translation>
     </message>
     <message>
         <location filename="../../src/qt_common/qt_string_lookup.h" line="112"/>
-        <source>Would you like to migrate your data for use in Banst dog?
+        <source>Would you like to migrate your data for use in Banst Family?
 Select the corresponding button to migrate data from that emulator.
 This may take a while.</source>
         <translation>Czy chcesz przenieść swoje dane do użytku w Edenie?
@@ -10121,7 +10121,7 @@ Zalecane na urządzeniach z ograniczoną ilością miejsca.</translation>
     </message>
     <message>
         <location filename="../../src/qt_common/qt_string_lookup.h" line="124"/>
-        <source>Creates a filesystem link between the old directory and Banst dog directory.
+        <source>Creates a filesystem link between the old directory and Banst Family directory.
 This is recommended if you want to share data between emulators.</source>
         <translation>Tworzy powiązanie systemu plików między starym katalogiem a katalogiem Eden.
 Zalecane, jeśli chcesz współdzielić dane między emulatorami.</translation>
