@@ -36,10 +36,11 @@ else
   publish=true
 fi
 
-# A manual daily is allowed only from nx2 and bypasses the unchanged-commit check.
+# A manual daily is allowed only from the default branch and bypasses the unchanged-commit check.
+main_branch="${MAIN_BRANCH:-nx2}"
 if [[ "$mode" == workflow_dispatch && "${INPUT_KIND:-branch}" == daily ]]; then
-  [[ "${GITHUB_REF_NAME:-}" == nx2 ]] || {
-    echo "A manual daily build can only run from nx2" >&2
+  [[ "${GITHUB_REF_NAME:-}" == "$main_branch" ]] || {
+    echo "A manual daily build can only run from $main_branch" >&2
     exit 1
   }
   mode=schedule
@@ -59,7 +60,7 @@ case "$mode" in
     tag="daily-$day"
     refspec="$tag"
     version="$day-${sha:0:7}"
-    title="Eglantine Build $(date -u +%d/%m/%Y)"
+    title="Banst Family Build $(date -u +%d/%m/%Y)"
     latest=$(daily_tags | head -n1 || true)
     prev_tag=$(daily_tags | grep -vxF "$tag" | head -n1 || true)
     if [[ "$force" == false && -n "$latest" ]] &&
@@ -72,7 +73,7 @@ case "$mode" in
     tag="v$base"
     refspec="$tag"
     version="$tag"
-    title="Eglantine $tag"
+    title="Banst Family $tag"
     nightly=false
     if [[ "$base" == *-rc* ]]; then
       kind=rc
@@ -107,7 +108,7 @@ case "$mode" in
     tag="branch-$slug"
     refspec="$slug"
     version="$slug-${sha:0:7}"
-    title="Eglantine Branch: ${pr_title:-$branch}"
+    title="Banst Family Branch: ${pr_title:-$branch}"
     ;;
 
   *)
