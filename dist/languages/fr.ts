@@ -4,12 +4,12 @@
     <message>
         <location filename="../../src/yuzu/aboutdialog.ui" line="14"/>
         <source>About Eden</source>
-        <translation>À propos d&apos;Eden</translation>
+        <translation>À propos de Banst Family</translation>
     </message>
     <message>
         <location filename="../../src/yuzu/aboutdialog.ui" line="72"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:28pt;&quot;&gt;Eden&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:28pt;&quot;&gt;Eden&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:28pt;&quot;&gt;Banst Family&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../src/yuzu/aboutdialog.ui" line="85"/>
@@ -33,7 +33,7 @@ hr { height: 1px; border-width: 0; }
 li.unchecked::marker { content: &quot;\2610&quot;; }
 li.checked::marker { content: &quot;\2612&quot;; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Noto Sans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt;&quot;&gt;Eden est un émulateur expérimental open source pour la Nintendo Switch, sous licence GPLv3.0+, basé sur l’émulateur yuzu, dont le développement s’est arrêté en Mars 2024. &lt;br /&gt;&lt;br /&gt;Ce logiciel ne doit pas être utilisé pour jouer à des jeux que vous n’avez pas obtenus légalement.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt;&quot;&gt;Banst Family est un émulateur expérimental open source pour la Nintendo Switch, sous licence GPLv3.0+, basé sur l’émulateur Banst Family, dont le développement s’est arrêté en Mars 2024. &lt;br /&gt;&lt;br /&gt;Ce logiciel ne doit pas être utilisé pour jouer à des jeux que vous n’avez pas obtenus légalement.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../src/yuzu/aboutdialog.ui" line="131"/>
@@ -43,7 +43,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <message>
         <location filename="../../src/yuzu/aboutdialog.ui" line="147"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;&amp;quot;Nintendo Switch&amp;quot; is a trademark of Nintendo. Eden is not affiliated with Nintendo in any way.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;&amp;quot;Nintendo Switch&amp;quot; est une marque déposée de Nintendo. Eden n’est en aucun cas affilié à Nintendo.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;&amp;quot;Nintendo Switch&amp;quot; est une marque déposée de Nintendo. Banst Family n’est en aucun cas affilié à Nintendo.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -2649,7 +2649,7 @@ L’activer permet de contourner ces confirmations et de quitter directement l�
     <message>
         <location filename="../../src/yuzu/configuration/configure_debug.ui" line="449"/>
         <source>When checked, yuzu will log statistics about the compiled pipeline cache</source>
-        <translation>Lorsque la case est cochée, yuzu enregistrera les journaux de statistiques à propos de la cache de pipeline compilée</translation>
+        <translation>Lorsque la case est cochée, Banst Family enregistrera les journaux de statistiques à propos de la cache de pipeline compilée</translation>
     </message>
     <message>
         <location filename="../../src/yuzu/configuration/configure_debug.ui" line="452"/>
@@ -2684,7 +2684,7 @@ L’activer permet de contourner ces confirmations et de quitter directement l�
     <message>
         <location filename="../../src/yuzu/configuration/configure_debug.ui" line="488"/>
         <source>Enables yuzu to check for a working Vulkan environment when the program starts up. Disable this if this is causing issues with external programs seeing yuzu.</source>
-        <translation>Active yuzu pour chercher pour un environnement Vulkan fonctionnel quand le programme démarre. Desactiver ceci si cela cause des problèmes avec des programmes externes.</translation>
+        <translation>Active Banst Family pour chercher pour un environnement Vulkan fonctionnel quand le programme démarre. Desactiver ceci si cela cause des problèmes avec des programmes externes.</translation>
     </message>
     <message>
         <location filename="../../src/yuzu/configuration/configure_debug.ui" line="491"/>
@@ -2794,7 +2794,7 @@ L’activer permet de contourner ces confirmations et de quitter directement l�
     <message>
         <location filename="../../src/yuzu/configuration/configure_debug.ui" line="787"/>
         <source>**This will be reset automatically when Eden closes.</source>
-        <translation>**Ceci sera automatiquement réinitialisé à la fermeture d&apos;Eden.</translation>
+        <translation>**Ceci sera automatiquement réinitialisé à la fermeture de Banst Family.</translation>
     </message>
 </context>
 <context>
@@ -2839,7 +2839,7 @@ L’activer permet de contourner ces confirmations et de quitter directement l�
     <message>
         <location filename="../../src/yuzu/configuration/configure.ui" line="20"/>
         <source>Eden Configuration</source>
-        <translation>Configuration d&apos;Eden</translation>
+        <translation>Configuration de Banst Family</translation>
     </message>
     <message>
         <location filename="../../src/yuzu/configuration/configure.ui" line="67"/>
@@ -3191,7 +3191,7 @@ Would you like to delete the old save data?</source>
     <message>
         <location filename="../../src/yuzu/configuration/configure_general.cpp" line="101"/>
         <source>Eden</source>
-        <translation>Eden</translation>
+        <translation>Banst Family</translation>
     </message>
     <message>
         <location filename="../../src/yuzu/configuration/configure_general.cpp" line="102"/>
@@ -3752,7 +3752,7 @@ Would you like to delete the old save data?</source>
         <location filename="../../src/yuzu/configuration/configure_input_advanced.ui" line="2701"/>
         <location filename="../../src/yuzu/configuration/configure_input_advanced.ui" line="2717"/>
         <source>Requires restarting Eden</source>
-        <translation>Nécessite de redémarrer Eden.</translation>
+        <translation>Nécessite de redémarrer Banst Family.</translation>
     </message>
     <message>
         <location filename="../../src/yuzu/configuration/configure_input_advanced.ui" line="2668"/>
@@ -4470,7 +4470,7 @@ Pour inverser les axes, bougez d&apos;abord votre joystick verticalement, puis h
         <location filename="../../src/yuzu/configuration/configure_motion_touch.cpp" line="186"/>
         <location filename="../../src/yuzu/configuration/configure_motion_touch.cpp" line="280"/>
         <source>Eden</source>
-        <translation>Eden</translation>
+        <translation>Banst Family</translation>
     </message>
     <message>
         <location filename="../../src/yuzu/configuration/configure_motion_touch.cpp" line="166"/>
@@ -5466,7 +5466,7 @@ Faites glisser les points pour modifier la position ou double-cliquez sur les ce
     <message>
         <location filename="../../src/yuzu/configuration/configure_touchscreen_advanced.ui" line="26"/>
         <source>Warning: The settings in this page affect the inner workings of Eden&apos;s emulated touchscreen. Changing them may result in undesirable behavior, such as the touchscreen partially or not working. You should only use this page if you know what you are doing.</source>
-        <translation>Avertissement : Les paramètres de cette page affectent le fonctionnement interne de l&apos;écran tactile émulé d&apos;Eden. Les modifier peut entraîner un comportement indésirable, comme un écran tactile partiellement fonctionnel, voire complètement inutilisable. Vous ne devez utiliser cette page que si vous savez ce que vous faites.</translation>
+        <translation>Avertissement : Les paramètres de cette page affectent le fonctionnement interne de l&apos;écran tactile émulé de Banst Family. Les modifier peut entraîner un comportement indésirable, comme un écran tactile partiellement fonctionnel, voire complètement inutilisable. Vous ne devez utiliser cette page que si vous savez ce que vous faites.</translation>
     </message>
     <message>
         <location filename="../../src/yuzu/configuration/configure_touchscreen_advanced.ui" line="52"/>
@@ -5757,7 +5757,7 @@ Faites glisser les points pour modifier la position ou double-cliquez sur les ce
     <message>
         <location filename="../../src/yuzu/configuration/configure_web.ui" line="25"/>
         <source>Eden Web Service</source>
-        <translation>Service Web d&apos;Eden.</translation>
+        <translation>Service Web de Banst Family.</translation>
     </message>
     <message>
         <location filename="../../src/yuzu/configuration/configure_web.ui" line="33"/>
@@ -5903,17 +5903,17 @@ Faites glisser les points pour modifier la position ou double-cliquez sur les ce
     <message>
         <location filename="../../src/yuzu/deps_dialog.ui" line="14"/>
         <source>Eden Dependencies</source>
-        <translation>Dépendances d&apos;Eden</translation>
+        <translation>Dépendances de Banst Family</translation>
     </message>
     <message>
         <location filename="../../src/yuzu/deps_dialog.ui" line="72"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:28pt;&quot;&gt;Eden Dependencies&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:28pt;&quot;&gt;Dépendances d&apos;Eden&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:28pt;&quot;&gt;Dépendances de Banst Family&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../src/yuzu/deps_dialog.ui" line="85"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The projects that make Eden possible&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Les projets qui rendent Eden possible&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Les projets qui rendent Banst Family possible&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../src/yuzu/deps_dialog.cpp" line="22"/>
@@ -6032,7 +6032,7 @@ Faites glisser les points pour modifier la position ou double-cliquez sur les ce
     <message>
         <location filename="../../src/yuzu/multiplayer/message.cpp" line="32"/>
         <source>Creating a room failed. Please retry. Restarting Eden might be necessary.</source>
-        <translation>La création du salon a échoué. Veuillez réessayer. Il peut être nécessaire de redémarrer Eden.</translation>
+        <translation>La création du salon a échoué. Veuillez réessayer. Il peut être nécessaire de redémarrer Banst Family.</translation>
     </message>
     <message>
         <location filename="../../src/yuzu/multiplayer/message.cpp" line="34"/>
@@ -6042,7 +6042,7 @@ Faites glisser les points pour modifier la position ou double-cliquez sur les ce
     <message>
         <location filename="../../src/yuzu/multiplayer/message.cpp" line="37"/>
         <source>Version mismatch! Please update to the latest version of Eden. If the problem persists, contact the room host and ask them to update the server.</source>
-        <translation>Mise à jour requise ! Veuillez mettre à jour vers la dernière version d&apos;Eden. Si le problème persiste, contactez l&apos;hôte du salon et demandez-lui de mettre à jour le serveur.</translation>
+        <translation>Mise à jour requise ! Veuillez mettre à jour vers la dernière version de Banst Family. Si le problème persiste, contactez l&apos;hôte du salon et demandez-lui de mettre à jour le serveur.</translation>
     </message>
     <message>
         <location filename="../../src/yuzu/multiplayer/message.cpp" line="39"/>
@@ -6110,7 +6110,7 @@ Veuillez aller dans Configurer -&gt; Système -&gt; Réseau puis en choisir une.
     <message>
         <location filename="../../src/yuzu/bootmanager.cpp" line="863"/>
         <source>Eden has not been compiled with OpenGL support.</source>
-        <translation>Eden n&apos;a pas été compilé avec le support OpenGL</translation>
+        <translation>Banst Family n&apos;a pas été compilé avec le support OpenGL</translation>
     </message>
     <message>
         <location filename="../../src/yuzu/bootmanager.cpp" line="887"/>
@@ -6515,7 +6515,7 @@ Veuillez aller dans Configurer -&gt; Système -&gt; Réseau puis en choisir une.
         <location filename="../../src/yuzu/multiplayer/host_room.cpp" line="187"/>
         <source>Failed to announce the room to the public lobby. In order to host a room publicly, you must have a valid Eden account configured in Emulation -&gt; Configure -&gt; Web. If you do not want to publish a room in the public lobby, then select Unlisted instead.
 Debug Message: </source>
-        <translation>Échec de l&apos;annonce du salon dans le hall public. Pour héberger un salon publiquement, vous devez configurer un compte Eden valide dans Émulation -&gt; Configuration -&gt; Web. Si vous ne souhaitez pas publier le salon dans le hall public, sélectionnez &quot;Non répertorié&quot; à la place.
+        <translation>Échec de l&apos;annonce du salon dans le hall public. Pour héberger un salon publiquement, vous devez configurer un compte Banst Family valide dans Émulation -&gt; Configuration -&gt; Web. Si vous ne souhaitez pas publier le salon dans le hall public, sélectionnez &quot;Non répertorié&quot; à la place.
 Message de débogage :</translation>
     </message>
 </context>
@@ -6616,7 +6616,7 @@ Message de débogage :</translation>
     <message>
         <location filename="../../src/qt_common/config/uisettings.cpp" line="45"/>
         <source>Exit Eden</source>
-        <translation>Fermer Eden</translation>
+        <translation>Fermer Banst Family</translation>
     </message>
     <message>
         <location filename="../../src/qt_common/config/uisettings.cpp" line="46"/>
@@ -6884,7 +6884,7 @@ Message de débogage :</translation>
     <message>
         <location filename="../../src/yuzu/main.ui" line="14"/>
         <source>yuzu</source>
-        <translation>yuzu</translation>
+        <translation>Banst Family</translation>
     </message>
     <message>
         <location filename="../../src/yuzu/main.ui" line="53"/>
@@ -6899,7 +6899,7 @@ Message de débogage :</translation>
     <message>
         <location filename="../../src/yuzu/main.ui" line="62"/>
         <source>Open &amp;Eden Folders</source>
-        <translation>Ouvrir &amp;les dossiers Eden</translation>
+        <translation>Ouvrir &amp;les dossiers Banst Family</translation>
     </message>
     <message>
         <location filename="../../src/yuzu/main.ui" line="85"/>
@@ -7040,7 +7040,7 @@ Message de débogage :</translation>
     <message>
         <location filename="../../src/yuzu/main.ui" line="295"/>
         <source>&amp;About Eden</source>
-        <translation>&amp;À propos d&apos;Eden</translation>
+        <translation>&amp;À propos de Banst Family</translation>
     </message>
     <message>
         <location filename="../../src/yuzu/main.ui" line="303"/>
@@ -7252,7 +7252,7 @@ Message de débogage :</translation>
     <message>
         <location filename="../../src/yuzu/main.ui" line="558"/>
         <source>&amp;Eden Dependencies</source>
-        <translation>Dépendances d&apos;&amp;Eden</translation>
+        <translation>Dépendances d&apos;&amp;Banst Family</translation>
     </message>
     <message>
         <location filename="../../src/yuzu/main.ui" line="563"/>
@@ -8099,7 +8099,7 @@ Would you like to force it for future launches?</source>
         <location filename="../../src/yuzu/main_window.cpp" line="4608"/>
         <location filename="../../src/yuzu/main_window.cpp" line="4620"/>
         <source>Eden</source>
-        <translation>Eden</translation>
+        <translation>Banst Family</translation>
     </message>
     <message>
         <location filename="../../src/yuzu/main_window.cpp" line="4609"/>
@@ -9411,7 +9411,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../src/qt_common/util/content.cpp" line="328"/>
         <source>UNEXPECTED BAD THINGS MAY HAPPEN IF YOU DON&apos;T READ THIS!&lt;br&gt;Eden has detected the following save directories with no attached profile:&lt;br&gt;%1&lt;br&gt;&lt;br&gt;The following profiles are valid:&lt;br&gt;%2&lt;br&gt;&lt;br&gt;Click &quot;OK&quot; to open your save folder and fix up your profiles.&lt;br&gt;Hint: copy the contents of the largest or last-modified folder elsewhere, delete all orphaned profiles, and move your copied contents to the good profile.&lt;br&gt;&lt;br&gt;Still confused? See the &lt;a href=&apos;https://git.eden-emu.dev/eden-emu/eden/src/branch/master/docs/user/Orphaned.md&apos;&gt;help page&lt;/a&gt;.&lt;br&gt;</source>
-        <translation>DES CHOSES GRAVES INATTENDUES PEUVENT SURVENIR SI VOUS NE LISEZ PAS CECI !&lt;br&gt;Eden a détecté les répertoires de sauvegarde suivants sans profil associé :&lt;br&gt;%1&lt;br&gt;&lt;br&gt;Les profils suivants sont valides :&lt;br&gt;%2&lt;br&gt;&lt;br&gt;Cliquez sur « OK » pour ouvrir votre dossier de sauvegarde et corriger vos profils.&lt;br&gt;Astuce : copiez le contenu du dossier le plus volumineux ou le plus récemment modifié ailleurs, supprimez tous les profils orphelins et déplacez le contenu copié vers le profil correct.&lt;br&gt;&lt;br&gt;Toujours confus ? Consultez la &lt;a href=&apos;https://git.eden-emu.dev/eden-emu/eden/src/branch/master/docs/user/Orphaned.md&apos;&gt;page d’aide&lt;/a&gt;.&lt;br&gt;</translation>
+        <translation>DES CHOSES GRAVES INATTENDUES PEUVENT SURVENIR SI VOUS NE LISEZ PAS CECI !&lt;br&gt;Banst Family a détecté les répertoires de sauvegarde suivants sans profil associé :&lt;br&gt;%1&lt;br&gt;&lt;br&gt;Les profils suivants sont valides :&lt;br&gt;%2&lt;br&gt;&lt;br&gt;Cliquez sur « OK » pour ouvrir votre dossier de sauvegarde et corriger vos profils.&lt;br&gt;Astuce : copiez le contenu du dossier le plus volumineux ou le plus récemment modifié ailleurs, supprimez tous les profils orphelins et déplacez le contenu copié vers le profil correct.&lt;br&gt;&lt;br&gt;Toujours confus ? Consultez la &lt;a href=&apos;https://git.eden-emu.dev/eden-emu/eden/src/branch/master/docs/user/Orphaned.md&apos;&gt;page d’aide&lt;/a&gt;.&lt;br&gt;</translation>
     </message>
     <message>
         <location filename="../../src/qt_common/util/content.cpp" line="347"/>
@@ -10044,7 +10044,7 @@ Most mods are RomFS mods, but patches (.pchtxt) are typically ExeFS mods.</sourc
     <message>
         <location filename="../../src/qt_common/qt_string_lookup.h" line="96"/>
         <source>Firmware installation cancelled, firmware may be in a bad state or corrupted. Restart Eden or re-install firmware.</source>
-        <translation>Installation du Firmware annulée, le firmware peut être corrompu ou dans un état incorrect. Redémarrez Eden ou réinstallez le Firmware.</translation>
+        <translation>Installation du Firmware annulée, le firmware peut être corrompu ou dans un état incorrect. Redémarrez Banst Family ou réinstallez le Firmware.</translation>
     </message>
     <message>
         <location filename="../../src/qt_common/qt_string_lookup.h" line="101"/>
@@ -10059,14 +10059,14 @@ Most mods are RomFS mods, but patches (.pchtxt) are typically ExeFS mods.</sourc
     <message>
         <location filename="../../src/qt_common/qt_string_lookup.h" line="110"/>
         <source>Eden has detected user data for the following emulators:</source>
-        <translation>Eden a détecté des données utilisateur pour les émulateurs suivants :</translation>
+        <translation>Banst Family a détecté des données utilisateur pour les émulateurs suivants :</translation>
     </message>
     <message>
         <location filename="../../src/qt_common/qt_string_lookup.h" line="112"/>
         <source>Would you like to migrate your data for use in Eden?
 Select the corresponding button to migrate data from that emulator.
 This may take a while.</source>
-        <translation>Voulez‑vous migrer vos données pour les utiliser dans Eden ?
+        <translation>Voulez‑vous migrer vos données pour les utiliser dans Banst Family ?
 Sélectionnez le bouton correspondant pour migrer les données depuis cet émulateur.
 Cette opération peut prendre un certain temps.</translation>
     </message>
@@ -10094,7 +10094,7 @@ Ceci est recommandé sur les appareils disposant de peu d’espace.</translation
         <location filename="../../src/qt_common/qt_string_lookup.h" line="124"/>
         <source>Creates a filesystem link between the old directory and Eden directory.
 This is recommended if you want to share data between emulators.</source>
-        <translation>Crée un lien de système de fichiers entre l’ancien répertoire et le répertoire Eden.
+        <translation>Crée un lien de système de fichiers entre l’ancien répertoire et le répertoire Banst Family.
 Ceci est recommandé si vous souhaitez partager les données entre les émulateurs.</translation>
     </message>
     <message>
@@ -10556,14 +10556,14 @@ p, li { white-space: pre-wrap; }
         <source>Linking save data to Ryujinx lets both Ryujinx and Eden reference the same save files for your games.
 
 By selecting &quot;From Eden&quot;, previous save data stored in Ryujinx will be deleted, and vice versa for &quot;From Ryujinx&quot;.</source>
-        <translation>Lier les données de sauvegarde à Ryujinx permet à la fois à Ryujinx et à Eden de référencer les mêmes fichiers de sauvegarde pour vos jeux.
+        <translation>Lier les données de sauvegarde à Ryujinx permet à la fois à Ryujinx et à Banst Family de référencer les mêmes fichiers de sauvegarde pour vos jeux.
 
-En sélectionnant « Depuis Eden », les données de sauvegarde précédemment stockées dans Ryujinx seront supprimées, et inversement pour « Depuis Ryujinx ».</translation>
+En sélectionnant « Depuis Banst Family », les données de sauvegarde précédemment stockées dans Ryujinx seront supprimées, et inversement pour « Depuis Ryujinx ».</translation>
     </message>
     <message>
         <location filename="../../src/yuzu/ryujinx_dialog.ui" line="40"/>
         <source>From Eden</source>
-        <translation>Depuis Eden</translation>
+        <translation>Depuis Banst Family</translation>
     </message>
     <message>
         <location filename="../../src/yuzu/ryujinx_dialog.ui" line="47"/>
