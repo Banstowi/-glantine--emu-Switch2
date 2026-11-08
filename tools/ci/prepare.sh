@@ -104,11 +104,25 @@ case "$mode" in
       pr_title=$(gh pr list --repo "$repo" --head "$branch" --state open --json title \
         --jq '.[0].title // ""' 2>/dev/null || true)
     fi
-    slug=$(bash "$here/slugify.sh" "$branch")
-    tag="branch-$slug"
-    refspec="$slug"
-    version="$slug-${sha:0:7}"
-    title="Banst Family Branch: ${pr_title:-$branch}"
+    if [[ "$mode" == workflow_dispatch && "$branch" == "$main_branch" ]]; then
+      # A manual build of the default branch is a numbered release, build-N, which the
+      # emulator's update checker compares against its own number.
+      kind=build
+      number="${GITHUB_RUN_NUMBER:?GITHUB_RUN_NUMBER is not set}"
+      tag="build-$number"
+      refspec="$tag"
+      version="$tag"
+      title="Banst Family build $number"
+      prerelease=false
+      nightly=false
+      branch=""
+    else
+      slug=$(bash "$here/slugify.sh" "$branch")
+      tag="branch-$slug"
+      refspec="$slug"
+      version="$slug-${sha:0:7}"
+      title="Banst Family Branch: ${pr_title:-$branch}"
+    fi
     ;;
 
   *)

@@ -43,6 +43,11 @@ commits() { git log --no-merges --pretty='- %s (`%h`)' "$@" 2>/dev/null | head -
       if [[ -n "${PREV_TAG:-}" ]]; then commits "$PREV_TAG..$sha"; else commits -n 30 "$sha"; fi
       printf '\n'
       ;;
+    build)
+      printf 'Banst Family %s, built from `%s` at `%s`. The emulator offers it as an update to earlier builds.\n\n## Latest commits\n\n' "$tag" "$main" "$short"
+      commits -n 30 "$sha"
+      printf '\n'
+      ;;
     branch)
       printf 'Test build of branch `%s` at `%s`.\n\n**This is not a release.** It is for testing, and the next push to the branch replaces it.\n\n## Commits on top of %s\n\n' "${BRANCH:-?}" "$short" "$main"
       commits "origin/$main..$sha"

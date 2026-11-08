@@ -100,7 +100,9 @@ jobs:
           -DYUZU_ROOM_STANDALONE=OFF
           -DYUZU_USE_BUNDLED_QT=OFF
           -DYUZU_USE_BUNDLED_SDL3=ON
-          -DENABLE_UPDATE_CHECKER=OFF
+          -DENABLE_UPDATE_CHECKER=ON
+          -DLICHII_BUILD_TAG=${{ inputs.tag }}
+          -DLICHII_BUILD_PLATFORM=${{ env.PLATFORM }}
           -DUSE_DISCORD_PRESENCE=OFF
           -DNIGHTLY_BUILD=${{ inputs.nightly && 'ON' || 'OFF' }}
           -DCMAKE_C_COMPILER_LAUNCHER=sccache
@@ -113,7 +115,7 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          cmake --build build/release --target yuzu yuzu-cmd --parallel
+          cmake --build build/release --target yuzu yuzu-cmd banstdog-updater --parallel
           sccache --show-stats
 
       - name: Package Windows binary
