@@ -102,7 +102,7 @@ jobs:
           -DYUZU_USE_BUNDLED_SDL3=ON
           -DENABLE_UPDATE_CHECKER=ON
           -DLICHII_BUILD_TAG=${{ inputs.tag }}
-          -DLICHII_BUILD_PLATFORM=${{ env.PLATFORM }}
+          -DLICHII_BUILD_PLATFORM=windows-x86_64
           -DUSE_DISCORD_PRESENCE=OFF
           -DNIGHTLY_BUILD=${{ inputs.nightly && 'ON' || 'OFF' }}
           -DCMAKE_C_COMPILER_LAUNCHER=sccache

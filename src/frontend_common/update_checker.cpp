@@ -60,6 +60,8 @@ std::optional<Common::Net::Release> SelectUpdate(std::span<const Common::Net::Re
 CheckResult Check() {
     if (!ParseBuildNumber(Common::g_build_release_tag) ||
         std::string_view{Common::g_build_release_platform}.empty()) {
+        LOG_INFO(Frontend, "Update check skipped: build tag '{}', platform '{}'",
+                 Common::g_build_release_tag, Common::g_build_release_platform);
         return {};
     }
 
@@ -75,6 +77,10 @@ CheckResult Check() {
                                Common::Net::CurrentLinuxPackage());
     if (update) {
         LOG_INFO(Frontend, "Received update {}", update->title);
+    } else {
+        LOG_INFO(Frontend, "No update newer than {} for {} among {} releases",
+                 Common::g_build_release_tag, Common::g_build_release_platform,
+                 list.releases.size());
     }
     return {.update = std::move(update)};
 }
