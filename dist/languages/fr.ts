@@ -8243,6 +8243,30 @@ Would you like to bypass this and exit anyway?</source>
         <source>Null</source>
         <translation type="unfinished"/>
     </message>
+    <message>
+        <source>Precache Shaders</source>
+        <translation>Précompiler les shaders</translation>
+    </message>
+    <message>
+        <source>The shaders of this game are not precached yet. Precache them now?
+
+The game starts when they are done. The first time, the game files are read and their shaders are built on every CPU thread, with the shaders earlier play sessions saved, which takes a few minutes. Later launches only build what is new, until the GPU driver changes. The loading screen has a Skip button.
+
+You can change this in Configure, Graphics, Advanced.</source>
+        <translation>Les shaders de ce jeu ne sont pas encore précompilés. Les précompiler maintenant ?
+
+Le jeu démarre dès que c'est terminé. La première fois, les fichiers du jeu sont lus et leurs shaders sont compilés avec tous les cœurs du processeur, ainsi que ceux enregistrés lors des parties précédentes : comptez quelques minutes. Les lancements suivants ne compilent que les nouveautés, jusqu'au prochain changement de pilote graphique. L'écran de chargement a un bouton pour passer.
+
+Ce choix se modifie dans Configurer, Graphismes, Avancé.</translation>
+    </message>
+    <message>
+        <source>Precache now</source>
+        <translation>Précompiler maintenant</translation>
+    </message>
+    <message>
+        <source>Start without</source>
+        <translation>Démarrer sans</translation>
+    </message>
 </context>
 <context>
     <name>MigrationWorker</name>
@@ -10713,6 +10737,57 @@ Error code: %3</source>
         <location filename="../../src/yuzu/updater/update_dialog.cpp" line="173"/>
         <source>Successfully downloaded %1. Would you like to open it?</source>
         <translation type="unfinished"/>
+    </message>
+</context>
+<context>
+    <name>ShaderWarmDialog</name>
+    <message>
+        <source>Reading game files</source>
+        <translation>Lecture des fichiers du jeu</translation>
+    </message>
+    <message>
+        <source>Extracting shaders</source>
+        <translation>Extraction des shaders</translation>
+    </message>
+    <message>
+        <source>Converting shaders</source>
+        <translation>Conversion des shaders</translation>
+    </message>
+    <message>
+        <source>Writing the precache file</source>
+        <translation>Écriture du fichier de précompilation</translation>
+    </message>
+    <message>
+        <source>Precache shaders: %1</source>
+        <translation>Précompilation des shaders : %1</translation>
+    </message>
+    <message>
+        <source>Starting</source>
+        <translation>Démarrage</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Annuler</translation>
+    </message>
+    <message>
+        <source>Stopping</source>
+        <translation>Arrêt en cours</translation>
+    </message>
+    <message>
+        <source>Shader precache is ready.</source>
+        <translation>Les shaders sont précompilés.</translation>
+    </message>
+    <message>
+        <source>Shader precache stopped.</source>
+        <translation>Précompilation des shaders interrompue.</translation>
+    </message>
+    <message>
+        <source>Shader precache could not be built.</source>
+        <translation>La précompilation des shaders a échoué.</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Fermer</translation>
     </message>
 </context>
 </TS>

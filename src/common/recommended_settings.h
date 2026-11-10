@@ -36,7 +36,8 @@ void ForEachRecommendedSetting(Values& settings, Func&& func) {
     entry(settings.use_vulkan_driver_pipeline_cache, true);
     entry(settings.native_async_draws, NativeAsyncDraws::Bounded);
     entry(settings.native_pipeline_wait_ms, 8);
-    entry(settings.precache_shaders, PrecacheShaders::Off);
+    // Banst Family asks: precaching removes most first-session stutter.
+    entry(settings.precache_shaders, PrecacheShaders::Ask);
     entry(settings.use_video_framerate, false);
     entry(settings.mkw_30fps, false);
     entry(settings.mkw_dynamic_fps, false);

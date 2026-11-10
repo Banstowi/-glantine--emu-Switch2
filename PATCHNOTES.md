@@ -17,6 +17,8 @@ version. Les sections suivantes gardent l'historique.
 - Correction du grésillement du son de l'ocarina.
 
 **Tous les jeux**
+- Au premier lancement d'un jeu, Banst Family propose de précompiler ses shaders : quelques
+  minutes d'attente une seule fois, puis beaucoup moins de saccades en jouant.
 - Nouveau cache de shaders, plus rapide à charger. Il se reconstruit une fois : quelques
   saccades sont normales à la première partie après cette mise à jour.
 - Rendu plus rapide (Donkey Kong Bananza gagne environ 25 %).
