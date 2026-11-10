@@ -69,6 +69,8 @@
     <li><a href="#memoire">Augmenter la mémoire émulée</a></li>
     <li><a href="#carte">Choisir Vulkan et votre carte graphique</a></li>
     <li><a href="#dlss">Activer le DLSS</a></li>
+    <li><a href="#precompiler">Précompiler les shaders</a></li>
+    <li><a href="#cache">Reprendre le cache d'un autre PC</a></li>
   </ol>
   <p style="margin:10px 0 0">Première installation de l'émulateur ?
     Suivez d'abord <a href="index.html">le tutoriel d'installation</a>.</p>
@@ -153,6 +155,33 @@
   </figure>
   <div class="note">Le DLSS NVIDIA remplace celui du jeu <strong>uniquement en résolution 1X</strong> :
     gardez <em>Resolution</em> sur <em>1X</em>, le DLSS se charge d'agrandir l'image.</div>
+</section>
+
+<section id="precompiler">
+  <h2><span class="num">6</span>Précompiler les shaders</h2>
+  <p>Au premier lancement du jeu, Banst Family propose de préparer les shaders avant de jouer,
+    ce qui évite la plupart des saccades de la première partie.</p>
+  <ol class="steps">
+    <li>Lancez le jeu, puis choisissez <span class="menu">Précompiler maintenant</span>.</li>
+    <li>Patientez quelques minutes : le jeu démarre tout seul à la fin.</li>
+  </ol>
+  <div class="note">Cette étape n'a lieu qu'une fois. Elle recommence seulement après une mise à
+    jour du pilote de la carte graphique.</div>
+</section>
+
+<section id="cache">
+  <h2><span class="num">7</span>Reprendre le cache d'un autre PC</h2>
+  <p>Si quelqu'un de la famille a déjà joué, son cache de shaders évite presque toutes les
+    saccades sur un autre PC.</p>
+  <ol class="steps">
+    <li>Sur le PC qui a déjà joué : clic droit sur le jeu →
+      <span class="menu">Ouvrir le cache de pipelines transférable</span>.</li>
+    <li>Fermez Banst Family, puis copiez le dossier <code>0400486024dec000</code> sur une clé USB.</li>
+    <li>Sur l'autre PC : ouvrez le même emplacement de la même façon, fermez Banst Family, puis
+      collez-y le dossier en remplaçant celui qui existe.</li>
+  </ol>
+  <div class="warn">Gardez ce dossier dans la famille : il contient des éléments du jeu et ne doit
+    pas être publié sur Internet.</div>
 </section>
 
 <section>
