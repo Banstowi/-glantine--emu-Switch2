@@ -44,9 +44,17 @@ commits() { git log --no-merges --pretty='- %s (`%h`)' "$@" 2>/dev/null | head -
       printf '\n'
       ;;
     build)
-      printf 'Banst Family %s, built from `%s` at `%s`. The emulator offers it as an update to earlier builds.\n\n## Latest commits\n\n' "$tag" "$main" "$short"
-      commits -n 30 "$sha"
-      printf '\n'
+      # The update dialog shows the text above "# Packages": readable notes when PATCHNOTES.md has
+      # them, else the latest commits.
+      notes=$(bash tools/ci/patch-notes.sh)
+      if [[ -n "$(tr -d '[:space:]' <<< "$notes")" ]]; then
+        printf '%s\n\n' "$notes"
+      else
+        printf '## Latest commits\n\n'
+        commits -n 30 "$sha"
+        printf '\n'
+      fi
+      printf '# Packages\n\nBanst Family %s, built from `%s` at `%s`.\n\n' "$tag" "$main" "$short"
       ;;
     branch)
       printf 'Test build of branch `%s` at `%s`.\n\n**This is not a release.** It is for testing, and the next push to the branch replaces it.\n\n## Commits on top of %s\n\n' "${BRANCH:-?}" "$short" "$main"
