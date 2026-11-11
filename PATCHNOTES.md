@@ -11,8 +11,8 @@ version. Les sections suivantes gardent l'historique.
   nombreuses. Un objet peut apparaître avec un très léger retard la première fois.
 
 **Discord**
-- Banst Family peut afficher le jeu en cours dans votre statut Discord. C'est désactivé par
-  défaut : cochez « Afficher le jeu en cours dans le Statut Discord » dans
+- Banst Family affiche le jeu en cours dans votre statut Discord. Pour ne pas l'afficher,
+  décochez « Afficher le jeu en cours dans le Statut Discord » dans
   Émulation → Configurer → Général → Web.
 
 **The Legend of Zelda: Ocarina of Time**

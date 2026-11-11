@@ -31,10 +31,9 @@ namespace DiscordRPC {
 
 DiscordImpl::DiscordImpl(Core::System& system_) : system{system_} {
     DiscordEventHandlers handlers{};
-    // The Discord application's ID: Discord shows that application's name. Still Eden's until
-    // Banst Family has an application of its own. Not registered as a launch protocol: nothing
-    // is written to the registry.
-    Discord_Initialize("1397286652128264252", &handlers, 0, nullptr);
+    // Banst Family's Discord application: Discord shows its name and icon. Not registered as a
+    // launch protocol, so nothing is written to the registry.
+    Discord_Initialize("1570177706472120340", &handlers, 0, nullptr);
 }
 
 DiscordImpl::~DiscordImpl() {
