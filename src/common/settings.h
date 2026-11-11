@@ -567,11 +567,7 @@ struct Values {
                                          linkage, 0, "bg_blue", Category::Renderer, Specialization::Default, true, true};
 
     SwitchableSetting<GpuAccuracy, true> gpu_accuracy{linkage,
-#ifdef __ANDROID__
                                                       GpuAccuracy::Low,
-#else
-                                                      GpuAccuracy::High,
-#endif
                                                       "gpu_accuracy",
                                                       Category::RendererAdvanced,
                                                       Specialization::Default,
@@ -617,7 +613,7 @@ struct Values {
                                                            "vram_usage_mode",
                                                            Category::RendererAdvanced};
 
-    SwitchableSetting<NvdecEmulation> nvdec_emulation{linkage, NvdecEmulation::Cpu,
+    SwitchableSetting<NvdecEmulation> nvdec_emulation{linkage, NvdecEmulation::Gpu,
                                                       "nvdec_emulation", Category::RendererAdvanced};
 
     SwitchableSetting<AnisotropyMode, true> max_anisotropy{linkage,
@@ -758,11 +754,7 @@ struct Values {
                                                         true,
                                                         true};
     SwitchableSetting<bool> async_presentation{linkage,
-#ifdef __ANDROID__
                                                true,
-#else
-                                               false,
-#endif
                                                "async_presentation", Category::RendererHacks};
 
     SwitchableSetting<bool> fix_bloom_effects{linkage, false, "fix_bloom_effects",

@@ -9,7 +9,7 @@
 
 namespace Settings {
 
-/// The Lichii developer's recommended settings. This table is the only place that lists them:
+/// Banst Family's recommended settings, started from the Lichii developer's. This table is the only place that lists them:
 /// change a value here to change what "Use recommended settings" writes. Personal and hardware
 /// choices (language, region, resolution, upscaler, backend, device) stay out of it.
 template <typename Func>

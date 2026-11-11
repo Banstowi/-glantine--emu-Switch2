@@ -95,10 +95,11 @@ void CheckFreshProfile() {
 void CheckLegacyProfile() {
     const auto& values = Settings::values;
     CHECK(values.scaling_filter.GetValue() == Settings::ScalingFilter::ScaleForce);
-    CHECK(values.gpu_accuracy.GetValue() == Settings::GpuAccuracy::High);
-    CHECK(values.nvdec_emulation.GetValue() == Settings::NvdecEmulation::Cpu);
-    CHECK_FALSE(values.async_presentation.GetValue());
-    CHECK(values.use_asynchronous_shaders.GetValue()); // Banst Family default
+    // Banst Family's defaults are the first-run profile's, except for the scaling filter.
+    CHECK(values.gpu_accuracy.GetValue() == Settings::GpuAccuracy::Low);
+    CHECK(values.nvdec_emulation.GetValue() == Settings::NvdecEmulation::Gpu);
+    CHECK(values.async_presentation.GetValue());
+    CHECK(values.use_asynchronous_shaders.GetValue());
 }
 
 void CheckUnchangedProfile() {

@@ -87,7 +87,7 @@ bool RecommendedSettingsDialog::Ask(QWidget* parent) {
     QMessageBox box(parent);
     box.setIcon(QMessageBox::Question);
     box.setWindowTitle(tr("Recommended settings"));
-    box.setText(tr("Do you want to use the recommended settings from the Lichii developers?"));
+    box.setText(tr("Do you want to use the recommended Banst Family settings?"));
     box.setInformativeText(
         tr("They improve performance for most games. Banst Family keeps your own settings, so you can "
            "go back at any time with Help > Restore My Previous Settings. Per-game settings do "
