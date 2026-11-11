@@ -157,6 +157,47 @@ private:
     /// have classified as no pointer: null, unmapped, or out of range right now.
     void WarnKeptPointer(size_t program, u64 slot) const;
 
+    /// Queues a new pipeline's environments for the disk cache (GPU thread).
+    void StoreGraphicsPipeline(const GraphicsPipelineCacheKey& key,
+                               decltype(GraphicsEnvironments::envs) envs);
+
+    // Run-time translation off the GPU thread (EDEN_NX2_ASYNC_TRANSLATION=1), after Eglantine's
+    // 0f1ae997c2. A new native pipeline whose draw may be skipped has its environments detached
+    // from the 3D engine (GraphicsEnvironment::Detach) and is translated and built as a job of
+    // shader_jobs. The draw waits within the frame's native_pipeline_wait_ms budget, then is
+    // skipped; a later lookup of the key adopts the pipeline and stores it in the disk cache.
+
+    /// One pipeline translating on shader_jobs
+    struct AsyncGraphicsTranslation {
+        VideoCommon::ShaderJobHandle job;
+        GraphicsEnvironments environments; ///< Detached; the job reads them, then the disk cache
+        std::unique_ptr<GraphicsPipeline> pipeline; ///< Built by the job; null when it failed
+        bool needs_engine{}; ///< A stage asked for what only the GPU thread can answer
+        std::chrono::steady_clock::duration worker_time{};
+        u64 queued_frame{};
+    };
+    using AsyncGraphicsTranslations =
+        ::Common::unordered_map<GraphicsPipelineCacheKey,
+                                std::shared_ptr<AsyncGraphicsTranslation>>;
+
+    /// Whether the current native draw may be skipped while its pipeline is built
+    [[nodiscard]] bool CanSkipNativeDraw() const;
+
+    /// Queues graphics_key's translation. False when it has to be made on the GPU thread.
+    bool QueueGraphicsTranslation();
+
+    /// Takes the result of a queued translation for a lookup of its key, waiting within the
+    /// frame's budget (or to the end for a draw that can't be skipped). False while it is still
+    /// translating: the draw is skipped. True once `slot` holds the pipeline (null if it failed).
+    bool AdoptGraphicsTranslation(AsyncGraphicsTranslations::iterator pending,
+                                  std::unique_ptr<GraphicsPipeline>& slot);
+
+    /// Moves the finished translations no draw came back for into graphics_cache.
+    void SweepGraphicsTranslations();
+
+    /// Cancels the queued translations and waits for the running ones.
+    void StopGraphicsTranslations();
+
     /// Shader cache v2, run-time misses: the stages translated at once on shader_jobs' CPU workers
     /// while the GPU thread waited (VideoCommon::TranslateStages)
     struct ParallelTranslation {
@@ -295,6 +336,11 @@ private:
     /// them (tick, pipeline)
     std::deque<std::pair<u64, std::unique_ptr<ComputePipeline>>> retired_compute_pipelines;
     ::Common::unordered_map<GraphicsPipelineCacheKey, std::unique_ptr<GraphicsPipeline>> graphics_cache;
+
+    bool async_translation{}; ///< EDEN_NX2_ASYNC_TRANSLATION=1
+    AsyncGraphicsTranslations translating_graphics; ///< GPU thread only
+    /// Stage hashes whose translation needs the engine: their pipelines translate on the GPU thread
+    std::unordered_set<u64> engine_bound_stages;
 
     ShaderPools main_pools;
     std::mutex spare_pools_mutex;

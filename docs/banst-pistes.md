@@ -38,5 +38,36 @@ alors tout sur le fil GPU), `0` coupe la traduction parallèle. Sans la variable
 4 Mio. Dans le journal, « ms on the GPU thread waiting for ... stage translation on workers »
 doit devenir non nul quand elle sert.
 
-Étape suivante si le point 2 reste gênant : porter la traduction asynchrone d'Eglantine
-(0f1ae997c2, branche `fix/oot-map-change`), où le fil GPU n'attend plus la traduction.
+Mesure du build-13 (même PC, trajets différents) : 9,8 ms par pipeline sur le fil GPU avec
+l'ancienne limite, 7,3 ms avec la traduction parallèle. Le fil GPU attend encore la traduction
+(4,5 s d'attente pour 6,2 s de travail en 6 minutes, 213 pipelines en 10 s à la découverte d'un
+village).
+
+## Traduction asynchrone (expérimental, éteint par défaut)
+
+Portage du correctif d'Eglantine 0f1ae997c2 (branche `fix/oot-map-change`), adapté à Lichii.
+`EDEN_NX2_ASYNC_TRANSLATION=1` l'active, avec les shaders asynchrones et le mode Bounded ou Skip.
+
+Un nouveau pipeline natif dont le dessin peut être sauté n'est plus traduit sur le fil GPU. Le
+fil GPU copie ce que la traduction lit (tampons constants, table de textures, quelques
+registres), puis la traduction et la compilation partent sur les fils de `shader_jobs`. Le
+dessin attend dans la limite du budget par image (`native_pipeline_wait_ms`), puis est sauté ;
+un dessin suivant récupère le pipeline et l'enregistre dans le cache.
+
+Différences avec Eglantine :
+
+- La table de textures est copiée au lieu d'être relue plus tard : la traduction voit l'état du
+  moment du dessin.
+- Les mots des tampons constants qui contiennent une adresse GPU valide sont repérés sur le fil
+  GPU. La traduction ne consulte donc jamais la mémoire du jeu depuis un autre fil.
+- Un shader qui lit un pointeur à travers un autre pointeur ne peut pas être traduit ainsi : son
+  résultat est jeté, il est retraduit sur le fil GPU, et ses pipelines suivants y vont directement.
+- Le travail passe par la file `shader_jobs` de Lichii, pas par des fils dédiés.
+
+À lire dans le journal, toutes les 10 s : `Async translation in the last 10 s: N queued (...),
+N not detached, N adopted (...), N sent back to the GPU thread, N ready within the wait, N
+lookups skipped, ... pending`. À comparer avec `Runtime pipelines in the last 10 s` et avec les
+lignes `Nx2Stutter` du même trajet sans la variable.
+
+À surveiller : objets absents plus longtemps qu'avant, végétation ou textures fausses (les
+pipelines « sent back » devraient les couvrir), plantage à la fermeture.

@@ -164,6 +164,11 @@ protected:
     bool has_unbound_instructions = false;
     bool has_hle_engine_state = false;
     bool texture_pool_flushed = false;
+
+    /// Set by GraphicsEnvironment::Detach: a copy of the texture descriptor pool, read in place of
+    /// guest memory, and the tiling it was written with.
+    std::shared_ptr<const std::vector<u8>> detached_texture_pool;
+    bool detached_native_tiling = false;
 };
 
 class GraphicsEnvironment final : public GenericEnvironment {
@@ -190,9 +195,59 @@ public:
 
     std::optional<Shader::ReplaceConstant> GetReplaceConstBuffer(u32 bank, u32 offset) override;
 
+    bool IsCbufStorageBufferPointer(u32 index, u32 offset) override;
+
+    bool IsCbufIndirectStorageBufferPointer(u32 index, u32 offset, u32 indirect) override;
+
+    /// A copy of the bound texture descriptor pool for Detach, shared by a pipeline's stages.
+    /// Null when the pool is too large to copy on every new pipeline or isn't fully mapped.
+    /// GPU thread only (it flushes).
+    [[nodiscard]] static std::shared_ptr<const std::vector<u8>> CopyTexturePool(
+        const Tegra::Engines::Maxwell3D& maxwell3d, Tegra::MemoryManager& gpu_memory);
+
+    /// Copies what the translation of a native program reads from the 3D engine and from guest
+    /// memory (constant buffers, which of their words hold mapped GPU addresses, the texture
+    /// pool, the viewport flag, the HLE replacements) and stops using both, so the program can
+    /// be translated on another thread after the GPU thread moved on. GPU thread only. Returns
+    /// false, leaving the environment as it was, when it can't be copied.
+    [[nodiscard]] bool Detach(std::shared_ptr<const std::vector<u8>> texture_pool);
+
+    /// A detached environment was asked for something only the engine or guest memory can
+    /// answer (a pointer read through another pointer): its translation is to be discarded and
+    /// made again on the GPU thread.
+    [[nodiscard]] bool NeedsEngine() const noexcept {
+        return snapshot && snapshot->needs_engine;
+    }
+
+    /// Bytes of constant buffers Detach copied (0 when not detached)
+    [[nodiscard]] size_t SnapshotSizeBytes() const noexcept;
+
 private:
+    /// What a detached environment reads in place of the 3D engine and guest memory
+    struct EngineSnapshot {
+        struct ConstBuffer {
+            bool enabled{};
+            u32 size{};
+            /// Eight bytes longer than `size`, zeroed: a read at any offset below it stays inside
+            std::vector<u8> bytes;
+            /// Sorted offsets of the 64-bit words that held a mapped GPU address
+            std::vector<u32> pointers;
+        };
+        std::array<ConstBuffer, Tegra::Engines::Maxwell3D::Regs::MaxConstBuffers> const_buffers;
+        u32 texture_pool_limit{};
+        bool via_header_index{};
+        u32 viewport_scale_offset_enabled{};
+        ::Common::unordered_map<u64, Tegra::Engines::Maxwell3D::HLEReplacementAttributeType>
+            replace_table;
+        bool needs_engine{};
+    };
+
+    /// The texture descriptor of a handle, from the engine's pool or the snapshot's copy
+    Tegra::Texture::TICEntry ReadTextureDescriptor(u32 handle);
+
     Tegra::Engines::Maxwell3D* maxwell3d{};
     size_t stage_index{};
+    std::optional<EngineSnapshot> snapshot;
 };
 
 class ComputeEnvironment final : public GenericEnvironment {
