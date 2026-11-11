@@ -85,3 +85,19 @@ Mesure du build-14 avec `EDEN_NX2_ASYNC_TRANSLATION=1` (même PC, 5 minutes, aut
 autres cœurs), aucun renvoyé au fil GPU, aucun échec. 193 restent traduits sur le fil GPU
 (6,1 ms chacun) : dessins qui ne peuvent pas être sautés, et 38 environnements non détachés.
 Les images de plus d'une seconde qui restent viennent des textures aux chargements.
+
+## Chargements de zone (build-15, trace sans manque de mémoire dû au navigateur)
+
+Images de plus de 100 ms en 5 minutes : 23 où l'émulateur travaille (6,9 s) et 28 où les fils
+GPU attendent le jeu (6,4 s). Les trois pires (1,0 à 1,8 s) sont des chargements.
+
+- Lecture des fichiers : hors de cause. 3,1 Gio lus en 2,4 s sur toute la session
+  (`EDEN_NX2_FS_READ_TRACE=1`).
+- Création d'images et mémoire vidéo : 7025 images et 2873 réservations pendant les images
+  longues, 4,2 s. Une image de chargement fait 198 réservations en 834 ms. Lichii règle VMA sur
+  des blocs de 16 Mio pour limiter les trous (mesuré sur des cartes de 8 Go), ce qui multiplie
+  les réservations. `EDEN_NX2_VMA_BLOCK_MIB=32` ou `64` permet de mesurer l'autre côté du
+  compromis : comparer `memory_allocate` dans `Nx2StutterSummary` et la ligne
+  `Memory margins ... block slack`.
+- Mémoire de l'hôte : la limite de validation de Windows borne encore le cache de textures
+  (2 à 3 Gio au lieu de 5,9). La RAM émulée de 8 Gio est validée d'avance et compte dedans.
