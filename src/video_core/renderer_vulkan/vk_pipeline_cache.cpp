@@ -4,6 +4,7 @@
 // SPDX-FileCopyrightText: Copyright 2019 yuzu Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <cstdlib>
 #include <algorithm>
 #include <atomic>
 #include <chrono>
@@ -2755,7 +2756,13 @@ std::unique_ptr<GraphicsPipeline> PipelineCache::CreateGraphicsPipeline(
     // make it dirty again. A pool too large to flush on every miss translates here as before.
     if (std::ranges::count_if(graphics_key.unique_hashes, [](u64 hash) { return hash != 0; }) >=
         2) {
-        constexpr u64 MaxFlushedTexturePoolBytes = u64{1} << 20;
+        // Ocarina of Time's pool is 1058176 bytes: at the former 1 MiB limit every one of its
+        // pipelines translated here. EDEN_NX2_PARALLEL_POOL_KIB sets the limit (1024 restores
+        // it, 0 turns the parallel translation off) to compare the two.
+        static const u64 MaxFlushedTexturePoolBytes = [] {
+            const char* const value = std::getenv("EDEN_NX2_PARALLEL_POOL_KIB");
+            return (value != nullptr ? std::strtoull(value, nullptr, 10) : u64{4096}) << 10;
+        }();
         const auto& tex_header = maxwell3d->regs.tex_header;
         const u64 pool_bytes = (u64{tex_header.limit} + 1) * sizeof(Tegra::Texture::TICEntry);
         if (pool_bytes <= MaxFlushedTexturePoolBytes) {
@@ -2770,9 +2777,9 @@ std::unique_ptr<GraphicsPipeline> PipelineCache::CreateGraphicsPipeline(
             static std::atomic<bool> logged{};
             if (!logged.exchange(true, std::memory_order_relaxed)) {
                 LOG_INFO(Render_Vulkan,
-                         "Texture descriptor pool of {} bytes: pipelines that use it translate "
-                         "on the GPU thread",
-                         pool_bytes);
+                         "Texture descriptor pool of {} bytes (limit {}): pipelines that use it "
+                         "translate on the GPU thread",
+                         pool_bytes, MaxFlushedTexturePoolBytes);
             }
         }
     }
