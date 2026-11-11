@@ -43,10 +43,11 @@ l'ancienne limite, 7,3 ms avec la traduction parallèle. Le fil GPU attend encor
 (4,5 s d'attente pour 6,2 s de travail en 6 minutes, 213 pipelines en 10 s à la découverte d'un
 village).
 
-## Traduction asynchrone (expérimental, éteint par défaut)
+## Traduction asynchrone (activée par défaut depuis le build-15)
 
 Portage du correctif d'Eglantine 0f1ae997c2 (branche `fix/oot-map-change`), adapté à Lichii.
-`EDEN_NX2_ASYNC_TRANSLATION=1` l'active, avec les shaders asynchrones et le mode Bounded ou Skip.
+Elle sert avec les shaders asynchrones et le mode Bounded ou Skip ; `EDEN_NX2_ASYNC_TRANSLATION=0`
+la coupe pour comparer.
 
 Un nouveau pipeline natif dont le dessin peut être sauté n'est plus traduit sur le fil GPU. Le
 fil GPU copie ce que la traduction lit (tampons constants, table de textures, quelques

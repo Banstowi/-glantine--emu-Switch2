@@ -161,7 +161,8 @@ private:
     void StoreGraphicsPipeline(const GraphicsPipelineCacheKey& key,
                                decltype(GraphicsEnvironments::envs) envs);
 
-    // Run-time translation off the GPU thread (EDEN_NX2_ASYNC_TRANSLATION=1), after Eglantine's
+    // Run-time translation off the GPU thread (EDEN_NX2_ASYNC_TRANSLATION=0 turns it off), after
+    // Eglantine's
     // 0f1ae997c2. A new native pipeline whose draw may be skipped has its environments detached
     // from the 3D engine (GraphicsEnvironment::Detach) and is translated and built as a job of
     // shader_jobs. The draw waits within the frame's native_pipeline_wait_ms budget, then is
@@ -337,7 +338,7 @@ private:
     std::deque<std::pair<u64, std::unique_ptr<ComputePipeline>>> retired_compute_pipelines;
     ::Common::unordered_map<GraphicsPipelineCacheKey, std::unique_ptr<GraphicsPipeline>> graphics_cache;
 
-    bool async_translation{}; ///< EDEN_NX2_ASYNC_TRANSLATION=1
+    bool async_translation{}; ///< Asynchronous shaders, unless EDEN_NX2_ASYNC_TRANSLATION=0
     AsyncGraphicsTranslations translating_graphics; ///< GPU thread only
     /// Stage hashes whose translation needs the engine: their pipelines translate on the GPU thread
     std::unordered_set<u64> engine_bound_stages;

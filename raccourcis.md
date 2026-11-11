@@ -29,7 +29,7 @@ Lignes à ajouter avant `start` selon le test :
 
 | Ligne | Effet |
 |---|---|
-| `set EDEN_NX2_ASYNC_TRANSLATION=1` | Traduit les nouveaux shaders hors du fil graphique (expérimental) |
+| `set EDEN_NX2_ASYNC_TRANSLATION=0` | Coupe la traduction des nouveaux shaders hors du fil graphique, pour comparer |
 | `set EDEN_NX2_PARALLEL_POOL_KIB=1024` | Remet l'ancienne limite de la traduction parallèle, pour comparer |
 
 ## Menus

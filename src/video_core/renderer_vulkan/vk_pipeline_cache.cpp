@@ -753,12 +753,12 @@ PipelineCache::PipelineCache(Tegra::MaxwellDeviceMemoryManager& device_memory_,
         .driver_threads = driver_threads,
         .name = "VkShader",
     });
-    if (const char* const value = std::getenv("EDEN_NX2_ASYNC_TRANSLATION");
-        value != nullptr && value[0] == '1' && use_asynchronous_shaders) {
-        async_translation = true;
-        LOG_INFO(Render_Vulkan, "EDEN_NX2_ASYNC_TRANSLATION: new native graphics pipelines "
-                                "translate off the GPU thread");
-    }
+    // EDEN_NX2_ASYNC_TRANSLATION=0 translates them on the GPU thread again, to compare.
+    const char* const async_value = std::getenv("EDEN_NX2_ASYNC_TRANSLATION");
+    async_translation =
+        use_asynchronous_shaders && (async_value == nullptr || async_value[0] != '0');
+    LOG_INFO(Render_Vulkan, "New native graphics pipelines translate {} the GPU thread",
+             async_translation ? "off" : "on");
 }
 
 namespace {

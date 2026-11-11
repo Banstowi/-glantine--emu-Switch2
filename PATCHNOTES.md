@@ -5,16 +5,18 @@ version. Les sections suivantes gardent l'historique.
 
 ## Nouveautés de cette version
 
-**Réglages par défaut de Banst Family**
-- Banst Family applique maintenant ses propres réglages recommandés par défaut : précision GPU
-  basse, présentation asynchrone, décodage vidéo par la carte graphique et shaders compilés en
-  arrière-plan. Sur nos PC, Zelda Ocarina of Time passe d'environ 25 à 40-55 images par seconde.
-- Ils s'appliquent tout seuls aux réglages que vous n'aviez jamais modifiés. Le menu
-  Aide → Appliquer les réglages recommandés reste disponible, avec retour en arrière.
+**Moins de saccades à la découverte d'une zone**
+- Les nouveaux shaders sont préparés sur les autres cœurs du processeur pendant que le jeu
+  continue. Sur nos mesures dans Zelda Ocarina of Time, les saccades sont trois fois moins
+  nombreuses. Un objet peut apparaître avec un très léger retard la première fois.
 
-**The Legend of Zelda: Ocarina of Time**
-- Les nouveaux shaders sont traduits sur plusieurs cœurs du processeur, ce qui raccourcit les
-  gels aux changements de zone.
+## build-13
+
+- Banst Family applique ses propres réglages recommandés par défaut : précision GPU basse,
+  présentation asynchrone, décodage vidéo par la carte graphique et shaders compilés en
+  arrière-plan. Sur nos PC, Zelda Ocarina of Time passe d'environ 25 à 40-55 images par seconde.
+- Ils s'appliquent tout seuls aux réglages jamais modifiés. Le menu Aide → Appliquer les
+  réglages recommandés reste disponible, avec retour en arrière.
 
 ## build-12
 
