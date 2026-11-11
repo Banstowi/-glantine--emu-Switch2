@@ -10,6 +10,19 @@ version. Les sections suivantes gardent l'historique.
   continue. Sur nos mesures dans Zelda Ocarina of Time, les saccades sont trois fois moins
   nombreuses. Un objet peut apparaître avec un très léger retard la première fois.
 
+**The Legend of Zelda: Ocarina of Time**
+- Correction du gel dans la maison des gardes.
+- Revenir dans une zone déjà visitée ne retraduit plus ses shaders : ils sont gardés en mémoire.
+
+**Tous les jeux**
+- Les shaders construits restent disponibles tant que la mémoire du PC le permet, au lieu d'être
+  jetés après quelques minutes.
+- Sortie HDR native (Off, Auto, On).
+- Nouvel affichage des statistiques : images par seconde, charge du processeur et de la carte
+  graphique, graphique des 5 dernières secondes.
+- Rendu et émulation du processeur allégés sur plusieurs points.
+- Yoshi and the Mysterious Book : le monde 3D s'affiche.
+
 ## build-13
 
 - Banst Family applique ses propres réglages recommandés par défaut : précision GPU basse,
