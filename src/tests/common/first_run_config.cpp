@@ -98,7 +98,7 @@ void CheckLegacyProfile() {
     CHECK(values.gpu_accuracy.GetValue() == Settings::GpuAccuracy::High);
     CHECK(values.nvdec_emulation.GetValue() == Settings::NvdecEmulation::Cpu);
     CHECK_FALSE(values.async_presentation.GetValue());
-    CHECK_FALSE(values.use_asynchronous_shaders.GetValue());
+    CHECK(values.use_asynchronous_shaders.GetValue()); // Banst Family default
 }
 
 void CheckUnchangedProfile() {

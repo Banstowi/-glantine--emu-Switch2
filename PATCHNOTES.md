@@ -5,6 +5,14 @@ version. Les sections suivantes gardent l'historique.
 
 ## Nouveautés de cette version
 
+**Moins de saccades pendant la compilation des shaders**
+- Les shaders se compilent désormais en arrière-plan : le jeu n'attend plus chaque nouvel effet
+  au-delà de quelques millisecondes par image. Un effet peut manquer pendant un court instant
+  la première fois qu'il apparaît, au lieu de figer l'image.
+- Ces réglages s'appliquent tout seuls si vous ne les aviez jamais modifiés.
+
+## build-12
+
 **The Legend of Zelda: Ocarina of Time**
 - Image plus nette et moins de scintillement grâce à AMD FSR 3.1. FSR 4 est proposé en option
   sur les cartes AMD récentes.
