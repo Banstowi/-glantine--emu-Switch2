@@ -71,3 +71,16 @@ lignes `Nx2Stutter` du même trajet sans la variable.
 
 À surveiller : objets absents plus longtemps qu'avant, végétation ou textures fausses (les
 pipelines « sent back » devraient les couvrir), plantage à la fermeture.
+
+Mesure du build-14 avec `EDEN_NX2_ASYNC_TRANSLATION=1` (même PC, 5 minutes, autre trajet) :
+
+| | Build-13, traduction parallèle | Build-14, traduction asynchrone |
+|---|---|---|
+| Images de plus de 33 ms | 1552 sur 13230 (11,7 %) | 467 sur 14229 (3,3 %) |
+| Temps de construction sur le fil GPU | 4,9 s | 1,5 s |
+| Image médiane | 24,5 ms | 20,5 ms |
+
+196 pipelines traduits hors du fil GPU (1,1 ms de préparation chacun, 5,3 s de travail sur les
+autres cœurs), aucun renvoyé au fil GPU, aucun échec. 193 restent traduits sur le fil GPU
+(6,1 ms chacun) : dessins qui ne peuvent pas être sautés, et 38 environnements non détachés.
+Les images de plus d'une seconde qui restent viennent des textures aux chargements.
