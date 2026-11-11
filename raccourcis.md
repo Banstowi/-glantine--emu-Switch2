@@ -43,6 +43,7 @@ Lignes à ajouter avant `start` selon le test :
 | Précision GPU, shaders asynchrones | Émulation → Configurer → Graphismes → Avancé |
 | Dossier du cache d'un jeu | Clic droit sur le jeu → Ouvrir le cache de pipelines transférable |
 | Rapport de compatibilité | Clic droit sur le jeu → Rapport de compatibilité… |
+| Afficher le jeu en cours sur Discord | Émulation → Configurer → Général → Web |
 
 ## Liens
 

@@ -4,6 +4,8 @@
 // SPDX-FileCopyrightText: 2018 Citra Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <algorithm>
+#include <cctype>
 #include <chrono>
 #include <string>
 
@@ -29,9 +31,10 @@ namespace DiscordRPC {
 
 DiscordImpl::DiscordImpl(Core::System& system_) : system{system_} {
     DiscordEventHandlers handlers{};
-    // The number is the client ID for Eden, it's used for images and the
-    // application name
-    Discord_Initialize("1397286652128264252", &handlers, 1, nullptr);
+    // The Discord application's ID: Discord shows that application's name. Still Eden's until
+    // Banst Family has an application of its own. Not registered as a launch protocol: nothing
+    // is written to the registry.
+    Discord_Initialize("1397286652128264252", &handlers, 0, nullptr);
 }
 
 DiscordImpl::~DiscordImpl() {
@@ -69,10 +72,10 @@ std::string DiscordImpl::GetGameString(const std::string& title) {
     return icon_name;
 }
 
-static constexpr char DEFAULT_DISCORD_TEXT[] = "Banst Family is an emulator for the Nintendo Switch";
+static constexpr char DEFAULT_DISCORD_TEXT[] = "Banst Family, émulateur Nintendo Switch 2";
 static constexpr char DEFAULT_DISCORD_IMAGE[] =
-    "https://git.eden-emu.dev/eden-emu/eden/raw/branch/master/dist/qt_themes/default/icons/256x256/"
-    "eden.png";
+    "https://raw.githubusercontent.com/Banstowi/-glantine--emu-Switch2/ccr-88d1adf7-3obcpe/dist/"
+    "lichii.png";
 
 void DiscordImpl::UpdateGameStatus(std::string_view game_url, bool has_boxart) {
     const std::string url = std::string{has_boxart ? game_url : DEFAULT_DISCORD_IMAGE};
@@ -87,7 +90,7 @@ void DiscordImpl::UpdateGameStatus(std::string_view game_url, bool has_boxart) {
     presence.smallImageText = DEFAULT_DISCORD_TEXT;
     presence.state = game_title.c_str();
     presence.status_display_type = DiscordStatusDisplayType_State;
-    presence.details = "Currently in game";
+    presence.details = "En jeu";
     presence.startTimestamp = start_time;
     Discord_UpdatePresence(&presence);
 }
@@ -129,7 +132,7 @@ void DiscordImpl::Update() {
     presence.largeImageKey = DEFAULT_DISCORD_IMAGE;
     presence.largeImageText = DEFAULT_DISCORD_TEXT;
     presence.status_display_type = DiscordStatusDisplayType_Name;
-    presence.details = "Currently not in game";
+    presence.details = "Dans les menus";
     presence.startTimestamp = start_time;
     Discord_UpdatePresence(&presence);
 }

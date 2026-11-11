@@ -10,6 +10,11 @@ version. Les sections suivantes gardent l'historique.
   continue. Sur nos mesures dans Zelda Ocarina of Time, les saccades sont trois fois moins
   nombreuses. Un objet peut apparaître avec un très léger retard la première fois.
 
+**Discord**
+- Banst Family peut afficher le jeu en cours dans votre statut Discord. C'est désactivé par
+  défaut : cochez « Afficher le jeu en cours dans le Statut Discord » dans
+  Émulation → Configurer → Général → Web.
+
 **The Legend of Zelda: Ocarina of Time**
 - Correction du gel dans la maison des gardes.
 - Revenir dans une zone déjà visitée ne retraduit plus ses shaders : ils sont gardés en mémoire.
