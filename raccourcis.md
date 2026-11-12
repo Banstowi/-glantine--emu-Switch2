@@ -31,6 +31,7 @@ Lignes à ajouter avant `start` selon le test :
 |---|---|
 | `set EDEN_NX2_ASYNC_TRANSLATION=0` | Coupe la traduction des nouveaux shaders hors du fil graphique, pour comparer |
 | `set EDEN_NX2_PARALLEL_SWIZZLE=0` | Prépare les grosses textures sur un seul cœur, comme avant (en cas de blocage au chargement) |
+| `set EDEN_NX2_SKIP_NEW_TARGETS=1` | Saute aussi les dessins vers des cibles nouvelles pendant la préparation d'un shader, comme avant (pour comparer) |
 | `set EDEN_NX2_TC_LOG=1` | Statistiques du cache de textures toutes les 600 images : images créées et supprimées, envois de textures, ASTC |
 | `set EDEN_NX2_FS_READ_TRACE=1` | Mesure les lectures de fichiers du jeu (temps de chargement) |
 | `set EDEN_NX2_PARALLEL_POOL_KIB=1024` | Remet l'ancienne limite de la traduction parallèle, pour comparer |

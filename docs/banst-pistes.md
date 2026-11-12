@@ -151,3 +151,19 @@ build-19 ; 99 % des images sous 29,5 ms contre 38,5 ms. Dans les images de plus 
 part de l'émulateur tombe à 19 % (0,8 s) ; les 81 % restants sont le jeu qui charge, fils GPU au
 repos. Les trajets diffèrent : ordre de grandeur plutôt que chiffre exact. `EDEN_NX2_PARALLEL_SWIZZLE=0`
 revient à un seul fil.
+
+## Zones sombres en escalier dans l'eau et les donjons (build-20)
+
+Capture : un pan de sol sombre en blocs autour de Link, après la cinématique d'une salle de boss,
+qui ne disparaît pas. Journal : aucune erreur de shader ni de pipeline ; au même moment, 64
+pipelines traduits en 10 s et 5592 recherches sautées, et le journal des dessins sautés est
+plein (il n'en garde que 64). Hypothèse : un dessin que le jeu ne fait qu'une fois, au début
+d'une scène, dans une texture qu'il garde ensuite (masque ou carte), a été sauté le temps que
+son shader soit prêt. Le commentaire de Lichii dans `async_draw_policy.h` signale ce risque pour
+les dessins Switch 2.
+
+Correctif : un dessin vers une cible (couleur 0, sinon profondeur) qui n'a pas été dessinée à
+l'image précédente attend son pipeline au lieu d'être sauté. Les cibles de chaque image
+(l'écran, les tampons à mi-résolution) restent sautables. Une ligne `Async shaders: N draws into
+targets not drawn the frame before waited for their pipeline` toutes les 10 s compte ces
+attentes. `EDEN_NX2_SKIP_NEW_TARGETS=1` revient à l'ancien comportement pour comparer.
