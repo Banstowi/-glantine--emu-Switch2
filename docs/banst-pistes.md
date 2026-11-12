@@ -124,7 +124,23 @@ depuis la mémoire du jeu, fait au moment de la création (`RefreshContents` dan
 Dans les images de plus de 200 ms : 61 % du temps est ce travail du fil GPU, 39 % le jeu lui-même
 qui charge (fils GPU au repos). Pire image : 1,05 s.
 
-Piste écartée pour l'instant : découper les envois en bandes sur plusieurs cœurs. Takoroka l'a
-fait (Eglantine d470788010) puis retiré le même jour (dfe734dce6) après un blocage dans une
-partie de Mario Kart World sur huit, non expliqué. À reprendre si Eglantine ou Lichii le
-réintègre corrigé.
+## Préparation des textures en bandes (`EDEN_NX2_PARALLEL_SWIZZLE=1`, à tester)
+
+Reprise d'Eglantine d470788010 (Takoroka), retiré le même jour (dfe734dce6) après un blocage
+dans une partie de Mario Kart World sur huit, non expliqué. Les images de 4 Mio et plus sont
+découpées en bandes d'environ 1 Mio, traitées par le fil appelant et des fils dédiés.
+
+Relecture : pas de blocage certain trouvé dans le code d'origine, mais deux points fragiles,
+corrigés ici :
+- il utilisait les fils de conversion des textures, dont les conversions ASTC et BCn attendent
+  que toute la file soit vide (`WaitForRequests`) depuis d'autres fils : nos bandes ont leurs
+  propres fils (`ImageSwizzle`) ;
+- l'attente reposait sur `std::atomic::wait`, et une exception dans une bande laissait
+  l'appelant attendre pour toujours : attente par mutex et variable de condition, exception
+  renvoyée à l'appelant, et une ligne `Parallel swizzle: N of M bands done after more than a
+  second` dans le journal si une bande traîne, pour avoir une trace si un blocage revient.
+- Un fil qui traite déjà des bandes ne découpe pas une nouvelle image.
+
+Vérifié hors émulateur (machine à 4 cœurs) : résultats identiques bit à bit à la version d'un
+seul fil sur 8 formes d'images (1 à 16 octets par pixel, 3D, tuilage natif), 10 passes de 6 fils
+en parallèle sans blocage, 64 Mio préparés en 3,8 ms au lieu de 11 ms.

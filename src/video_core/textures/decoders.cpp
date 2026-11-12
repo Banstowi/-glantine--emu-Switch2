@@ -4,16 +4,28 @@
 // SPDX-FileCopyrightText: Copyright 2018 yuzu Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <algorithm>
 #include <array>
+#include <atomic>
 #include <bit>
+#include <chrono>
 #include <cmath>
+#include <condition_variable>
+#include <cstdlib>
 #include <cstring>
+#include <exception>
+#include <memory>
+#include <mutex>
 #include <span>
+#include <thread>
+#include <utility>
 
 #include "common/alignment.h"
 #include "common/assert.h"
 #include "common/bit_util.h"
 #include "common/div_ceil.h"
+#include "common/logging.h"
+#include "common/thread_worker.h"
 #include "video_core/gpu.h"
 #include "video_core/textures/decoders.h"
 
@@ -56,9 +68,126 @@ std::array<u32, GOB_SIZE_Y * 4> GobUnitOffsets(bool native_tiling) {
     return offsets;
 }
 
+// Whole-texture (un)swizzles in bands of block rows on several cores, after Eglantine's
+// d470788010 by Takoroka, reverted there (dfe734dce6) over an unexplained hang in one Mario Kart
+// World run of eight. EDEN_NX2_PARALLEL_SWIZZLE=1 turns it on. Differences from the original:
+// - its own workers, so its waits never mix with the transcode pool's, whose ASTC and BCn
+//   conversions wait for that whole pool (ThreadWorker::WaitForRequests) from other threads;
+// - no nesting: a band never splits again, and a thread already running bands runs a new
+//   swizzle alone;
+// - the caller waits on a mutex and condition variable rather than std::atomic::wait, with a
+//   one-second watchdog that logs a band still running, and an exception in a band reaches the
+//   caller instead of leaving it waiting forever.
+bool ParallelSwizzleEnabled() {
+    static const bool enabled = [] {
+        const char* const value = std::getenv("EDEN_NX2_PARALLEL_SWIZZLE");
+        const bool on = value != nullptr && value[0] == '1';
+        if (on) {
+            LOG_INFO(HW_GPU, "EDEN_NX2_PARALLEL_SWIZZLE: large textures swizzle in bands");
+        }
+        return on;
+    }();
+    return enabled;
+}
+
+Common::ThreadWorker& SwizzleWorkers() {
+    static Common::ThreadWorker workers{
+        (std::max)(std::thread::hardware_concurrency() / 4, 2U), "ImageSwizzle"};
+    return workers;
+}
+
+thread_local bool t_running_bands = false;
+
+/// Runs body(0) .. body(count - 1) on the calling thread and on the swizzle workers, and returns
+/// once all have run. The caller takes whatever indices no worker has started.
+template <typename Body>
+void ParallelBands(u32 count, Body&& body) {
+    if (count <= 1 || t_running_bands) {
+        for (u32 index = 0; index < count; ++index) {
+            body(index);
+        }
+        return;
+    }
+    struct State {
+        std::atomic<u32> next{0};
+        std::atomic<u32> done{0};
+        u32 count{};
+        void* context{};
+        void (*call)(void*, u32){};
+        std::mutex mutex;
+        std::condition_variable finished;
+        std::exception_ptr error;
+    };
+    const auto run = [](State& state) {
+        const bool was_running = std::exchange(t_running_bands, true);
+        for (u32 index = state.next.fetch_add(1, std::memory_order_relaxed); index < state.count;
+             index = state.next.fetch_add(1, std::memory_order_relaxed)) {
+            try {
+                state.call(state.context, index);
+            } catch (...) {
+                std::scoped_lock lock{state.mutex};
+                if (!state.error) {
+                    state.error = std::current_exception();
+                }
+            }
+            if (state.done.fetch_add(1, std::memory_order_acq_rel) + 1 == state.count) {
+                std::scoped_lock lock{state.mutex};
+                state.finished.notify_all();
+            }
+        }
+        t_running_bands = was_running;
+    };
+    // Shared: a worker that gets to its task after the caller returned finds no index left.
+    const auto state = std::make_shared<State>();
+    state->count = count;
+    state->context = std::addressof(body);
+    state->call = [](void* context, u32 index) {
+        (*static_cast<std::remove_reference_t<Body>*>(context))(index);
+    };
+    Common::ThreadWorker& workers = SwizzleWorkers();
+    const u32 helpers = (std::min)(count - 1, 8U);
+    for (u32 i = 0; i < helpers; ++i) {
+        workers.QueueWork([state, run] { run(*state); });
+    }
+    run(*state);
+    std::unique_lock lock{state->mutex};
+    while (state->done.load(std::memory_order_acquire) != count) {
+        if (!state->finished.wait_for(lock, std::chrono::seconds{1}, [&state, count] {
+                return state->done.load(std::memory_order_acquire) == count;
+            })) {
+            LOG_WARNING(HW_GPU, "Parallel swizzle: {} of {} bands done after more than a second",
+                        state->done.load(std::memory_order_acquire), count);
+        }
+    }
+    if (state->error) {
+        std::rethrow_exception(state->error);
+    }
+}
+
+/// Runs body(line_begin, line_end) over [0, height) in bands of whole block rows (GOB rows times
+/// the block height), several at once for large images: each band reads and writes bytes of its
+/// own on both the swizzled and the linear side, every slice included.
+template <typename Body>
+void ForEachLineBand(u64 bytes_per_line, u32 height, u32 depth, u32 block_height, Body&& body) {
+    constexpr u64 MinParallelBytes = u64{4} << 20;
+    constexpr u64 BandBytes = u64{1} << 20;
+    const u64 bytes_per_band_line = (std::max<u64>)(bytes_per_line * depth, 1);
+    if (!ParallelSwizzleEnabled() || bytes_per_band_line * height < MinParallelBytes) {
+        body(0U, height);
+        return;
+    }
+    const u32 align = 1U << (GOB_SIZE_Y_SHIFT + block_height);
+    const u32 rows = static_cast<u32>(
+        Common::AlignUp((std::max<u64>)(BandBytes / bytes_per_band_line, 1), align));
+    ParallelBands(Common::DivCeil(height, rows), [&](u32 band) {
+        body(band * rows, (std::min)(height, (band + 1) * rows));
+    });
+}
+
 template <bool TO_LINEAR, u32 BYTES_PER_PIXEL>
 void SwizzleImpl(std::span<u8> output, std::span<const u8> input, u32 width, u32 height, u32 depth,
-                 u32 block_height, u32 block_depth, u32 stride, bool native_tiling) {
+                 u32 block_height, u32 block_depth, u32 stride, bool native_tiling,
+                 u32 line_begin, u32 line_end) {
     // The origin of the transformation can be configured here, leave it as zero as the current API
     // doesn't expose it.
     static constexpr u32 origin_x = 0;
@@ -86,7 +215,7 @@ void SwizzleImpl(std::span<u8> output, std::span<const u8> input, u32 width, u32
         for (u32 slice = 0; slice < depth; ++slice) {
             const u32 offset_z = (slice >> block_depth) * slice_size +
                                  ((slice & block_depth_mask) << (GOB_SIZE_SHIFT + block_height));
-            for (u32 line = 0; line < height; ++line) {
+            for (u32 line = line_begin; line < line_end; ++line) {
                 const u32 block_y = line >> GOB_SIZE_Y_SHIFT;
                 const u32 offset_y = (block_y >> block_height) * block_size +
                                      ((block_y & block_height_mask) << GOB_SIZE_SHIFT);
@@ -113,7 +242,7 @@ void SwizzleImpl(std::span<u8> output, std::span<const u8> input, u32 width, u32
         const u32 z = slice + origin_z;
         const u32 offset_z = (z >> block_depth) * slice_size +
                              ((z & block_depth_mask) << (GOB_SIZE_SHIFT + block_height));
-        for (u32 line = 0; line < height; ++line) {
+        for (u32 line = line_begin; line < line_end; ++line) {
             const u32 y = line + origin_y;
             const u32 swizzled_y = pdep<SWIZZLE_Y_BITS>(y);
 
@@ -231,24 +360,28 @@ void SwizzleSubrectImpl(std::span<u8> output, std::span<const u8> input, u32 wid
 template <bool TO_LINEAR>
 void Swizzle(std::span<u8> output, std::span<const u8> input, u32 bytes_per_pixel, u32 width,
              u32 height, u32 depth, u32 block_height, u32 block_depth, u32 stride_alignment, bool native_tiling) {
-    switch (bytes_per_pixel) {
+    const auto run = [&](u32 line_begin, u32 line_end) {
+        switch (bytes_per_pixel) {
 #define BPP_CASE(x)                                                                                \
     case x:                                                                                        \
         return SwizzleImpl<TO_LINEAR, x>(output, input, width, height, depth, block_height,        \
-                                         block_depth, stride_alignment, native_tiling);
-        BPP_CASE(1)
-        BPP_CASE(2)
-        BPP_CASE(3)
-        BPP_CASE(4)
-        BPP_CASE(6)
-        BPP_CASE(8)
-        BPP_CASE(12)
-        BPP_CASE(16)
+                                         block_depth, stride_alignment, native_tiling, line_begin, \
+                                         line_end);
+            BPP_CASE(1)
+            BPP_CASE(2)
+            BPP_CASE(3)
+            BPP_CASE(4)
+            BPP_CASE(6)
+            BPP_CASE(8)
+            BPP_CASE(12)
+            BPP_CASE(16)
 #undef BPP_CASE
-    default:
-        ASSERT_MSG(false, "Invalid bytes_per_pixel={}", bytes_per_pixel);
-        break;
-    }
+        default:
+            ASSERT_MSG(false, "Invalid bytes_per_pixel={}", bytes_per_pixel);
+            break;
+        }
+    };
+    ForEachLineBand(u64{width} * bytes_per_pixel, height, depth, block_height, run);
 }
 
 } // Anonymous namespace
