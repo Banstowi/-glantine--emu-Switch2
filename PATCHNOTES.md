@@ -5,6 +5,11 @@ version. Les sections suivantes gardent l'historique.
 
 ## Nouveautés de cette version
 
+**Chargements plus fluides**
+- Les grosses textures sont préparées sur plusieurs cœurs du processeur. Sur nos mesures dans
+  Zelda Ocarina of Time, les images lentes sont trois fois moins nombreuses, et la part des
+  gels de chargement due à l'émulateur est fortement réduite.
+
 **Fermer un jeu sans quitter Banst Family**
 - Le bouton ✕ de la fenêtre propose maintenant « Fermer le jeu » : le jeu s'arrête proprement et
   la liste des jeux revient. « Quitter Banst Family » ferme tout, comme avant.

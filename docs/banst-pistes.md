@@ -124,7 +124,7 @@ depuis la mémoire du jeu, fait au moment de la création (`RefreshContents` dan
 Dans les images de plus de 200 ms : 61 % du temps est ce travail du fil GPU, 39 % le jeu lui-même
 qui charge (fils GPU au repos). Pire image : 1,05 s.
 
-## Préparation des textures en bandes (`EDEN_NX2_PARALLEL_SWIZZLE=1`, à tester)
+## Préparation des textures en bandes (activée par défaut depuis le build-21)
 
 Reprise d'Eglantine d470788010 (Takoroka), retiré le même jour (dfe734dce6) après un blocage
 dans une partie de Mario Kart World sur huit, non expliqué. Les images de 4 Mio et plus sont
@@ -144,3 +144,10 @@ corrigés ici :
 Vérifié hors émulateur (machine à 4 cœurs) : résultats identiques bit à bit à la version d'un
 seul fil sur 8 formes d'images (1 à 16 octets par pixel, 3D, tuilage natif), 10 passes de 6 fils
 en parallèle sans blocage, 64 Mio préparés en 3,8 ms au lieu de 11 ms.
+
+Mesure du build-20 avec les bandes (même PC, 15 minutes, une session) : aucune ligne de
+surveillance, aucun blocage, fermeture propre. Images de plus de 33 ms : 0,7 % contre 2,1 % au
+build-19 ; 99 % des images sous 29,5 ms contre 38,5 ms. Dans les images de plus de 200 ms, la
+part de l'émulateur tombe à 19 % (0,8 s) ; les 81 % restants sont le jeu qui charge, fils GPU au
+repos. Les trajets diffèrent : ordre de grandeur plutôt que chiffre exact. `EDEN_NX2_PARALLEL_SWIZZLE=0`
+revient à un seul fil.

@@ -70,7 +70,8 @@ std::array<u32, GOB_SIZE_Y * 4> GobUnitOffsets(bool native_tiling) {
 
 // Whole-texture (un)swizzles in bands of block rows on several cores, after Eglantine's
 // d470788010 by Takoroka, reverted there (dfe734dce6) over an unexplained hang in one Mario Kart
-// World run of eight. EDEN_NX2_PARALLEL_SWIZZLE=1 turns it on. Differences from the original:
+// World run of eight. On by default; EDEN_NX2_PARALLEL_SWIZZLE=0 turns it off. Differences from
+// the original:
 // - its own workers, so its waits never mix with the transcode pool's, whose ASTC and BCn
 //   conversions wait for that whole pool (ThreadWorker::WaitForRequests) from other threads;
 // - no nesting: a band never splits again, and a thread already running bands runs a new
@@ -81,10 +82,8 @@ std::array<u32, GOB_SIZE_Y * 4> GobUnitOffsets(bool native_tiling) {
 bool ParallelSwizzleEnabled() {
     static const bool enabled = [] {
         const char* const value = std::getenv("EDEN_NX2_PARALLEL_SWIZZLE");
-        const bool on = value != nullptr && value[0] == '1';
-        if (on) {
-            LOG_INFO(HW_GPU, "EDEN_NX2_PARALLEL_SWIZZLE: large textures swizzle in bands");
-        }
+        const bool on = value == nullptr || value[0] != '0';
+        LOG_INFO(HW_GPU, "Large textures swizzle {}", on ? "in bands" : "on one thread");
         return on;
     }();
     return enabled;
