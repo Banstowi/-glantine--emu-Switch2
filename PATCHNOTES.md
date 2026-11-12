@@ -5,11 +5,6 @@ version. Les sections suivantes gardent l'historique.
 
 ## Nouveautés de cette version
 
-**Correction graphique**
-- Zelda Ocarina of Time : correction probable des zones sombres en forme d'escalier qui
-  pouvaient rester au sol ou dans l'eau après une cinématique, dans les donjons. Un dessin que
-  le jeu ne fait qu'une fois n'est plus sauté pendant la préparation de son shader.
-
 **Chargements plus fluides**
 - Les grosses textures sont préparées sur plusieurs cœurs du processeur. Sur nos mesures dans
   Zelda Ocarina of Time, les images lentes sont trois fois moins nombreuses, et la part des
