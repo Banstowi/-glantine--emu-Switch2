@@ -459,16 +459,6 @@ Id DescType(EmitContext& ctx, Id sampled_type, Id pointer_type, u32 count) {
         return pointer_type;
     }
 }
-// EDEN_NX2_LEAN_SSBO=0 turns it off: the global memory helpers are kept as calls and route
-// with one switch. Inlined at each of their calls, a program with ~30 candidate buffers took
-// NVIDIA's compiler 2.4 s (Ocarina's foliage compute programs; 0.6 s this way, same accesses).
-bool LeanGlobalMemory() {
-    static const bool enabled = [] {
-        const char* value = std::getenv("EDEN_NX2_LEAN_SSBO");
-        return value == nullptr || value[0] != '0';
-    }();
-    return enabled;
-}
 } // Anonymous namespace
 
 void VectorTypes::Define(Sirit::Module& sirit_ctx, Id base_type, std::string_view name) {
@@ -987,9 +977,9 @@ void EmitContext::DefineGlobalMemoryFunctions(const IR::Program& program) {
     }
     using DefPtr = Id StorageDefinitions::*;
     const Id zero{u32_zero_value};
-    const spv::FunctionControlMask helper_control{LeanGlobalMemory()
-                                                      ? spv::FunctionControlMask::DontInline
-                                                      : spv::FunctionControlMask::MaskNone};
+    // Inlined at each of their calls, a program with ~30 candidate buffers took NVIDIA's compiler
+    // 2.4 s (Ocarina's foliage compute programs; 0.6 s as calls, same accesses).
+    const spv::FunctionControlMask helper_control{spv::FunctionControlMask::DontInline};
     const auto define_body{[&](DefPtr ssbo_member, Id addr, Id element_pointer, u32 shift,
                                auto&& callback) {
         AddLabel();
@@ -1054,31 +1044,24 @@ void EmitContext::DefineGlobalMemoryFunctions(const IR::Program& program) {
                 best_distance = OpSelect(U64, better, distance, best_distance);
                 best_index = OpSelect(U32[1], better, Const(static_cast<u32>(index)), best_index);
             }
-            if (LeanGlobalMemory()) {
-                std::vector<Sirit::Literal> literals;
-                std::vector<Id> labels;
-                for (size_t index = 0; index < num_buffers; ++index) {
-                    literals.push_back(static_cast<u32>(index));
-                    labels.push_back(OpLabel());
-                }
-                const Id default_label{OpLabel()};
-                OpSelectionMerge(default_label, spv::SelectionControlMask::MaskNone);
-                OpSwitch(best_index, default_label, literals, labels);
-                for (size_t index = 0; index < num_buffers; ++index) {
-                    AddLabel(labels[index]);
-                    const Id ssbo_id{ssbos[index].*ssbo_member};
-                    const Id ssbo_offset{OpUConvert(U32[1], OpISub(U64, addr, bases[index]))};
-                    const Id ssbo_index{OpShiftRightLogical(U32[1], ssbo_offset, Const(shift))};
-                    callback(OpAccessChain(element_pointer, ssbo_id, zero, ssbo_index), ssbo_id,
-                             ssbo_index);
-                }
-                AddLabel(default_label);
-                return;
-            }
+            std::vector<Sirit::Literal> literals;
+            std::vector<Id> labels;
             for (size_t index = 0; index < num_buffers; ++index) {
-                access(index, bases[index],
-                       OpIEqual(U1, best_index, Const(static_cast<u32>(index))));
+                literals.push_back(static_cast<u32>(index));
+                labels.push_back(OpLabel());
             }
+            const Id default_label{OpLabel()};
+            OpSelectionMerge(default_label, spv::SelectionControlMask::MaskNone);
+            OpSwitch(best_index, default_label, literals, labels);
+            for (size_t index = 0; index < num_buffers; ++index) {
+                AddLabel(labels[index]);
+                const Id ssbo_id{ssbos[index].*ssbo_member};
+                const Id ssbo_offset{OpUConvert(U32[1], OpISub(U64, addr, bases[index]))};
+                const Id ssbo_index{OpShiftRightLogical(U32[1], ssbo_offset, Const(shift))};
+                callback(OpAccessChain(element_pointer, ssbo_id, zero, ssbo_index), ssbo_id,
+                         ssbo_index);
+            }
+            AddLabel(default_label);
             return;
         }
         for (size_t index = 0; index < num_buffers; ++index) {
