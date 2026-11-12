@@ -5,6 +5,11 @@ version. Les sections suivantes gardent l'historique.
 
 ## Nouveautés de cette version
 
+**Fermer un jeu sans quitter Banst Family**
+- Le bouton ✕ de la fenêtre propose maintenant « Fermer le jeu » : le jeu s'arrête proprement et
+  la liste des jeux revient. « Quitter Banst Family » ferme tout, comme avant.
+- Autres moyens : Émulation > Arrêter (F5), ou L + Plus + Moins sur la manette.
+
 **Nouvelle interface**
 - Thème Banst Family : sombre, gris chauds et couleur érable de notre feuille. Il s'applique au
   premier lancement ; les anciens thèmes restent dans Configurer > Général > Interface.

@@ -117,3 +117,14 @@ et 495 ms dans l'envoi des textures. La trace découpe maintenant `image_create`
 `astc_scan` (lecture d'une texture ASTC pour savoir si elle est opaque) ; le reste est la
 recherche des images qui se chevauchent et leurs copies. `EDEN_NX2_TC_LOG=1` ajoute toutes les
 600 images le nombre d'images créées et supprimées et les envois depuis la mémoire du jeu.
+
+Résultat (build-19, 19 minutes, 3 chargements) : sur les 12,5 s de `image_create`,
+`image_backend` ne fait que 4,6 s et `astc_scan` 1,4 s. Le reste est surtout l'envoi de la texture
+depuis la mémoire du jeu, fait au moment de la création (`RefreshContents` dans `JoinImages`).
+Dans les images de plus de 200 ms : 61 % du temps est ce travail du fil GPU, 39 % le jeu lui-même
+qui charge (fils GPU au repos). Pire image : 1,05 s.
+
+Piste écartée pour l'instant : découper les envois en bandes sur plusieurs cœurs. Takoroka l'a
+fait (Eglantine d470788010) puis retiré le même jour (dfe734dce6) après un blocage dans une
+partie de Mario Kart World sur huit, non expliqué. À reprendre si Eglantine ou Lichii le
+réintègre corrigé.

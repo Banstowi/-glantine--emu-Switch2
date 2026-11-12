@@ -8283,6 +8283,18 @@ Ce choix se modifie dans Configurer, Graphismes, Avancé.</translation>
         <source>&amp;What's New</source>
         <translation>&amp;Quoi de neuf</translation>
     </message>
+    <message>
+        <source>Close only the game and go back to the game list, or quit Banst Family?</source>
+        <translation>Fermer seulement le jeu et revenir à la liste des jeux, ou quitter Banst Family ?</translation>
+    </message>
+    <message>
+        <source>Close the game</source>
+        <translation>Fermer le jeu</translation>
+    </message>
+    <message>
+        <source>Quit Banst Family</source>
+        <translation>Quitter Banst Family</translation>
+    </message>
 </context>
 <context>
     <name>MigrationWorker</name>

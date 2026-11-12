@@ -5670,6 +5670,41 @@ bool MainWindow::ConfirmClose() {
 }
 
 void MainWindow::closeEvent(QCloseEvent* event) {
+    // Closing the window during a game offers to close only the game and stay in the game list.
+    if (!close_pending && !boot_in_progress && QtCommon::emu_thread && emulation_running &&
+        UISettings::values.confirm_before_stopping.GetValue() != ConfirmStop::Ask_Never) {
+        QMessageBox box(QMessageBox::Question, tr("Banst Family"),
+                        tr("Close only the game and go back to the game list, or quit Banst "
+                           "Family?"),
+                        QMessageBox::NoButton, this);
+        QPushButton* const close_game = box.addButton(tr("Close the game"), QMessageBox::AcceptRole);
+        QPushButton* const quit = box.addButton(tr("Quit Banst Family"), QMessageBox::DestructiveRole);
+        box.addButton(QMessageBox::Cancel);
+        box.setDefaultButton(close_game);
+        box.exec();
+        if (box.clickedButton() == close_game) {
+            event->ignore();
+            if (QtCommon::system->GetExitLocked() && !ConfirmForceLockedExit()) {
+                return;
+            }
+            play_time_manager->Stop();
+            if (OnShutdownBegin()) {
+                OnShutdownBeginDialog();
+            } else {
+                OnEmulationStopped();
+            }
+            return;
+        }
+        if (box.clickedButton() != quit) {
+            event->ignore();
+            return;
+        }
+        if (QtCommon::system->GetExitLocked() && !ConfirmForceLockedExit()) {
+            event->ignore();
+            return;
+        }
+        close_pending = true;
+    }
     if (!close_pending && !ConfirmClose()) {
         event->ignore();
         return;
