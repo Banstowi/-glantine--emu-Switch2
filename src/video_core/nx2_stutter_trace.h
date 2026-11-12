@@ -96,6 +96,8 @@ enum class Site : u8 {
     TextureDownload, ///< Image data downloaded while the caller waits for the host GPU
     SchedulerFinish, ///< Submitting and waiting for the host GPU to finish all of it
     MemoryFree,      ///< Device memory blocks given back to the driver
+    ImageBackend,    ///< Of ImageCreate: the host image itself (create, memory, views, clear)
+    AstcScan,        ///< Of ImageCreate: an ASTC image's guest data read to see if it is opaque
     Count,
 };
 
@@ -104,6 +106,7 @@ inline constexpr std::array<std::string_view, SiteCount> site_names{
     "memory_allocate", "staging_create", "buffer_create",    "buffer_delete",
     "buffer_collect",  "buffer_download", "image_create",    "image_delete",
     "texture_collect", "texture_download", "scheduler_finish", "memory_free",
+    "image_backend",   "astc_scan",
 };
 
 [[nodiscard]] inline bool ReadEnv() {

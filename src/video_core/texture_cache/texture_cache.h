@@ -3135,6 +3135,7 @@ ImageId TextureCache<P>::JoinImages(const ImageInfo& info, GPUVAddr gpu_addr, DA
         constexpr size_t MaxScanBytes = 64_MiB;
         if (IsPixelFormatASTC(new_info.format) && runtime.UseOpaqueAstcFormat()) {
             const size_t scan_bytes = CalculateGuestSizeInBytes(new_info);
+            const StutterTrace::SiteScope astc_site{StutterTrace::Site::AstcScan};
             if (scan_bytes <= MaxScanBytes) {
                 // Scanned where it is when it is in one piece; only copied (into the scratch
                 // buffer) when the range is split.
@@ -3146,7 +3147,11 @@ ImageId TextureCache<P>::JoinImages(const ImageInfo& info, GPUVAddr gpu_addr, DA
             }
         }
     }
-    const ImageId new_image_id = slot_images.insert(runtime, new_info, gpu_addr, cpu_addr);
+    ImageId new_image_id;
+    {
+        const StutterTrace::SiteScope backend_site{StutterTrace::Site::ImageBackend};
+        new_image_id = slot_images.insert(runtime, new_info, gpu_addr, cpu_addr);
+    }
     if constexpr (requires(const Image& image) { image.OutOfMemory(); }) {
         if (slot_images[new_image_id].OutOfMemory()) {
             // Left out of the cache: lookups see no image (a null view) and make it again once

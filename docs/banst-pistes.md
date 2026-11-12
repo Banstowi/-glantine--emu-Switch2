@@ -108,3 +108,12 @@ moins de mémoire perdue en trous avec 16 Mio, pire gel de chargement identique 
 réglage de Lichii (16 Mio) reste. Le temps de réservation était de 430 à 550 ms par minute au
 build-15 : la baisse vient du cache de textures de Lichii (images récentes gardées) et d'un
 fichier d'échange plus grand.
+
+## Gels de chargement : où va la création d'images (build-18)
+
+Pire image d'un chargement de zone : 1,28 s, dont 612 images créées en 577 ms (0,94 ms chacune)
+et 495 ms dans l'envoi des textures. La trace découpe maintenant `image_create` en
+`image_backend` (l'image de la carte graphique elle-même : création, mémoire, vues) et
+`astc_scan` (lecture d'une texture ASTC pour savoir si elle est opaque) ; le reste est la
+recherche des images qui se chevauchent et leurs copies. `EDEN_NX2_TC_LOG=1` ajoute toutes les
+600 images le nombre d'images créées et supprimées et les envois depuis la mémoire du jeu.
