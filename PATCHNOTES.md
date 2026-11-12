@@ -5,6 +5,22 @@ version. Les sections suivantes gardent l'historique.
 
 ## Nouveautés de cette version
 
+**Nouvelle interface**
+- Thème Banst Family : sombre, gris chauds et couleur érable de notre feuille. Il s'applique au
+  premier lancement ; Lichii Dark et les anciens thèmes restent dans Configurer > Général >
+  Interface.
+- Liste de jeux redessinée, avec favoris, et fenêtres de réglages qui tiennent à l'écran.
+- Une fenêtre « Quoi de neuf » présente les changements (Aide > Quoi de neuf).
+
+**Jeu à plusieurs**
+- Jeu en réseau local : les jeux en sans-fil local peuvent passer par le réseau de la maison,
+  sans salon. Désactivé par défaut : Configurer > Réseau > LAN play.
+
+**Performances**
+- Les textures récentes restent en mémoire tant que la carte graphique a de la place, au lieu
+  d'être jetées puis recréées.
+- Le processeur travaille moins quand le jeu attend.
+
 **Moins de saccades à la découverte d'une zone**
 - Les nouveaux shaders sont préparés sur les autres cœurs du processeur pendant que le jeu
   continue. Sur nos mesures dans Zelda Ocarina of Time, les saccades sont trois fois moins

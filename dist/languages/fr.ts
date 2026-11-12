@@ -8267,6 +8267,10 @@ Ce choix se modifie dans Configurer, Graphismes, Avancé.</translation>
         <source>Start without</source>
         <translation>Démarrer sans</translation>
     </message>
+    <message>
+        <source>&amp;What's New</source>
+        <translation>&amp;Quoi de neuf</translation>
+    </message>
 </context>
 <context>
     <name>MigrationWorker</name>
@@ -10788,6 +10792,65 @@ Error code: %3</source>
     <message>
         <source>Close</source>
         <translation>Fermer</translation>
+    </message>
+</context>
+<context>
+    <name>WhatsNewDialog</name>
+    <message>
+        <source>What's New in Banst Family</source>
+        <translation>Quoi de neuf dans Banst Family</translation>
+    </message>
+    <message>
+        <source>Banst Family has a new look</source>
+        <translation>Banst Family change de look</translation>
+    </message>
+    <message>
+        <source>Here is what changed. Menus and shortcuts are where they were.</source>
+        <translation>Voici ce qui change. Les menus et les raccourcis restent à leur place.</translation>
+    </message>
+    <message>
+        <source>Banst Family theme</source>
+        <translation>Thème Banst Family</translation>
+    </message>
+    <message>
+        <source>A dark theme with warm greys and the maple accent of the Banst Family leaf. Lichii Dark and the older themes are still in Configure &gt; General &gt; UI.</source>
+        <translation>Un thème sombre aux gris chauds, avec la couleur érable de la feuille Banst Family. Lichii Dark et les anciens thèmes restent dans Configurer &gt; Général &gt; Interface.</translation>
+    </message>
+    <message>
+        <source>Settings that fit your screen</source>
+        <translation>Des réglages qui tiennent à l'écran</translation>
+    </message>
+    <message>
+        <source>Configure and game Properties open at a size that fits your screen, can be resized, and every tab scrolls, so nothing is cut off at 150% or 200% scaling.</source>
+        <translation>Configurer et les propriétés des jeux s'ouvrent à la taille de votre écran, se redimensionnent, et chaque onglet défile : rien n'est coupé à 150 % ou 200 % d'agrandissement.</translation>
+    </message>
+    <message>
+        <source>Per-game changes are marked</source>
+        <translation>Les réglages par jeu sont repérés</translation>
+    </message>
+    <message>
+        <source>In a game's Properties, a setting you changed for that game has a coloured outline and a reset button. Settings that follow the global value say "Use global".</source>
+        <translation>Dans les propriétés d'un jeu, un réglage modifié pour ce jeu est entouré de couleur et a un bouton de remise à zéro. Les réglages qui suivent la valeur générale indiquent « Utiliser le global ».</translation>
+    </message>
+    <message>
+        <source>Same places as before</source>
+        <translation>Tout est au même endroit</translation>
+    </message>
+    <message>
+        <source>Configure is in Emulation &gt; Configure (Ctrl+,). Right-click a game and choose Properties for its own settings. Help &gt; What's New shows this again.</source>
+        <translation>Les réglages sont dans Émulation &gt; Configurer (Ctrl+,). Faites un clic droit sur un jeu puis Propriétés pour ses propres réglages. Aide &gt; Quoi de neuf réaffiche cette fenêtre.</translation>
+    </message>
+    <message>
+        <source>Don't show again</source>
+        <translation>Ne plus afficher</translation>
+    </message>
+    <message>
+        <source>Open Configure</source>
+        <translation>Ouvrir les réglages</translation>
+    </message>
+    <message>
+        <source>Got it</source>
+        <translation>Compris</translation>
     </message>
 </context>
 </TS>

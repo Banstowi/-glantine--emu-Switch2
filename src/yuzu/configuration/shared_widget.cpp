@@ -4,6 +4,7 @@
 // SPDX-FileCopyrightText: Copyright 2023 yuzu Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include "qt_common/config/uisettings.h"
 #include "yuzu/configuration/shared_widget.h"
 
 #include <functional>
@@ -18,6 +19,7 @@
 #include <QBoxLayout>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QCoreApplication>
 #include <QDateTime>
 #include <QDateTimeEdit>
 #include <QIcon>
@@ -32,6 +34,8 @@
 #include <QSlider>
 #include <QSpinBox>
 #include <QStyle>
+#include <QStyleOptionComboBox>
+#include <QStylePainter>
 #include <QValidator>
 #include <QVariant>
 #include <QtCore/qglobal.h>
@@ -51,6 +55,36 @@
 namespace ConfigurationShared {
 
 static int restore_button_count = 0;
+
+namespace {
+
+// A per-game combo box that follows the global value says so: "Use global (Vulkan)".
+class GlobalComboBox final : public QComboBox {
+public:
+    using QComboBox::QComboBox;
+
+protected:
+    void paintEvent(QPaintEvent*) override {
+        QStylePainter painter(this);
+        QStyleOptionComboBox option;
+        initStyleOption(&option);
+        painter.drawComplexControl(QStyle::CC_ComboBox, option);
+        if (property("global").toBool() && currentIndex() >= 0) {
+            option.currentText =
+                QCoreApplication::translate("ConfigurationShared", "Use global (%1)")
+                    .arg(option.currentText);
+        }
+        painter.drawControl(QStyle::CE_ComboBoxLabel, option);
+    }
+};
+
+void Repolish(QWidget* widget) {
+    widget->style()->unpolish(widget);
+    widget->style()->polish(widget);
+    widget->update();
+}
+
+} // namespace
 
 static std::string RelevantDefault(const Settings::BasicSetting& setting) {
     return Settings::IsConfiguringGlobal() ? setting.DefaultToString() : setting.ToStringGlobal();
@@ -73,10 +107,12 @@ static QString DefaultSuffix(QWidget* parent, Settings::BasicSetting& setting) {
 QPushButton* Widget::CreateRestoreGlobalButton(bool using_global, QWidget* parent) {
     restore_button_count++;
 
-    QStyle* style = parent->style();
-    QIcon* icon = new QIcon(style->standardIcon(QStyle::SP_LineEditClearButton));
-    QPushButton* restore_button = new QPushButton(*icon, QString(), parent);
+    QPushButton* restore_button =
+        new QPushButton(QIcon(UISettings::StyleIcon(QStringLiteral("reset.png"))), QString(), parent);
     restore_button->setObjectName(QStringLiteral("RestoreButton%1").arg(restore_button_count));
+    restore_button->setProperty("restore", true);
+    restore_button->setToolTip(
+        QCoreApplication::translate("ConfigurationShared", "Use the global value"));
     restore_button->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
     // Workaround for dark theme causing min-width to be much larger than 0
@@ -104,6 +140,7 @@ QWidget* Widget::CreateCheckBox(Settings::BasicSetting* bool_setting, const QStr
                                 std::function<void()>& restore_func,
                                 const std::function<void()>& touch) {
     checkbox = new QCheckBox(label, this);
+    checkbox->setProperty("toggle", true);
     checkbox->setCheckState(bool_setting->ToString() == "true" ? Qt::CheckState::Checked
                                                                : Qt::CheckState::Unchecked);
     checkbox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
@@ -133,7 +170,7 @@ QWidget* Widget::CreateCombobox(std::function<std::string()>& serializer,
                                 const std::function<void()>& touch) {
     const auto type = setting.EnumIndex();
 
-    combobox = new QComboBox(this);
+    combobox = Settings::IsConfiguringGlobal() ? new QComboBox(this) : new GlobalComboBox(this);
     combobox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
     const ComboboxTranslations* enumeration{nullptr};
@@ -576,6 +613,7 @@ void Widget::SetupComponent(const QString& label, std::function<void()>& load_fu
             LOG_DEBUG(Frontend, "Enabling custom setting for \"{}\"", setting.GetLabel());
             restore_button->setEnabled(true);
             restore_button->setVisible(true);
+            SetCustom(true);
         };
     }
 
@@ -685,7 +723,9 @@ void Widget::SetupComponent(const QString& label, std::function<void()>& load_fu
 
                                     checkbox_restore_func();
                                     restore_func();
+                                    SetCustom(false);
                                 });
+        SetCustom(!setting.UsingGlobal());
 
         load_func = [this, serializer, require_checkbox, checkbox_serializer, other_setting]() {
             bool using_global = !restore_button->isEnabled();
@@ -716,6 +756,17 @@ void Widget::SetupComponent(const QString& label, std::function<void()>& load_fu
 
 bool Widget::Valid() const {
     return created;
+}
+
+void Widget::SetCustom(bool custom) {
+    setProperty("custom", custom);
+    if (combobox != nullptr) {
+        combobox->setProperty("global", !custom);
+    }
+    Repolish(this);
+    for (auto* const child : findChildren<QWidget*>()) {
+        Repolish(child);
+    }
 }
 
 Widget::~Widget() = default;
