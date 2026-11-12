@@ -5805,8 +5805,6 @@ static void AdjustLinkColor() {
 
     if (UISettings::values.theme == "banst")
         new_pal.setColor(QPalette::Link, QColor(0xf2, 0x80, 0x3f));
-    else if (UISettings::values.theme == "lichii")
-        new_pal.setColor(QPalette::Link, QColor(0xf4, 0x5a, 0x85));
     else if (UISettings::IsDarkTheme())
         new_pal.setColor(QPalette::Link, QColor(0, 190, 255, 255));
     else
@@ -5816,42 +5814,8 @@ static void AdjustLinkColor() {
         qApp->setPalette(new_pal);
 }
 
-// Lichii Dark styles most widgets through its stylesheet; the palette covers what Qt draws
-// without one: item view text, disabled text, links and the native parts of dialogs.
-static QPalette LichiiPalette() {
-    QPalette palette;
-    const QColor window(0x17, 0x18, 0x1b);
-    const QColor surface(0x20, 0x21, 0x25);
-    const QColor text(0xec, 0xec, 0xef);
-    const QColor disabled(0x55, 0x57, 0x5d);
-    const QColor accent(0xf0, 0x38, 0x6b);
-    palette.setColor(QPalette::Window, window);
-    palette.setColor(QPalette::WindowText, text);
-    palette.setColor(QPalette::Base, window);
-    palette.setColor(QPalette::AlternateBase, QColor(0x1b, 0x1c, 0x20));
-    palette.setColor(QPalette::ToolTipBase, QColor(0x23, 0x24, 0x29));
-    palette.setColor(QPalette::ToolTipText, text);
-    palette.setColor(QPalette::PlaceholderText, QColor(0x6f, 0x71, 0x78));
-    palette.setColor(QPalette::Text, text);
-    palette.setColor(QPalette::Button, surface);
-    palette.setColor(QPalette::ButtonText, text);
-    palette.setColor(QPalette::BrightText, Qt::white);
-    palette.setColor(QPalette::Light, QColor(0x34, 0x36, 0x3c));
-    palette.setColor(QPalette::Midlight, QColor(0x2a, 0x2c, 0x31));
-    palette.setColor(QPalette::Mid, QColor(0x23, 0x24, 0x29));
-    palette.setColor(QPalette::Dark, QColor(0x14, 0x15, 0x18));
-    palette.setColor(QPalette::Shadow, Qt::black);
-    palette.setColor(QPalette::Highlight, accent);
-    palette.setColor(QPalette::HighlightedText, Qt::white);
-    palette.setColor(QPalette::Link, QColor(0xf4, 0x5a, 0x85));
-    palette.setColor(QPalette::LinkVisited, QColor(0xd4, 0x2c, 0x5a));
-    palette.setColor(QPalette::Disabled, QPalette::WindowText, disabled);
-    palette.setColor(QPalette::Disabled, QPalette::Text, disabled);
-    palette.setColor(QPalette::Disabled, QPalette::ButtonText, disabled);
-    return palette;
-}
-
-/// Lichii Dark's palette with Banst Family's maple accent and warm greys.
+// The Banst Family theme styles most widgets through its stylesheet; the palette covers what Qt
+// draws without one: item view text, disabled text, links and the native parts of dialogs.
 static QPalette BanstPalette() {
     QPalette palette;
     const QColor window(0x1d, 0x1a, 0x16);
@@ -5955,16 +5919,19 @@ void MainWindow::UpdateUITheme() {
     if (current_theme.isEmpty())
         current_theme = default_theme;
 
-    static bool lichii_palette = false;
+    // Lichii Dark, which builds before Banst Family had, became the Banst Family theme.
+    if (current_theme == QStringLiteral("lichii")) {
+        current_theme = default_theme;
+        UISettings::values.theme = default_theme.toStdString();
+    }
+
+    static bool banst_palette = false;
     if (current_theme == QStringLiteral("banst")) {
         qApp->setPalette(BanstPalette());
-        lichii_palette = true;
-    } else if (current_theme == QStringLiteral("lichii")) {
-        qApp->setPalette(LichiiPalette());
-        lichii_palette = true;
-    } else if (lichii_palette) {
+        banst_palette = true;
+    } else if (banst_palette) {
         qApp->setPalette(QPalette());
-        lichii_palette = false;
+        banst_palette = false;
     }
 
 #ifdef _WIN32

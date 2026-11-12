@@ -86,8 +86,7 @@ WhatsNewDialog::WhatsNewDialog(QWidget* parent) : QDialog(parent) {
 
     body->addWidget(Item(QStringLiteral("wand"), tr("Banst Family theme"),
                          tr("A dark theme with warm greys and the maple accent of the Banst Family "
-                            "leaf. Lichii Dark and the older themes are still in Configure > "
-                            "General > UI.")));
+                            "leaf. The older themes are still in Configure > General > UI.")));
     body->addWidget(Item(QStringLiteral("sliders"), tr("Settings that fit your screen"),
                          tr("Configure and game Properties open at a size that fits your screen, "
                             "can be resized, and every tab scrolls, so nothing is cut off at "

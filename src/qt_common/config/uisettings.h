@@ -41,11 +41,10 @@ namespace UISettings {
 
 bool IsDarkTheme();
 
-/// Lichii Dark or Banst Family, which is Lichii Dark recoloured: the custom widgets and icons.
+/// The Banst Family theme (Lichii Dark recoloured), which has custom widgets and icons.
 bool IsLichiiStyle();
 
-/// The resource path of an icon of the current Lichii-style theme ("reset.png" ->
-/// ":/banst/icons/reset.png").
+/// The resource path of a Banst Family theme icon ("reset.png" -> ":/banst/icons/reset.png").
 QString StyleIcon(const QString& file);
 
 struct ContextualShortcut {
@@ -68,13 +67,12 @@ enum class Theme {
     DarkColorful,
     MidnightBlue,
     MidnightBlueColorful,
-    LichiiDark,
     BanstFamily,
 };
 
 static constexpr Theme default_theme{Theme::BanstFamily};
 
-using Themes = std::array<std::pair<const char*, const char*>, 8>;
+using Themes = std::array<std::pair<const char*, const char*>, 7>;
 extern const Themes themes;
 
 struct GameDir {

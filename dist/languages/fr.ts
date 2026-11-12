@@ -10813,8 +10813,8 @@ Error code: %3</source>
         <translation>Thème Banst Family</translation>
     </message>
     <message>
-        <source>A dark theme with warm greys and the maple accent of the Banst Family leaf. Lichii Dark and the older themes are still in Configure &gt; General &gt; UI.</source>
-        <translation>Un thème sombre aux gris chauds, avec la couleur érable de la feuille Banst Family. Lichii Dark et les anciens thèmes restent dans Configurer &gt; Général &gt; Interface.</translation>
+        <source>A dark theme with warm greys and the maple accent of the Banst Family leaf. The older themes are still in Configure &gt; General &gt; UI.</source>
+        <translation>Un thème sombre aux gris chauds, avec la couleur érable de la feuille Banst Family. Les anciens thèmes restent dans Configurer &gt; Général &gt; Interface.</translation>
     </message>
     <message>
         <source>Settings that fit your screen</source>
