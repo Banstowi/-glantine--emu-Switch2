@@ -5,6 +5,21 @@ version. Les sections suivantes gardent l'historique.
 
 ## Nouveautés de cette version
 
+**Zelda Ocarina of Time**
+- Correction des zones sombres en forme de grille sur l'eau et le sol (ombres des lumières).
+- Génération d'images NVIDIA DLSS (2x à 4x) disponible comme type de génération d'images.
+
+**Hyrule Warriors : Les Chroniques du Sceau**
+- Correction d'un blocage au premier écran de chargement, et d'un arrêt occasionnel pendant les
+  vidéos.
+- Mode 30 images par seconde et images par seconde dynamiques.
+
+**Tous les jeux**
+- Arrêter un jeu ne se termine plus par une erreur, et les jeux Switch 1 au format .nx sont
+  reconnus.
+- Moins de mémoire perdue et moins de plantages par manque de mémoire Windows.
+- Vibrations améliorées, y compris la DualSense en USB.
+
 **Chargements plus fluides**
 - Les grosses textures sont préparées sur plusieurs cœurs du processeur. Sur nos mesures dans
   Zelda Ocarina of Time, les images lentes sont trois fois moins nombreuses, et la part des

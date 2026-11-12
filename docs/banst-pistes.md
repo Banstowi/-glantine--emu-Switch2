@@ -151,3 +151,10 @@ build-19 ; 99 % des images sous 29,5 ms contre 38,5 ms. Dans les images de plus 
 part de l'émulateur tombe à 19 % (0,8 s) ; les 81 % restants sont le jeu qui charge, fils GPU au
 repos. Les trajets diffèrent : ordre de grandeur plutôt que chiffre exact. `EDEN_NX2_PARALLEL_SWIZZLE=0`
 revient à un seul fil.
+
+## Zones sombres en grille dans l'eau d'Ocarina (build-20)
+
+Cause trouvée par Lichii dans les shaders d'éclairage par grappes (une poignée de carte d'ombre
+suivie à travers le résultat d'un échantillonnage, liée comme texture nulle), corrigée dans
+bd0171f7b9 (#1485). Notre premier correctif, qui empêchait de sauter les dessins vers des cibles
+nouvelles, partait d'une mauvaise hypothèse et a été retiré.
