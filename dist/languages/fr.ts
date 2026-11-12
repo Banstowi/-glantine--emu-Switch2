@@ -45,6 +45,18 @@ li.checked::marker { content: &quot;\2612&quot;; }
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;&amp;quot;Nintendo Switch&amp;quot; is a trademark of Nintendo. Eden is not affiliated with Nintendo in any way.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;&amp;quot;Nintendo Switch&amp;quot; est une marque déposée de Nintendo. Banst Family n’est en aucun cas affilié à Nintendo.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
+    <message>
+        <source>Banst Family is the family's Nintendo Switch 2 emulator, created and maintained by Banstowi. Built on Lichii.
+
+This software should not be used to play games you have not legally obtained.</source>
+        <translation>Banst Family est l'émulateur Nintendo Switch 2 de la famille, créé et maintenu par Banstowi. Construit sur Lichii.
+
+Ce logiciel ne doit pas servir à jouer à des jeux que vous n'avez pas obtenus légalement.</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;&lt;img src=":/banst/icons/menu_code.png" width="14" height="14" align="middle"/&gt;&amp;nbsp;&lt;a style="text-decoration:none" href="https://github.com/Banstowi/-glantine--emu-Switch2"&gt;Source Code&lt;/a&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;img src=":/banst/icons/menu_bug.png" width="14" height="14" align="middle"/&gt;&amp;nbsp;&lt;a style="text-decoration:none" href="https://github.com/Banstowi/-glantine--emu-Switch2/issues"&gt;Report an Issue&lt;/a&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;img src=":/banst/icons/menu_info.png" width="14" height="14" align="middle"/&gt;&amp;nbsp;&lt;a style="text-decoration:none" href="https://github.com/Banstowi/-glantine--emu-Switch2#cr%C3%A9dits-et-licence"&gt;Credits and License&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;&lt;img src=":/banst/icons/menu_code.png" width="14" height="14" align="middle"/&gt;&amp;nbsp;&lt;a style="text-decoration:none" href="https://github.com/Banstowi/-glantine--emu-Switch2"&gt;Code source&lt;/a&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;img src=":/banst/icons/menu_bug.png" width="14" height="14" align="middle"/&gt;&amp;nbsp;&lt;a style="text-decoration:none" href="https://github.com/Banstowi/-glantine--emu-Switch2/issues"&gt;Signaler un problème&lt;/a&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;img src=":/banst/icons/menu_info.png" width="14" height="14" align="middle"/&gt;&amp;nbsp;&lt;a style="text-decoration:none" href="https://github.com/Banstowi/-glantine--emu-Switch2#cr%C3%A9dits-et-licence"&gt;Crédits et licence&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
 </context>
 <context>
     <name>CalibrationConfigurationDialog</name>
