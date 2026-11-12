@@ -871,15 +871,6 @@ Device::Device(VkInstance instance_, vk::PhysicalDevice physical_, VkSurfaceKHR 
             }
         }
     }
-    // EDEN_NX2_VMA_BLOCK_MIB: the block size below, to measure the allocations a zone load makes
-    // against the holes larger blocks leave (Ocarina of Time: 198 allocations, 834 ms, in one
-    // frame of a load with 16 MiB blocks).
-    VkDeviceSize block_size = VkDeviceSize{16} << 20;
-    if (const char* const value = std::getenv("EDEN_NX2_VMA_BLOCK_MIB")) {
-        const u64 mib = std::clamp<u64>(std::strtoull(value, nullptr, 10), 4, 256);
-        block_size = VkDeviceSize{mib} << 20;
-        LOG_INFO(Render_Vulkan, "EDEN_NX2_VMA_BLOCK_MIB: {} MiB memory blocks", mib);
-    }
     const VmaAllocatorCreateInfo allocator_info{
             .flags = flags,
             .physicalDevice = physical,
@@ -891,7 +882,7 @@ Device::Device(VkInstance instance_, vk::PhysicalDevice physical_, VkSurfaceKHR 
             // after ten minutes, with 32 MiB ones ~0.5 GB: a block drains only once all of its
             // images are gone, and fewer per block drain sooner. VMA gives allocations over half a
             // block (8 MiB) their own memory, which goes back to the driver when they are freed.
-            .preferredLargeHeapBlockSize = block_size,
+            .preferredLargeHeapBlockSize = 16u * 1024u * 1024u,
             .pAllocationCallbacks = nullptr,
             .pDeviceMemoryCallbacks = nullptr,
             .pHeapSizeLimit = heap_size_limit != 0 ? heap_size_limits.data() : nullptr,

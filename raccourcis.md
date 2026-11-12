@@ -31,7 +31,6 @@ Lignes à ajouter avant `start` selon le test :
 |---|---|
 | `set EDEN_NX2_ASYNC_TRANSLATION=0` | Coupe la traduction des nouveaux shaders hors du fil graphique, pour comparer |
 | `set EDEN_NX2_FS_READ_TRACE=1` | Mesure les lectures de fichiers du jeu (temps de chargement) |
-| `set EDEN_NX2_VMA_BLOCK_MIB=32` | Réserve la mémoire vidéo par blocs de 32 Mio au lieu de 16 (essayer aussi 64), pour mesurer les chargements |
 | `set EDEN_NX2_PARALLEL_POOL_KIB=1024` | Remet l'ancienne limite de la traduction parallèle, pour comparer |
 
 ## Menus

@@ -96,8 +96,15 @@ GPU attendent le jeu (6,4 s). Les trois pires (1,0 à 1,8 s) sont des chargement
 - Création d'images et mémoire vidéo : 7025 images et 2873 réservations pendant les images
   longues, 4,2 s. Une image de chargement fait 198 réservations en 834 ms. Lichii règle VMA sur
   des blocs de 16 Mio pour limiter les trous (mesuré sur des cartes de 8 Go), ce qui multiplie
-  les réservations. `EDEN_NX2_VMA_BLOCK_MIB=32` ou `64` permet de mesurer l'autre côté du
-  compromis : comparer `memory_allocate` dans `Nx2StutterSummary` et la ligne
-  `Memory margins ... block slack`.
+  les réservations.
 - Mémoire de l'hôte : la limite de validation de Windows borne encore le cache de textures
   (2 à 3 Gio au lieu de 5,9). La RAM émulée de 8 Gio est validée d'avance et compte dedans.
+
+## Taille des blocs de mémoire vidéo (build-18, testé et abandonné)
+
+Même build et même PC, blocs de 16 Mio contre 32 Mio (interrupteur `EDEN_NX2_VMA_BLOCK_MIB`,
+retiré depuis) : 650 réservations et 80 ms par minute avec 16 Mio, 1200 et 170 ms avec 32 Mio,
+moins de mémoire perdue en trous avec 16 Mio, pire gel de chargement identique (1,3 s). Le
+réglage de Lichii (16 Mio) reste. Le temps de réservation était de 430 à 550 ms par minute au
+build-15 : la baisse vient du cache de textures de Lichii (images récentes gardées) et d'un
+fichier d'échange plus grand.
