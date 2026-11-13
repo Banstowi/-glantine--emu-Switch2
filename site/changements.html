@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Changements – Erable</title>
+<meta name="description" content="Notes de version et dernières modifications d'Erable.">
+<link rel="icon" href="erable.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="./"><img src="erable.png" alt="">Erable</a>
+    <nav aria-label="Navigation principale">
+      <a href="./">Accueil</a>
+      <a href="changements.html" aria-current="page">Changements</a>
+      <a href="signaler.html">Signaler un problème</a>
+      <a href="tutoriel/">Tutoriels</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <div class="wrap">
+    <h1>Changements</h1>
+    <p class="lead">Ce qui change d'une version à l'autre, et le détail des modifications du code.</p>
+    <div class="tabs" role="tablist">
+      <button role="tab" id="tab-releases" aria-selected="true" aria-controls="releases">Versions</button>
+      <button role="tab" id="tab-commits" aria-selected="false" aria-controls="commits">Modifications du code</button>
+    </div>
+    <section id="releases" role="tabpanel" aria-labelledby="tab-releases">
+      <p class="status">Chargement des versions…</p>
+    </section>
+    <section id="commits" role="tabpanel" aria-labelledby="tab-commits" hidden>
+      <p class="status">Chargement des modifications…</p>
+    </section>
+  </div>
+</main>
+<footer class="site">
+  <div class="wrap">
+    Erable, créé par Banstowi pour la famille. Construit sur
+    <a href="https://github.com/zortos293/Lichii">Lichii</a>, sous licence GPL. Non affilié à Nintendo :
+    jeux, clés et firmware viennent de votre propre console.
+    <a href="https://github.com/Banstowi/Erable">Code source</a>.
+  </div>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+<script src="site.js"></script>
+<script src="changements.js"></script>
+</body>
+</html>

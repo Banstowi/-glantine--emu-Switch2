@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Erable</title>
+<meta name="description" content="L'émulateur Nintendo Switch 2 de la famille : téléchargement, changements et signalement de problèmes.">
+<link rel="icon" href="erable.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="./"><img src="erable.png" alt="">Erable</a>
+    <nav aria-label="Navigation principale">
+      <a href="./" aria-current="page">Accueil</a>
+      <a href="changements.html">Changements</a>
+      <a href="signaler.html">Signaler un problème</a>
+      <a href="tutoriel/">Tutoriels</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <div class="wrap">
+    <section class="hero">
+      <img src="erable.png" alt="Logo Erable">
+      <div>
+        <h1>Erable</h1>
+        <p class="lead">L'émulateur Nintendo Switch 2 de la famille, en français, réglé pour nos PC et nos jeux.</p>
+        <div class="actions">
+          <a class="btn" id="download" href="https://github.com/Banstowi/Erable/releases/latest">Télécharger pour Windows</a>
+          <a class="btn secondary" href="changements.html">Quoi de neuf ?</a>
+        </div>
+        <p class="meta" id="latest">Extrayez tout le zip, puis lancez erable.exe. Les mises à jour arrivent ensuite toutes seules.</p>
+      </div>
+    </section>
+
+    <div class="grid">
+      <a class="card" href="changements.html">
+        <h3>Changements</h3>
+        <p>Les notes de chaque version et les dernières modifications du code.</p>
+      </a>
+      <a class="card" href="signaler.html">
+        <h3>Signaler un problème</h3>
+        <p>Un jeu plante, l'image ou le son est faux ? Décrivez-le en quelques lignes.</p>
+      </a>
+      <a class="card" href="tutoriel/">
+        <h3>Tutoriels</h3>
+        <p>Installer Erable, ajouter clés et firmware, optimiser Zelda Ocarina of Time.</p>
+      </a>
+    </div>
+  </div>
+</main>
+<footer class="site">
+  <div class="wrap">
+    Erable, créé par Banstowi pour la famille. Construit sur
+    <a href="https://github.com/zortos293/Lichii">Lichii</a>, sous licence GPL. Non affilié à Nintendo :
+    jeux, clés et firmware viennent de votre propre console.
+    <a href="https://github.com/Banstowi/Erable">Code source</a>.
+  </div>
+</footer>
+<script src="site.js"></script>
+<script>
+  getJson("/releases/latest").then((release) => {
+    const zip = release.assets.find((asset) => /^erable-windows-x86_64\.zip$/.test(asset.name));
+    if (zip) {
+      document.getElementById("download").href = zip.browser_download_url;
+    }
+    document.getElementById("latest").textContent =
+      "Version " + release.tag_name + " du " + formatDate(release.published_at) +
+      ". Extrayez tout le zip, puis lancez erable.exe. Les mises à jour arrivent ensuite toutes seules.";
+  }).catch(() => {});
+</script>
+</body>
+</html>
