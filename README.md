@@ -15,7 +15,7 @@ votre propre console : rien de tout cela n'est fourni.
 ## Télécharger
 
 Téléchargez Erable uniquement depuis la
-[page des versions](https://github.com/Banstowi/-glantine--emu-Switch2/releases) de ce dépôt.
+[page des versions](https://github.com/Banstowi/Erable/releases) de ce dépôt.
 Sous Windows, extrayez tout le zip puis lancez **erable.exe**. Les mises à jour sont ensuite
 proposées automatiquement au démarrage, avec leurs notes de version en français.
 
@@ -48,7 +48,7 @@ performances dans [docs/banst-pistes.md](docs/banst-pistes.md).
 ## Signaler un problème
 
 Clic droit sur le jeu, puis **Rapport de compatibilité…**, ou ouvrez une
-[issue](https://github.com/Banstowi/-glantine--emu-Switch2/issues) en joignant `eden_log.txt`
+[issue](https://github.com/Banstowi/Erable/issues) en joignant `eden_log.txt`
 (dossier `%APPDATA%\erable\log`, une fois l'émulateur fermé).
 
 ## Crédits et licence

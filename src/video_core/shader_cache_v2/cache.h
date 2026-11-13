@@ -11,6 +11,7 @@
 #include <span>
 #include <string_view>
 #include <unordered_map>
+#include <utility>
 
 #include "common/common_types.h"
 #include "video_core/shader_cache_v2/cache_writer.h"
@@ -25,9 +26,26 @@ namespace VideoCommon::ShaderCacheV2 {
 struct LogRecord;
 
 /// The log of a title, in its shader cache directory
-inline constexpr std::string_view FileName{"lichii-cache.v2.bin"};
+inline constexpr std::string_view FileName{"erable-cache.v2.bin"};
 /// What the driver compiled for that title's pipelines, beside it (driver_blobs.h)
-inline constexpr std::string_view DriverFileName{"lichii-cache.v2.driver.bin"};
+inline constexpr std::string_view DriverFileName{"erable-cache.v2.driver.bin"};
+
+/// Renames a title's cache files from their names before Erable (lichii-cache.v2.*) when
+/// `directory` has no file under the new name yet, so the cache built so far is kept.
+inline void AdoptFormerFiles(const std::filesystem::path& directory) {
+    constexpr std::array<std::pair<std::string_view, std::string_view>, 2> files{{
+        {"lichii-cache.v2.bin", FileName},
+        {"lichii-cache.v2.driver.bin", DriverFileName},
+    }};
+    for (const auto& [former, current] : files) {
+        std::error_code ec;
+        const auto from = directory / former;
+        const auto to = directory / current;
+        if (!std::filesystem::exists(to, ec) && std::filesystem::exists(from, ec)) {
+            std::filesystem::rename(from, to, ec);
+        }
+    }
+}
 
 /// What the log held for a program the shader cache captured
 enum class ProgramLookup : u8 {

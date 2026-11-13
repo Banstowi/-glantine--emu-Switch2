@@ -12,6 +12,7 @@ version. Les sections suivantes gardent l'historique.
 - Les anciens raccourcis vers banstdog.exe continuent de marcher : banstdog.exe ouvre erable.exe.
 - Le code aussi passe au nom Erable (dossiers, programmes, options de build). Les caches de
   shaders déjà construits restent valables.
+- Le dépôt s'appelle maintenant github.com/Banstowi/Erable.
 
 **Zelda Ocarina of Time**
 - Correction des zones sombres en forme de grille sur l'eau et le sol (ombres des lumières).

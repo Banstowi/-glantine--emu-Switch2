@@ -252,6 +252,7 @@ void RemoveTransferableShaderCache(u64 program_id, GameListRemoveTarget target) 
                                                    VideoCommon::PipelineCacheMagic, {},
                                                    VideoCommon::OpenGLPipelineCacheVersion);
         case GameListRemoveTarget::VkShaderCache: {
+            VideoCommon::ShaderCacheV2::AdoptFormerFiles(shader_cache_folder_path);
             const auto log = shader_cache_folder_path / VideoCommon::ShaderCacheV2::FileName;
             const bool had_log = Common::FS::Exists(log);
             if (had_log && !Common::FS::RemoveFile(log)) {

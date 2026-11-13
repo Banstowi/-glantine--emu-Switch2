@@ -1102,6 +1102,7 @@ void PipelineCache::LoadDiskResources(u64 title_id, std::stop_token stop_loading
         return;
     }
     namespace CacheV2 = VideoCommon::ShaderCacheV2;
+    CacheV2::AdoptFormerFiles(base_dir);
     pipeline_cache_filename = base_dir / CacheV2::FileName;
     // Left by a boot load that never finished (a driver crash, abort or hang): this boot builds
     // nothing from the cache. The lock is held for as long as the marker may be there, so while
