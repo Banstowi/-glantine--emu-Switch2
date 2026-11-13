@@ -109,6 +109,12 @@ case "$mode" in
       # emulator's update checker compares against its own number.
       kind=build
       number="${GITHUB_RUN_NUMBER:?GITHUB_RUN_NUMBER is not set}"
+      # Run numbers start again at 1 in a new repository: the number follows the highest build-N
+      # tag the repository already has, so installed builds still see the next one as newer.
+      highest=$(git tag -l 'build-*' | sed -n 's/^build-\([0-9]\+\)$/\1/p' | sort -n | tail -n 1)
+      if [[ -n "$highest" ]] && ((number <= highest)); then
+        number=$((highest + 1))
+      fi
       tag="build-$number"
       refspec="$tag"
       version="$tag"

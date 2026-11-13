@@ -1,5 +1,5 @@
 // Shared by the pages of erable-simu.com.
-const REPO = "Banstowi/Erable";
+const REPO = "erablesimu/Erable";
 const API = "https://api.github.com/repos/" + REPO;
 
 async function getJson(path) {

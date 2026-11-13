@@ -259,19 +259,19 @@ void AndroidKeyboard::SubmitNormalText(const ResultData& data) const {
 
 void InitJNI(JNIEnv* env) {
     s_software_keyboard_class = reinterpret_cast<jclass>(
-        env->NewGlobalRef(env->FindClass("io/github/banstowi/erable/applets/keyboard/SoftwareKeyboard")));
+        env->NewGlobalRef(env->FindClass("io/github/erablesimu/erable/applets/keyboard/SoftwareKeyboard")));
     s_keyboard_config_class = reinterpret_cast<jclass>(env->NewGlobalRef(
-        env->FindClass("io/github/banstowi/erable/applets/keyboard/SoftwareKeyboard$KeyboardConfig")));
+        env->FindClass("io/github/erablesimu/erable/applets/keyboard/SoftwareKeyboard$KeyboardConfig")));
     s_keyboard_data_class = reinterpret_cast<jclass>(env->NewGlobalRef(
-        env->FindClass("io/github/banstowi/erable/applets/keyboard/SoftwareKeyboard$KeyboardData")));
+        env->FindClass("io/github/erablesimu/erable/applets/keyboard/SoftwareKeyboard$KeyboardData")));
 
     s_swkbd_execute_normal = env->GetStaticMethodID(
         s_software_keyboard_class, "executeNormal",
-        "(Lio/github/banstowi/erable/applets/keyboard/SoftwareKeyboard$KeyboardConfig;)Lio/github/banstowi/erable/"
+        "(Lio/github/erablesimu/erable/applets/keyboard/SoftwareKeyboard$KeyboardConfig;)Lio/github/erablesimu/erable/"
         "applets/keyboard/SoftwareKeyboard$KeyboardData;");
     s_swkbd_execute_inline = env->GetStaticMethodID(
         s_software_keyboard_class, "executeInline",
-        "(Lio/github/banstowi/erable/applets/keyboard/SoftwareKeyboard$KeyboardConfig;)V");
+        "(Lio/github/erablesimu/erable/applets/keyboard/SoftwareKeyboard$KeyboardConfig;)V");
 }
 
 void CleanupJNI(JNIEnv* env) {

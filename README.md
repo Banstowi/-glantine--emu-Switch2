@@ -15,7 +15,7 @@ votre propre console : rien de tout cela n'est fourni.
 ## Télécharger
 
 Téléchargez Erable uniquement depuis la
-[page des versions](https://github.com/Banstowi/Erable/releases) de ce dépôt.
+[page des versions](https://github.com/erablesimu/Erable/releases) de ce dépôt.
 Sous Windows, extrayez tout le zip puis lancez **erable.exe**. Les mises à jour sont ensuite
 proposées automatiquement au démarrage, avec leurs notes de version en français.
 
@@ -54,7 +54,7 @@ les dernières modifications sont sur [erable-simu.com/changements](https://erab
 
 ## Crédits et licence
 
-**Erable** est créé et maintenu par Banstowi pour la famille.
+**Erable** est l'émulateur de la famille, maintenu par l'équipe Erable.
 
 Erable est construit sur [Lichii](https://github.com/zortos293/Lichii), lui-même issu
 d'Eglantine, Eden, yuzu et Sudachi. Leurs mentions de copyright et les licences des

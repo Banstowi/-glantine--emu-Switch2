@@ -1,4 +1,4 @@
-<io.github.banstowi.erable.views.GradientBorderCardView
+<io.github.erablesimu.erable.views.GradientBorderCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/card_game_carousel"
@@ -49,4 +49,4 @@
             android:text="Game Title" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-</io.github.banstowi.erable.views.GradientBorderCardView>
+</io.github.erablesimu.erable.views.GradientBorderCardView>

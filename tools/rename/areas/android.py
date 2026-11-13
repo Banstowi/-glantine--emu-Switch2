@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # The Android frontend, its JNI glue and the Android names other files refer to.
 #
-# The Kotlin package org.yuzu.yuzu_emu becomes io.github.banstowi.erable, the id of the Linux
+# The Kotlin package org.yuzu.yuzu_emu becomes io.github.erablesimu.erable, the id of the Linux
 # desktop entry. The applicationId (dev.eden.eden_emulator) is not a yuzu name and stays, so
 # the default SharedPreferences file, the provider authorities and the app's storage are the
 # same as before.
@@ -10,7 +10,7 @@
 ANDROID = ["src/android/*", "src/common/android/*"]
 
 PATHS = [
-    (r"/java/org/yuzu/yuzu_emu/", "/java/io/github/banstowi/erable/", {"files": "src/android/*"}),
+    (r"/java/org/yuzu/yuzu_emu/", "/java/io/github/erablesimu/erable/", {"files": "src/android/*"}),
     (r"Yuzu", "Erable", {"files": "src/android/*"}),
     (r"yuzu", "erable", {"files": "src/android/*"}),
 ]
@@ -18,9 +18,9 @@ PATHS = [
 TEXT = [
     # The package in Kotlin, the manifest, layouts, navigation graphs and docs, as a JNI class
     # name or signature, and in JNI export names ("_" in a package segment mangles to "_1").
-    (r"org\.yuzu\.yuzu_emu(?![A-Za-z0-9_])", "io.github.banstowi.erable"),
-    (r"org/yuzu/yuzu_emu(?![A-Za-z0-9_])", "io/github/banstowi/erable"),
-    (r"\bJava_org_yuzu_yuzu_1emu_", "Java_io_github_banstowi_erable_"),
+    (r"org\.yuzu\.yuzu_emu(?![A-Za-z0-9_])", "io.github.erablesimu.erable"),
+    (r"org/yuzu/yuzu_emu(?![A-Za-z0-9_])", "io/github/erablesimu/erable"),
+    (r"\bJava_org_yuzu_yuzu_1emu_", "Java_io_github_erablesimu_erable_"),
     # Android names used outside the Android tree: the launcher icons update-icons.sh writes,
     # the logcat tag in common/logging.cpp, and the input device accessors and Kotlin
     # interface the input driver uses.

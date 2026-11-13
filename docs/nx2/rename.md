@@ -76,7 +76,7 @@ then merge nx2.
 | `src/dedicated_room/yuzu_room.{cpp,h,rc}` | `src/dedicated_room/erable_room.{cpp,h,rc}` |
 | `src/tests/yuzu_cmd/` | `src/tests/erable_cmd/` |
 | `dist/yuzu.manifest` | `dist/erable.manifest` |
-| `src/android/app/src/main/java/org/yuzu/yuzu_emu/` | `src/android/app/src/main/java/io/github/banstowi/erable/` |
+| `src/android/app/src/main/java/org/yuzu/yuzu_emu/` | `src/android/app/src/main/java/io/github/erablesimu/erable/` |
 
 ### CMake targets
 
@@ -99,8 +99,8 @@ example `YUZU_TESTS` -> `ERABLE_TESTS`, `YUZU_CMD` -> `ERABLE_CMD`, `YUZU_ROOM` 
 
 | Old | New |
 |---|---|
-| package and namespace `org.yuzu.yuzu_emu` | `io.github.banstowi.erable` |
-| JNI exports `Java_org_yuzu_yuzu_1emu_*` | `Java_io_github_banstowi_erable_*` |
+| package and namespace `org.yuzu.yuzu_emu` | `io.github.erablesimu.erable` |
+| JNI exports `Java_org_yuzu_yuzu_1emu_*` | `Java_io_github_erablesimu_erable_*` |
 | `YuzuApplication`, `Yuzu*` classes, `Theme.Yuzu.*` | `ErableApplication`, `Erable*`, `Theme.Erable.*` |
 | `ic_yuzu`, `ic_yuzu_splash` | `ic_erable`, `ic_erable_splash` |
 

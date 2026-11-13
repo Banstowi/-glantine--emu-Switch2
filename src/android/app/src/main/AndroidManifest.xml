@@ -34,7 +34,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
 
     <application
-        android:name="io.github.banstowi.erable.ErableApplication"
+        android:name="io.github.erablesimu.erable.ErableApplication"
         android:label="${appNameBase}${appNameSuffix}"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -56,7 +56,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
         <meta-data android:name="android.game_mode_config" android:resource="@xml/game_mode_config" />
 
         <activity
-            android:name="io.github.banstowi.erable.ui.main.MainActivity"
+            android:name="io.github.erablesimu.erable.ui.main.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.Erable.Splash.Main">
             <intent-filter>
@@ -69,17 +69,17 @@ SPDX-License-Identifier: GPL-3.0-or-later
         </activity>
 
         <activity
-            android:name="io.github.banstowi.erable.features.settings.ui.SettingsActivity"
+            android:name="io.github.erablesimu.erable.features.settings.ui.SettingsActivity"
             android:theme="@style/Theme.Erable.Main"
             android:label="@string/preferences_settings"/>
 
         <activity
-            android:name="io.github.banstowi.erable.features.settings.ui.SettingsSubscreenActivity"
+            android:name="io.github.erablesimu.erable.features.settings.ui.SettingsSubscreenActivity"
             android:theme="@style/Theme.Erable.Main"
             android:label="@string/preferences_settings"/>
 
         <activity
-            android:name="io.github.banstowi.erable.activities.EmulationActivity"
+            android:name="io.github.erablesimu.erable.activities.EmulationActivity"
             android:theme="@style/Theme.Erable.Main"
             android:launchMode="singleTop"
             android:supportsPictureInPicture="true"
@@ -102,7 +102,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
             <meta-data android:name="android.nfc.action.TECH_DISCOVERED" android:resource="@xml/nfc_tech_filter" />
         </activity>
 
-        <service android:name="io.github.banstowi.erable.utils.ForegroundService" android:foregroundServiceType="specialUse">
+        <service android:name="io.github.erablesimu.erable.utils.ForegroundService" android:foregroundServiceType="specialUse">
             <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="Keep emulation running in background"/>
         </service>
 

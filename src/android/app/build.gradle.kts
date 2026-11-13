@@ -33,7 +33,7 @@ val edenDir = project(":Eden").projectDir
 
 @Suppress("UnstableApiUsage")
 android {
-    namespace = "io.github.banstowi.erable"
+    namespace = "io.github.erablesimu.erable"
 
     compileSdkVersion = "android-36"
     ndkVersion = "28.2.13676358"

@@ -771,15 +771,15 @@ endif()
 
 # TODO: Icon/install handling n such should be put into dist/CMakeLists.txt
 if(ENABLE_QT AND UNIX AND NOT APPLE)
-    install(FILES "dist/io.github.banstowi.erable.desktop"
+    install(FILES "dist/io.github.erablesimu.erable.desktop"
         DESTINATION "share/applications")
     install(FILES "dist/erable.png"
         DESTINATION "share/icons/hicolor/256x256/apps"
-        RENAME "io.github.banstowi.erable.png")
+        RENAME "io.github.erablesimu.erable.png")
 
-    install(FILES "dist/io.github.banstowi.erable.xml"
+    install(FILES "dist/io.github.erablesimu.erable.xml"
         DESTINATION "share/mime/packages")
-    install(FILES "dist/io.github.banstowi.erable.metainfo.xml"
+    install(FILES "dist/io.github.erablesimu.erable.metainfo.xml"
         DESTINATION "share/metainfo")
 endif()
 

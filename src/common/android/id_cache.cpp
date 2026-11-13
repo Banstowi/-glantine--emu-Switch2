@@ -471,14 +471,14 @@ void Initialize(JavaVM* vm, JNIEnv *env) {
     }
 
     // Initialize Java classes
-    const jclass native_library_class = env->FindClass("io/github/banstowi/erable/NativeLibrary");
+    const jclass native_library_class = env->FindClass("io/github/erablesimu/erable/NativeLibrary");
     s_native_library_class = reinterpret_cast<jclass>(env->NewGlobalRef(native_library_class));
     s_disk_cache_progress_class = reinterpret_cast<jclass>(env->NewGlobalRef(
-        env->FindClass("io/github/banstowi/erable/disk_shader_cache/DiskShaderCacheProgress")));
+        env->FindClass("io/github/erablesimu/erable/disk_shader_cache/DiskShaderCacheProgress")));
     s_load_callback_stage_class = reinterpret_cast<jclass>(env->NewGlobalRef(env->FindClass(
-        "io/github/banstowi/erable/disk_shader_cache/DiskShaderCacheProgress$LoadCallbackStage")));
+        "io/github/erablesimu/erable/disk_shader_cache/DiskShaderCacheProgress$LoadCallbackStage")));
 
-    const jclass game_dir_class = env->FindClass("io/github/banstowi/erable/model/GameDir");
+    const jclass game_dir_class = env->FindClass("io/github/erablesimu/erable/model/GameDir");
     s_game_dir_class = reinterpret_cast<jclass>(env->NewGlobalRef(game_dir_class));
     s_game_dir_constructor = env->GetMethodID(game_dir_class, "<init>",
                                               "(Ljava/lang/String;Z)V");
@@ -502,7 +502,7 @@ void Initialize(JavaVM* vm, JNIEnv *env) {
     s_on_program_changed =
         env->GetStaticMethodID(s_native_library_class, "onProgramChanged", "(I)V");
 
-    const jclass game_class = env->FindClass("io/github/banstowi/erable/model/Game");
+    const jclass game_class = env->FindClass("io/github/erablesimu/erable/model/Game");
     s_game_class = reinterpret_cast<jclass>(env->NewGlobalRef(game_class));
     s_game_constructor = env->GetMethodID(game_class, "<init>",
                                           "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/"
@@ -528,7 +528,7 @@ void Initialize(JavaVM* vm, JNIEnv *env) {
     env->DeleteLocalRef(pair_class);
 
     const jclass overlay_control_data_class =
-        env->FindClass("io/github/banstowi/erable/overlay/model/OverlayControlData");
+        env->FindClass("io/github/erablesimu/erable/overlay/model/OverlayControlData");
     s_overlay_control_data_class =
         reinterpret_cast<jclass>(env->NewGlobalRef(overlay_control_data_class));
     s_overlay_control_data_constructor =
@@ -548,7 +548,7 @@ void Initialize(JavaVM* vm, JNIEnv *env) {
         env->GetFieldID(overlay_control_data_class, "individualScale", "F");
     env->DeleteLocalRef(overlay_control_data_class);
 
-    const jclass patch_class = env->FindClass("io/github/banstowi/erable/model/Patch");
+    const jclass patch_class = env->FindClass("io/github/erablesimu/erable/model/Patch");
     s_patch_class = reinterpret_cast<jclass>(env->NewGlobalRef(patch_class));
     s_patch_constructor = env->GetMethodID(
         patch_class, "<init>",
@@ -580,7 +580,7 @@ void Initialize(JavaVM* vm, JNIEnv *env) {
     env->DeleteLocalRef(boolean_class);
 
     const jclass player_input_class =
-        env->FindClass("io/github/banstowi/erable/features/input/model/PlayerInput");
+        env->FindClass("io/github/erablesimu/erable/features/input/model/PlayerInput");
     s_player_input_class = reinterpret_cast<jclass>(env->NewGlobalRef(player_input_class));
     s_player_input_constructor = env->GetMethodID(
         player_input_class, "<init>",
@@ -611,7 +611,7 @@ void Initialize(JavaVM* vm, JNIEnv *env) {
     env->DeleteLocalRef(player_input_class);
 
     const jclass erable_input_device_interface =
-        env->FindClass("io/github/banstowi/erable/features/input/ErableInputDevice");
+        env->FindClass("io/github/erablesimu/erable/features/input/ErableInputDevice");
     s_erable_input_device_interface =
         reinterpret_cast<jclass>(env->NewGlobalRef(erable_input_device_interface));
     s_erable_input_device_get_name =

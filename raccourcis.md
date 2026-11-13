@@ -50,7 +50,7 @@ Lignes à ajouter avant `start` selon le test :
 
 ## Liens
 
-- Lancer un build : https://github.com/Banstowi/Erable/actions/workflows/ci.yml
-- Versions publiées : https://github.com/Banstowi/Erable/releases
+- Lancer un build : https://github.com/erablesimu/Erable/actions/workflows/ci.yml
+- Versions publiées : https://github.com/erablesimu/Erable/releases
 - Notes de version : `PATCHNOTES.md`
 - Pistes et mesures : `docs/banst-pistes.md`

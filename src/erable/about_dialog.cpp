@@ -23,7 +23,7 @@ AboutDialog::AboutDialog(QWidget* parent)
 
     ui->setupUi(this);
     // Try and request the icon from Qt theme (Linux?)
-    const QIcon erable_logo = QIcon::fromTheme(QStringLiteral("io.github.banstowi.erable"),
+    const QIcon erable_logo = QIcon::fromTheme(QStringLiteral("io.github.erablesimu.erable"),
                                            QIcon(QStringLiteral(":/img/erable.ico")));
     if (!erable_logo.isNull()) {
         ui->labelLogo->setPixmap(erable_logo.pixmap(112));

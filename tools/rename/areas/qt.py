@@ -13,7 +13,7 @@ QT = {
 # .ts the same way. The boundaries are ASCII so that "yuzu" followed by a CJK or Hangul
 # particle in a translation still matches.
 TEXT = [
-    (r"com\.yuzu-emu\.yuzu", "io.github.banstowi.erable", {"files": "src/erable/Info.plist"}),
+    (r"com\.yuzu-emu\.yuzu", "io.github.erablesimu.erable", {"files": "src/erable/Info.plist"}),
     # Environment variables the frontend sets for its own startup-check child process.
     (r"\bYUZU_(IS_CHILD|DO_STARTUP_CHECKS)\b", r"ERABLE_\1"),
     (r"\bYUZU_(?=[A-Z])", "ERABLE_", QT),
