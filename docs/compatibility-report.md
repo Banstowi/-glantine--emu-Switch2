@@ -1,6 +1,6 @@
 # Opt-in desktop compatibility reports
 
-After stopping a Switch 2 game, right-click that game and choose **Submit compatibility report**. The action is available only for the latest session in the current Lichii process. Starting another game clears that session, and closing Lichii discards it. This feature does not store play history.
+After stopping a Switch 2 game, right-click that game and choose **Submit compatibility report**. The action is available only for the latest session in the current Erable process. Starting another game clears that session, and closing Erable discards it. This feature does not store play history.
 
 Search the website catalog, select the exact game, and press **Confirm game**. Search is explicit and supports catalog pages. A Nintendo title ID is never used as a catalog ID. The search box uses control metadata or the loader's known title, including NUP package titles. Missing title metadata leaves the search blank rather than using a filename.
 
@@ -37,7 +37,7 @@ cmake --build build/compatibility-report --parallel 4
 ctest --test-dir build/compatibility-report --output-on-failure
 ```
 
-The target also joins the normal Qt build when `LICHII_TESTS` is enabled. It uses the production Qt string-conversion definitions. Tests cover consent gates, catalog confirmation and pagination, stale responses, cancellation, double submission, exact allowed fields, retry identity, field errors, rate limits, malformed/oversized responses and unsafe receipt URLs. A loopback HTTP fixture checks actual Qt transport and ensures a seeded cookie is not sent. Neither fake transport nor loopback tests can send a production report.
+The target also joins the normal Qt build when `ERABLE_TESTS` is enabled. It uses the production Qt string-conversion definitions. Tests cover consent gates, catalog confirmation and pagination, stale responses, cancellation, double submission, exact allowed fields, retry identity, field errors, rate limits, malformed/oversized responses and unsafe receipt URLs. A loopback HTTP fixture checks actual Qt transport and ensures a seeded cookie is not sent. Neither fake transport nor loopback tests can send a production report.
 
 For a synthetic dialog using only fake transport:
 

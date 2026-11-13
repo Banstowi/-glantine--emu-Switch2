@@ -48,8 +48,8 @@ struct ShaderInfo {
 };
 
 class ShaderCache : public VideoCommon::ChannelSetupCaches<VideoCommon::ChannelInfo> {
-    static constexpr u64 LICHII_PAGEBITS = 14;
-    static constexpr u64 LICHII_PAGESIZE = u64(1) << LICHII_PAGEBITS;
+    static constexpr u64 ERABLE_PAGEBITS = 14;
+    static constexpr u64 ERABLE_PAGESIZE = u64(1) << ERABLE_PAGEBITS;
 
     static constexpr size_t NUM_PROGRAMS = 6;
 

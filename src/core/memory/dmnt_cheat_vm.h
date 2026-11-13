@@ -266,7 +266,7 @@ struct CheatVmOpcode {
 
 class DmntCheatVm {
 public:
-    /// Helper Type for DmntCheatVm <=> Lichii Interface
+    /// Helper Type for DmntCheatVm <=> Erable Interface
     class Callbacks {
     public:
         virtual ~Callbacks();

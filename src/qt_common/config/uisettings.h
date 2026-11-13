@@ -42,7 +42,7 @@ namespace UISettings {
 bool IsDarkTheme();
 
 /// The Erable theme (Lichii Dark recoloured), which has custom widgets and icons.
-bool IsLichiiStyle();
+bool IsErableStyle();
 
 /// The resource path of a Erable theme icon ("reset.png" -> ":/banst/icons/reset.png").
 QString StyleIcon(const QString& file);

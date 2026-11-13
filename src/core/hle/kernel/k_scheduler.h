@@ -36,8 +36,8 @@ class KScopedSchedulerLockAndSleep;
 
 class KScheduler final {
 public:
-    LICHII_NON_COPYABLE(KScheduler);
-    LICHII_NON_MOVEABLE(KScheduler);
+    ERABLE_NON_COPYABLE(KScheduler);
+    ERABLE_NON_MOVEABLE(KScheduler);
 
     using LockType = KAbstractSchedulerLock<KScheduler>;
 

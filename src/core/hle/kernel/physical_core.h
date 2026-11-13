@@ -32,8 +32,8 @@ public:
     PhysicalCore(KernelCore& kernel, std::size_t core_index);
     ~PhysicalCore();
 
-    LICHII_NON_COPYABLE(PhysicalCore);
-    LICHII_NON_MOVEABLE(PhysicalCore);
+    ERABLE_NON_COPYABLE(PhysicalCore);
+    ERABLE_NON_MOVEABLE(PhysicalCore);
 
     // Execute guest code running on the given thread.
     void RunThread(KernelCore& kernel, KThread* thread);

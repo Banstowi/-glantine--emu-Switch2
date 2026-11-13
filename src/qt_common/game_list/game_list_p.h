@@ -46,12 +46,12 @@ Q_DECLARE_METATYPE(GameListItemType);
  * @param size The desired width and height of the default icon.
  * @return QPixmap default icon
  */
-static bool IsLichiiTheme() {
-    return UISettings::IsLichiiStyle();
+static bool IsErableTheme() {
+    return UISettings::IsErableStyle();
 }
 
 static QPixmap GetDefaultIcon(u32 size) {
-    if (size == 0 || !IsLichiiTheme()) {
+    if (size == 0 || !IsErableTheme()) {
         QPixmap icon(size, size);
         icon.fill(Qt::transparent);
         return icon;
@@ -74,7 +74,7 @@ static QPixmap GetDefaultIcon(u32 size) {
 }
 
 static QPixmap RoundedIcon(const QPixmap& picture) {
-    if (!IsLichiiTheme() || picture.isNull()) {
+    if (!IsErableTheme() || picture.isNull()) {
         return picture;
     }
     QImage icon(picture.size(), QImage::Format_ARGB32_Premultiplied);
@@ -91,16 +91,16 @@ static QPixmap RoundedIcon(const QPixmap& picture) {
 }
 
 static QPixmap ThemeIcon(const char* name) {
-    if (IsLichiiTheme()) {
+    if (IsErableTheme()) {
         // Lichii Dark keeps folder rows compact with the 16 px line icons from its set.
         const std::string_view icon{name};
-        const char* lichii_name = icon == "sd_card"    ? "sd"
+        const char* erable_name = icon == "sd_card"    ? "sd"
                                   : icon == "chip"     ? "cpu"
                                   : icon == "list-add" ? "plus"
                                   : icon == "star"     ? "star"
                                                        : "folder";
         QPixmap pixmap(
-            UISettings::StyleIcon(QStringLiteral("menu_%1@2x.png").arg(QLatin1String(lichii_name))));
+            UISettings::StyleIcon(QStringLiteral("menu_%1@2x.png").arg(QLatin1String(erable_name))));
         pixmap.setDevicePixelRatio(2.0);
         return pixmap;
     }

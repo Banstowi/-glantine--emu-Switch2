@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2026 Lichii Emulator Project
+// SPDX-FileCopyrightText: Copyright 2026 Erable
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // banstdog.exe: the program's name before it became Erable. Older versions update into this

@@ -24,11 +24,11 @@ using namespace Common::FS::ProfileMigration;
 
 struct Fixture {
     fs::path base = fs::temp_directory_path() /
-                    ("lichii-migration-test-" +
+                    ("erable-migration-test-" +
                      std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
     fs::path source = base / "eden";
-    fs::path destination = base / "lichii";
-    fs::path state = base / "lichii.migration";
+    fs::path destination = base / "erable";
+    fs::path state = base / "erable.migration";
 
     Fixture() {
         fs::create_directories(source);
@@ -87,7 +87,7 @@ TEST_CASE("Copy verifies and stages every root before preparing or publishing",
           "[profile_migration]") {
     Fixture f;
     const auto cache = f.base / "eden-cache";
-    const auto new_cache = f.base / "lichii-cache";
+    const auto new_cache = f.base / "erable-cache";
     Write(f.source / "config/settings.ini", "old paths");
     Write(cache / "shader/blob", std::string(140000, 'x'));
     fs::create_directories(f.source / "empty");
@@ -132,7 +132,7 @@ TEST_CASE("Interrupted multi-root publication remains pending and retries safely
           "[profile_migration]") {
     Fixture f;
     const auto cache = f.base / "eden-cache";
-    const auto new_cache = f.base / "lichii-cache";
+    const auto new_cache = f.base / "erable-cache";
     Write(f.source / "save", "legacy");
     Write(f.destination / "save", "existing");
     Write(cache / "blob", "cache");
@@ -235,7 +235,7 @@ TEST_CASE("Every multi-root publication cutpoint can recover after process exit"
         CAPTURE(cut);
         Fixture f;
         const auto cache = f.base / "eden-cache";
-        const auto new_cache = f.base / "lichii-cache";
+        const auto new_cache = f.base / "erable-cache";
         Write(f.source / "save", "legacy");
         Write(f.destination / "save", "existing");
         Write(cache / "blob", "old cache");
@@ -307,7 +307,7 @@ TEST_CASE("Every multi-root publication cutpoint can recover after process exit"
 TEST_CASE("A failed second link removes only this attempt's staged links", "[profile_migration]") {
     Fixture f;
     const auto cache = f.base / "eden-cache";
-    const auto new_cache = f.base / "lichii-cache";
+    const auto new_cache = f.base / "erable-cache";
     Write(f.source / "save", "legacy");
     Write(f.destination / "save", "existing");
     Write(cache / "blob", "cache");

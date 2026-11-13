@@ -28,8 +28,8 @@ public:
     explicit PlayTimeManager();
     ~PlayTimeManager();
 
-    LICHII_NON_COPYABLE(PlayTimeManager);
-    LICHII_NON_MOVEABLE(PlayTimeManager);
+    ERABLE_NON_COPYABLE(PlayTimeManager);
+    ERABLE_NON_MOVEABLE(PlayTimeManager);
 
     u64 GetPlayTime(u64 program_id) const;
     void ResetProgramPlayTime(u64 program_id);

@@ -20,8 +20,8 @@ class KMemoryRegion final : public Common::IntrusiveRedBlackTreeBaseNode<KMemory
     friend class KMemoryRegionTree;
 
 public:
-    LICHII_NON_COPYABLE(KMemoryRegion);
-    LICHII_NON_MOVEABLE(KMemoryRegion);
+    ERABLE_NON_COPYABLE(KMemoryRegion);
+    ERABLE_NON_MOVEABLE(KMemoryRegion);
 
     constexpr KMemoryRegion() = default;
     constexpr KMemoryRegion(u64 address, u64 last_address)
@@ -126,8 +126,8 @@ private:
         Common::IntrusiveRedBlackTreeBaseTraits<KMemoryRegion>::TreeType<KMemoryRegion>;
 
 public:
-    LICHII_NON_COPYABLE(KMemoryRegionTree);
-    LICHII_NON_MOVEABLE(KMemoryRegionTree);
+    ERABLE_NON_COPYABLE(KMemoryRegionTree);
+    ERABLE_NON_MOVEABLE(KMemoryRegionTree);
 
     using value_type = TreeType::value_type;
     using size_type = TreeType::size_type;
@@ -330,8 +330,8 @@ private:
 
 class KMemoryRegionAllocator final {
 public:
-    LICHII_NON_COPYABLE(KMemoryRegionAllocator);
-    LICHII_NON_MOVEABLE(KMemoryRegionAllocator);
+    ERABLE_NON_COPYABLE(KMemoryRegionAllocator);
+    ERABLE_NON_MOVEABLE(KMemoryRegionAllocator);
 
     static constexpr size_t MaxMemoryRegions = 200;
 

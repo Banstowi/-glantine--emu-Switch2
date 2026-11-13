@@ -4,7 +4,7 @@
 cmake_minimum_required(VERSION 3.31)
 
 set(CMAKE_OSX_DEPLOYMENT_TARGET "15.0" CACHE STRING "macOS deployment target")
-project(lichii)
+project(erable)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules/find")
@@ -46,14 +46,14 @@ if (NETBSD)
     set(ENV{PKG_CONFIG_PATH} "${PKG_CONFIG_PATH}:${CMAKE_SYSROOT}/usr/pkg/lib/ffmpeg7/pkgconfig")
 endif()
 
-cmake_dependent_option(LICHII_STATIC_ROOM "Build a static room executable only (CI only)" OFF "LINUX" OFF)
-if (LICHII_STATIC_ROOM)
-    set(LICHII_ROOM ON)
-    set(LICHII_ROOM_STANDALONE ON)
+cmake_dependent_option(ERABLE_STATIC_ROOM "Build a static room executable only (CI only)" OFF "LINUX" OFF)
+if (ERABLE_STATIC_ROOM)
+    set(ERABLE_ROOM ON)
+    set(ERABLE_ROOM_STANDALONE ON)
 
     # disable e v e r y t h i n g
     set(ENABLE_QT OFF)
-    set(LICHII_CMD OFF)
+    set(ERABLE_CMD OFF)
     set(ENABLE_CUBEB OFF)
     set(ENABLE_UPDATE_CHECKER OFF)
     set(USE_DISCORD_PRESENCE OFF)
@@ -75,20 +75,20 @@ endif()
 option(ENABLE_QT "Enable the Qt frontend" ON)
 option(ENABLE_QT_TRANSLATION "Enable translations for the Qt frontend" OFF)
 option(ENABLE_UPDATE_CHECKER "Enable update checker (for Qt and Android)" OFF)
-set(LICHII_BUILD_TAG "" CACHE STRING "Published build-N release tag; empty for local builds")
-set(LICHII_BUILD_PLATFORM "" CACHE STRING "Release asset platform and variant, such as linux-x86_64-pgo")
-cmake_dependent_option(LICHII_USE_QT_MULTIMEDIA "Use QtMultimedia for Camera"  OFF "NOT LICHII_USE_BUNDLED_QT" OFF)
-cmake_dependent_option(LICHII_USE_QT_WEB_ENGINE "Use QtWebEngine for web applet implementation" OFF "NOT LICHII_USE_BUNDLED_QT" OFF)
-set(LICHII_QT_MIRROR "" CACHE STRING "What mirror to use for downloading the bundled Qt libraries")
-cmake_dependent_option(LICHII_USE_BUNDLED_QT "Download bundled Qt binaries" "${MSVC}" "ENABLE_QT" OFF)
+set(ERABLE_BUILD_TAG "" CACHE STRING "Published build-N release tag; empty for local builds")
+set(ERABLE_BUILD_PLATFORM "" CACHE STRING "Release asset platform and variant, such as linux-x86_64-pgo")
+cmake_dependent_option(ERABLE_USE_QT_MULTIMEDIA "Use QtMultimedia for Camera"  OFF "NOT ERABLE_USE_BUNDLED_QT" OFF)
+cmake_dependent_option(ERABLE_USE_QT_WEB_ENGINE "Use QtWebEngine for web applet implementation" OFF "NOT ERABLE_USE_BUNDLED_QT" OFF)
+set(ERABLE_QT_MIRROR "" CACHE STRING "What mirror to use for downloading the bundled Qt libraries")
+cmake_dependent_option(ERABLE_USE_BUNDLED_QT "Download bundled Qt binaries" "${MSVC}" "ENABLE_QT" OFF)
 
 option(ENABLE_DEBUG_TOOLS "Enable debugging tools (maxwell disassembler, SPIRV translator, etc)" OFF)
 option(ENABLE_WERROR "Enable -Werror diagnostics" ON)
 
-option(LICHII_FUZZERS "Build libFuzzer harnesses for the game-file parsers (clang only; instruments everything with ASan and UBSan)" OFF)
-if (LICHII_FUZZERS)
+option(ERABLE_FUZZERS "Build libFuzzer harnesses for the game-file parsers (clang only; instruments everything with ASan and UBSan)" OFF)
+if (ERABLE_FUZZERS)
     if (NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR MSVC)
-        message(FATAL_ERROR "LICHII_FUZZERS needs clang with libFuzzer")
+        message(FATAL_ERROR "ERABLE_FUZZERS needs clang with libFuzzer")
     endif()
     add_compile_options(
         $<$<COMPILE_LANGUAGE:C,CXX>:-fsanitize=address,undefined,fuzzer-no-link>
@@ -123,16 +123,16 @@ option(ENABLE_LSFG "Enable frame generation (LSFG and FSR 3 Fluid Motion)" ON)
 option(ENABLE_RESHADE "Enable ReShade FX post-processing effects" ON)
 
 # non-linux bundled qt are static
-if (LICHII_USE_BUNDLED_QT AND (APPLE OR NOT UNIX))
-    set(LICHII_STATIC_BUILD ON)
+if (ERABLE_USE_BUNDLED_QT AND (APPLE OR NOT UNIX))
+    set(ERABLE_STATIC_BUILD ON)
 endif()
 
 # TODO: does mingw need any of this anymore
 # static stuff
-option(LICHII_STATIC_BUILD "Use static libraries and executables if available" OFF)
+option(ERABLE_STATIC_BUILD "Use static libraries and executables if available" OFF)
 
 # TODO: StaticBuild.cmake
-if (LICHII_STATIC_BUILD)
+if (ERABLE_STATIC_BUILD)
     # lol
     set(Boost_USE_STATIC_LIBS ON)
     set(BUILD_SHARED_LIBS OFF)
@@ -165,15 +165,15 @@ if (LICHII_STATIC_BUILD)
         # msys2 quazip does not build a static lib
         set(QuaZip-Qt6_FORCE_BUNDLED ON)
 
-        set(LICHII_USE_BUNDLED_FFMPEG ON)
-        set(LICHII_USE_BUNDLED_SDL3 ON)
-        set(LICHII_USE_BUNDLED_OPENSSL ON)
+        set(ERABLE_USE_BUNDLED_FFMPEG ON)
+        set(ERABLE_USE_BUNDLED_SDL3 ON)
+        set(ERABLE_USE_BUNDLED_OPENSSL ON)
 
         set(HTTPLIB_USE_BROTLI_IF_AVAILABLE OFF)
     elseif(APPLE)
-        set(LICHII_USE_BUNDLED_FFMPEG ON)
-        set(LICHII_USE_BUNDLED_SDL3 ON)
-        set(LICHII_USE_BUNDLED_OPENSSL ON)
+        set(ERABLE_USE_BUNDLED_FFMPEG ON)
+        set(ERABLE_USE_BUNDLED_SDL3 ON)
+        set(ERABLE_USE_BUNDLED_OPENSSL ON)
 
         # these libs do not properly provide static libs/let you do it with cmake
         set(fmt_FORCE_BUNDLED ON)
@@ -229,7 +229,7 @@ endif()
 
 # Set runtime library to MD/MDd for all configurations
 if(MSVC)
-    if (LICHII_USE_BUNDLED_QT AND ARCHITECTURE_arm64)
+    if (ERABLE_USE_BUNDLED_QT AND ARCHITECTURE_arm64)
         set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
         set(libflag MT)
     else()
@@ -259,11 +259,11 @@ if (MSVC OR ANDROID)
     set(EXT_DEFAULT ON)
 endif()
 
-option(LICHII_USE_BUNDLED_SDL3 "Download bundled SDL3 build" ${EXT_DEFAULT})
+option(ERABLE_USE_BUNDLED_SDL3 "Download bundled SDL3 build" ${EXT_DEFAULT})
 
 # ffmpeg
-option(LICHII_USE_BUNDLED_FFMPEG "Download bundled FFmpeg" ${EXT_DEFAULT})
-cmake_dependent_option(LICHII_USE_EXTERNAL_FFMPEG "Build FFmpeg from external source" "${SOLARIS}" "NOT WIN32 AND NOT ANDROID" OFF)
+option(ERABLE_USE_BUNDLED_FFMPEG "Download bundled FFmpeg" ${EXT_DEFAULT})
+cmake_dependent_option(ERABLE_USE_EXTERNAL_FFMPEG "Build FFmpeg from external source" "${SOLARIS}" "NOT WIN32 AND NOT ANDROID" OFF)
 
 # sirit
 set(BUNDLED_SIRIT_DEFAULT OFF)
@@ -271,7 +271,7 @@ if (MSVC AND NOT (CMAKE_BUILD_TYPE MATCHES "Deb") OR ANDROID)
     set(BUNDLED_SIRIT_DEFAULT ON)
 endif()
 
-option(LICHII_USE_BUNDLED_SIRIT "Download bundled sirit" ${BUNDLED_SIRIT_DEFAULT})
+option(ERABLE_USE_BUNDLED_SIRIT "Download bundled sirit" ${BUNDLED_SIRIT_DEFAULT})
 
 # FreeBSD 15+ has libusb, versions below should disable it
 cmake_dependent_option(ENABLE_LIBUSB "Enable the use of LibUSB" ON "WIN32 OR LINUX OR FREEBSD OR APPLE" OFF)
@@ -284,40 +284,40 @@ option(ENABLE_WIFI_SCAN "Enable WiFi scanning" OFF)
 
 cmake_dependent_option(USE_DISCORD_PRESENCE "Enables Discord Rich Presence" OFF "ENABLE_QT" OFF)
 
-option(LICHII_TESTS "Compile tests" "${BUILD_TESTING}")
+option(ERABLE_TESTS "Compile tests" "${BUILD_TESTING}")
 
 # Install udev rules on Linux (mainly for gyros)
 # Only acts on joysticks and nothing else.
-cmake_dependent_option(LICHII_INSTALL_UDEV_RULES "Install udev rules for gyro access" OFF "LINUX" OFF)
+cmake_dependent_option(ERABLE_INSTALL_UDEV_RULES "Install udev rules for gyro access" OFF "LINUX" OFF)
 
-option(LICHII_DOWNLOAD_ANDROID_VVL "Download validation layer binary for android" ON)
+option(ERABLE_DOWNLOAD_ANDROID_VVL "Download validation layer binary for android" ON)
 
-option(LICHII_LEGACY "Apply patches that improve compatibility with older GPUs (e.g. Snapdragon 865) at the cost of performance" OFF)
+option(ERABLE_LEGACY "Apply patches that improve compatibility with older GPUs (e.g. Snapdragon 865) at the cost of performance" OFF)
 
 option(NIGHTLY_BUILD "Use Nightly qualifiers in the update checker and build metadata" OFF)
 
-cmake_dependent_option(LICHII_ROOM "Enable dedicated room functionality" ON "NOT ANDROID" OFF)
-cmake_dependent_option(LICHII_ROOM_STANDALONE "Enable standalone room executable" ON "LICHII_ROOM" OFF)
+cmake_dependent_option(ERABLE_ROOM "Enable dedicated room functionality" ON "NOT ANDROID" OFF)
+cmake_dependent_option(ERABLE_ROOM_STANDALONE "Enable standalone room executable" ON "ERABLE_ROOM" OFF)
 
-cmake_dependent_option(LICHII_CMD "Compile the eden-cli executable" ON "NOT ANDROID" OFF)
+cmake_dependent_option(ERABLE_CMD "Compile the eden-cli executable" ON "NOT ANDROID" OFF)
 
-cmake_dependent_option(LICHII_CRASH_DUMPS "Compile crash dump (Minidump) support" OFF "WIN32 OR LINUX" OFF)
+cmake_dependent_option(ERABLE_CRASH_DUMPS "Compile crash dump (Minidump) support" OFF "WIN32 OR LINUX" OFF)
 
-option(LICHII_DOWNLOAD_TIME_ZONE_DATA "Always download time zone binaries" ON)
-set(LICHII_TZDB_PATH "" CACHE STRING "Path to a pre-downloaded timezone database")
+option(ERABLE_DOWNLOAD_TIME_ZONE_DATA "Always download time zone binaries" ON)
+set(ERABLE_TZDB_PATH "" CACHE STRING "Path to a pre-downloaded timezone database")
 
-cmake_dependent_option(LICHII_USE_BUNDLED_MOLTENVK "Download bundled MoltenVK lib" ON "APPLE" OFF)
+cmake_dependent_option(ERABLE_USE_BUNDLED_MOLTENVK "Download bundled MoltenVK lib" ON "APPLE" OFF)
 
-option(LICHII_DISABLE_LLVM "Disable LLVM (useful for CI)" OFF)
+option(ERABLE_DISABLE_LLVM "Disable LLVM (useful for CI)" OFF)
 
-set(DEFAULT_LICHII_USE_BUNDLED_OPENSSL OFF)
+set(DEFAULT_ERABLE_USE_BUNDLED_OPENSSL OFF)
 if (EXT_DEFAULT OR SOLARIS OR OPENBSD)
-    set(DEFAULT_LICHII_USE_BUNDLED_OPENSSL ON)
+    set(DEFAULT_ERABLE_USE_BUNDLED_OPENSSL ON)
 endif()
 
-option(LICHII_USE_BUNDLED_OPENSSL "Download bundled OpenSSL build" ${DEFAULT_LICHII_USE_BUNDLED_OPENSSL})
+option(ERABLE_USE_BUNDLED_OPENSSL "Download bundled OpenSSL build" ${DEFAULT_ERABLE_USE_BUNDLED_OPENSSL})
 
-if (ANDROID AND LICHII_DOWNLOAD_ANDROID_VVL)
+if (ANDROID AND ERABLE_DOWNLOAD_ANDROID_VVL)
     AddJsonPackage(vulkan-validation-layers)
 
     set(abi ${CMAKE_ANDROID_ARCH_ABI})
@@ -339,8 +339,8 @@ if (ARCHITECTURE_arm64 AND (ANDROID OR LINUX))
     add_compile_definitions(HAS_NCE=1)
 endif()
 
-if (LICHII_ROOM)
-    add_compile_definitions(LICHII_ROOM)
+if (ERABLE_ROOM)
+    add_compile_definitions(ERABLE_ROOM)
 endif()
 
 if (UNIX AND NOT (LINUX OR WIN32))
@@ -361,35 +361,35 @@ if (CXX_GCC OR CXX_CLANG)
         # See https://gcc.gnu.org/onlinedocs/gcc/x86-Options.html
         # Generic supports Pentium Pro instruction set and above
         # TODO: if a value is unknown, pass that as march and mtune
-        set(LICHII_BUILD_PRESET "custom" CACHE STRING "Build preset to use. One of: custom, generic, v3, zen2, zen4, native")
+        set(ERABLE_BUILD_PRESET "custom" CACHE STRING "Build preset to use. One of: custom, generic, v3, zen2, zen4, native")
 
-        if (${LICHII_BUILD_PRESET} STREQUAL "generic")
+        if (${ERABLE_BUILD_PRESET} STREQUAL "generic")
             set(march x86-64)
             set(mtune generic)
-        elseif (${LICHII_BUILD_PRESET} STREQUAL "v3")
+        elseif (${ERABLE_BUILD_PRESET} STREQUAL "v3")
             set(march x86-64-v3)
             set(mtune generic)
-        elseif (${LICHII_BUILD_PRESET} STREQUAL "zen2")
+        elseif (${ERABLE_BUILD_PRESET} STREQUAL "zen2")
             set(march znver2)
             set(mtune znver2)
-        elseif (${LICHII_BUILD_PRESET} STREQUAL "zen4")
+        elseif (${ERABLE_BUILD_PRESET} STREQUAL "zen4")
             set(march znver4)
             set(mtune znver4)
         endif()
     elseif(ARCHITECTURE_arm64)
         # See https://gcc.gnu.org/onlinedocs/gcc/AArch64-Options.html
-        set(LICHII_BUILD_PRESET "custom" CACHE STRING "Build preset to use. One of: custom, generic, optimized, armv9, native")
+        set(ERABLE_BUILD_PRESET "custom" CACHE STRING "Build preset to use. One of: custom, generic, optimized, armv9, native")
         set(mtune generic)
-        if (${LICHII_BUILD_PRESET} STREQUAL "generic")
+        if (${ERABLE_BUILD_PRESET} STREQUAL "generic")
             set(march armv8-a)
-        elseif (${LICHII_BUILD_PRESET} STREQUAL "optimized")
+        elseif (${ERABLE_BUILD_PRESET} STREQUAL "optimized")
             set(march armv8.2-a+lse+rcpc)
-        elseif (${LICHII_BUILD_PRESET} STREQUAL "armv9")
+        elseif (${ERABLE_BUILD_PRESET} STREQUAL "armv9")
             set(march armv9-a)
         endif()
     endif()
 
-    if ("${LICHII_BUILD_PRESET}" STREQUAL "native")
+    if ("${ERABLE_BUILD_PRESET}" STREQUAL "native")
         set(march native)
         set(mtune native)
     endif()
@@ -419,7 +419,7 @@ find_package(Threads REQUIRED)
 find_package(RenderDoc MODULE)
 
 # openssl funniness
-if (LICHII_USE_BUNDLED_OPENSSL)
+if (ERABLE_USE_BUNDLED_OPENSSL)
     set(BUILD_SHARED_LIBS OFF)
     AddJsonPackage(openssl-ci)
 else()
@@ -433,7 +433,7 @@ else()
 endif()
 
 if (OpenSSL_ADDED)
-    add_compile_definitions(LICHII_BUNDLED_OPENSSL)
+    add_compile_definitions(ERABLE_BUNDLED_OPENSSL)
 endif()
 
 message(STATUS "Fetching needed dependencies with CPM")
@@ -452,7 +452,7 @@ AddJsonPackage(boost)
 set(BOOST_NO_HEADERS ${Boost_ADDED})
 
 if (Boost_ADDED)
-    add_compile_definitions(LICHII_BOOST_v1)
+    add_compile_definitions(ERABLE_BOOST_v1)
     if (NOT MSVC OR CXX_CLANG)
         # solaris sucks
         if (SOLARIS)
@@ -494,7 +494,7 @@ include(NxFormat)
 # nlohmann
 AddJsonPackage(nlohmann)
 
-if (NOT LICHII_STATIC_ROOM)
+if (NOT ERABLE_STATIC_ROOM)
     # zlib
     AddJsonPackage(zlib)
 
@@ -585,7 +585,7 @@ if (ARCHITECTURE_x86 OR ARCHITECTURE_x86_64)
     find_package(xbyak)
 endif()
 
-if (NOT LICHII_STATIC_ROOM)
+if (NOT ERABLE_STATIC_ROOM)
     find_package(libusb)
     find_package(VulkanMemoryAllocator)
     find_package(VulkanUtilityLibraries)
@@ -618,14 +618,14 @@ if (NOT LICHII_STATIC_ROOM)
         find_package(cubeb)
     endif()
 
-    if (LICHII_TESTS OR DYNARMIC_TESTS)
+    if (ERABLE_TESTS OR DYNARMIC_TESTS)
         find_package(Catch2)
     endif()
 endif()
 
 # Qt stuff
 if (ENABLE_QT)
-    if (LICHII_USE_BUNDLED_QT)
+    if (ERABLE_USE_BUNDLED_QT)
         AddQt(Eden-CI/Qt 6.11.1)
     else()
         message(STATUS "Using system Qt")
@@ -658,27 +658,27 @@ if (ENABLE_QT)
     ## Components ##
 
     # Best practice is to ask for all components at once, so they are from the same version
-    set(LICHII_QT_COMPONENTS Core Widgets Concurrent Gui Network)
+    set(ERABLE_QT_COMPONENTS Core Widgets Concurrent Gui Network)
     if (LINUX OR FREEBSD)
-        list(APPEND LICHII_QT_COMPONENTS DBus)
+        list(APPEND ERABLE_QT_COMPONENTS DBus)
         # yes Qt, we get it
         set(QT_NO_PRIVATE_MODULE_WARNING ON)
-        list(APPEND LICHII_QT_OPTIONAL GuiPrivate)
+        list(APPEND ERABLE_QT_OPTIONAL GuiPrivate)
     endif()
 
-    if (LICHII_USE_QT_MULTIMEDIA)
-        list(APPEND LICHII_QT_COMPONENTS Multimedia)
+    if (ERABLE_USE_QT_MULTIMEDIA)
+        list(APPEND ERABLE_QT_COMPONENTS Multimedia)
     endif()
 
-    if (LICHII_USE_QT_WEB_ENGINE)
-        list(APPEND LICHII_QT_COMPONENTS WebEngineCore WebEngineWidgets)
+    if (ERABLE_USE_QT_WEB_ENGINE)
+        list(APPEND ERABLE_QT_COMPONENTS WebEngineCore WebEngineWidgets)
     endif()
 
     if (ENABLE_QT_TRANSLATION)
-        list(APPEND LICHII_QT_COMPONENTS LinguistTools)
+        list(APPEND ERABLE_QT_COMPONENTS LinguistTools)
     endif()
 
-    find_package(Qt6 REQUIRED COMPONENTS ${LICHII_QT_COMPONENTS} OPTIONAL_COMPONENTS ${LICHII_QT_OPTIONAL})
+    find_package(Qt6 REQUIRED COMPONENTS ${ERABLE_QT_COMPONENTS} OPTIONAL_COMPONENTS ${ERABLE_QT_OPTIONAL})
     set(QT_MAJOR_VERSION 6)
     # Qt6 sets cxx_std_17 and we need to undo that
     set_target_properties(Qt6::Platform PROPERTIES INTERFACE_COMPILE_FEATURES "")
@@ -689,7 +689,7 @@ if (ENABLE_QT)
     AddJsonPackage(quazip)
 endif()
 
-if (NOT LICHII_STATIC_ROOM AND NOT (LICHII_USE_BUNDLED_FFMPEG OR LICHII_USE_EXTERNAL_FFMPEG))
+if (NOT ERABLE_STATIC_ROOM AND NOT (ERABLE_USE_BUNDLED_FFMPEG OR ERABLE_USE_EXTERNAL_FFMPEG))
     # Use system installed FFmpeg
     find_package(FFmpeg REQUIRED QUIET COMPONENTS ${FFmpeg_COMPONENTS})
 
@@ -699,8 +699,8 @@ if (NOT LICHII_STATIC_ROOM AND NOT (LICHII_USE_BUNDLED_FFMPEG OR LICHII_USE_EXTE
     set_property(GLOBAL APPEND PROPERTY CPM_PACKAGE_URLS "https://github.com/FFmpeg/FFmpeg")
 endif()
 
-if (WIN32 AND LICHII_CRASH_DUMPS)
-    message(STATUS "LICHII_CRASH_DUMPS is unimplemented on Windows. Check back later.")
+if (WIN32 AND ERABLE_CRASH_DUMPS)
+    message(STATUS "ERABLE_CRASH_DUMPS is unimplemented on Windows. Check back later.")
     # set(BREAKPAD_VER "breakpad-c89f9dd")
     # download_bundled_external("breakpad/" ${BREAKPAD_VER} "breakpad-win" BREAKPAD_PREFIX "c89f9dd")
 
@@ -753,11 +753,11 @@ if (ENABLE_DEBUG_TOOLS)
     add_subdirectory(tools/maxwell-ir)
 endif()
 
-# Set lichii project or lichii-cmd project as default StartUp Project in Visual Studio depending on whether QT is enabled or not
+# Set erable project or erable-cmd project as default StartUp Project in Visual Studio depending on whether QT is enabled or not
 if(ENABLE_QT)
-    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT lichii)
+    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT erable)
 else()
-    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT lichii-cmd)
+    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT erable-cmd)
 endif()
 
 # Installation instructions
@@ -771,19 +771,19 @@ endif()
 
 # TODO: Icon/install handling n such should be put into dist/CMakeLists.txt
 if(ENABLE_QT AND UNIX AND NOT APPLE)
-    install(FILES "dist/io.github.zortos293.lichii.desktop"
+    install(FILES "dist/io.github.banstowi.erable.desktop"
         DESTINATION "share/applications")
-    install(FILES "dist/lichii.png"
+    install(FILES "dist/erable.png"
         DESTINATION "share/icons/hicolor/256x256/apps"
-        RENAME "io.github.zortos293.lichii.png")
+        RENAME "io.github.banstowi.erable.png")
 
-    install(FILES "dist/io.github.zortos293.lichii.xml"
+    install(FILES "dist/io.github.banstowi.erable.xml"
         DESTINATION "share/mime/packages")
-    install(FILES "dist/io.github.zortos293.lichii.metainfo.xml"
+    install(FILES "dist/io.github.banstowi.erable.metainfo.xml"
         DESTINATION "share/metainfo")
 endif()
 
-if (LICHII_INSTALL_UDEV_RULES)
+if (ERABLE_INSTALL_UDEV_RULES)
     include(GNUInstallDirs)
 
     install(FILES "dist/72-eden-input.rules"

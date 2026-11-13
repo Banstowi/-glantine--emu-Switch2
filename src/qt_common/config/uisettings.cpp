@@ -85,7 +85,7 @@ bool IsDarkTheme() {
 
 Values values = {};
 
-bool IsLichiiStyle() {
+bool IsErableStyle() {
     return values.theme == std::string("banst");
 }
 

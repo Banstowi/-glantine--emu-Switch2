@@ -12,7 +12,7 @@ namespace OpenGL {
 
 class OGLRenderbuffer final {
 public:
-    LICHII_NON_COPYABLE(OGLRenderbuffer);
+    ERABLE_NON_COPYABLE(OGLRenderbuffer);
 
     OGLRenderbuffer() = default;
 
@@ -39,7 +39,7 @@ public:
 
 class OGLTexture final {
 public:
-    LICHII_NON_COPYABLE(OGLTexture);
+    ERABLE_NON_COPYABLE(OGLTexture);
 
     OGLTexture() = default;
 
@@ -66,7 +66,7 @@ public:
 
 class OGLTextureView final {
 public:
-    LICHII_NON_COPYABLE(OGLTextureView);
+    ERABLE_NON_COPYABLE(OGLTextureView);
 
     OGLTextureView() = default;
 
@@ -93,7 +93,7 @@ public:
 
 class OGLSampler final {
 public:
-    LICHII_NON_COPYABLE(OGLSampler);
+    ERABLE_NON_COPYABLE(OGLSampler);
 
     OGLSampler() = default;
 
@@ -120,7 +120,7 @@ public:
 
 class OGLShader final {
 public:
-    LICHII_NON_COPYABLE(OGLShader);
+    ERABLE_NON_COPYABLE(OGLShader);
 
     OGLShader() = default;
 
@@ -143,7 +143,7 @@ public:
 
 class OGLProgram final {
 public:
-    LICHII_NON_COPYABLE(OGLProgram);
+    ERABLE_NON_COPYABLE(OGLProgram);
 
     OGLProgram() = default;
 
@@ -167,7 +167,7 @@ public:
 
 class OGLAssemblyProgram final {
 public:
-    LICHII_NON_COPYABLE(OGLAssemblyProgram);
+    ERABLE_NON_COPYABLE(OGLAssemblyProgram);
 
     OGLAssemblyProgram() = default;
 
@@ -191,7 +191,7 @@ public:
 
 class OGLPipeline final {
 public:
-    LICHII_NON_COPYABLE(OGLPipeline);
+    ERABLE_NON_COPYABLE(OGLPipeline);
 
     OGLPipeline() = default;
     OGLPipeline(OGLPipeline&& o) noexcept : handle{std::exchange<GLuint>(o.handle, 0)} {}
@@ -215,7 +215,7 @@ public:
 
 class OGLBuffer final {
 public:
-    LICHII_NON_COPYABLE(OGLBuffer);
+    ERABLE_NON_COPYABLE(OGLBuffer);
 
     OGLBuffer() = default;
 
@@ -242,7 +242,7 @@ public:
 
 class OGLSync final {
 public:
-    LICHII_NON_COPYABLE(OGLSync);
+    ERABLE_NON_COPYABLE(OGLSync);
 
     OGLSync() = default;
 
@@ -271,7 +271,7 @@ public:
 
 class OGLFramebuffer final {
 public:
-    LICHII_NON_COPYABLE(OGLFramebuffer);
+    ERABLE_NON_COPYABLE(OGLFramebuffer);
 
     OGLFramebuffer() = default;
 
@@ -298,7 +298,7 @@ public:
 
 class OGLQuery final {
 public:
-    LICHII_NON_COPYABLE(OGLQuery);
+    ERABLE_NON_COPYABLE(OGLQuery);
 
     OGLQuery() = default;
 
@@ -325,7 +325,7 @@ public:
 
 class OGLTransformFeedback final {
 public:
-    LICHII_NON_COPYABLE(OGLTransformFeedback);
+    ERABLE_NON_COPYABLE(OGLTransformFeedback);
 
     OGLTransformFeedback() = default;
 

@@ -40,7 +40,7 @@ ShowUnInstDetails show
 !include "nsDialogs.nsh"
 
 ; MUI Settings
-!define MUI_ICON "lichii.ico"
+!define MUI_ICON "erable.ico"
 !define MUI_UNICON "${NSISDIR}\Contrib\Graphics\Icons\modern-uninstall.ico"
 
 ; License page

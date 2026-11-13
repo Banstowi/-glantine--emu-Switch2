@@ -14,7 +14,7 @@ namespace {
 Common::Net::Release MakeRelease(std::string tag, std::string filename) {
     const nlohmann::json json{
         {"tag_name", tag},
-        {"name", "Lichii nx2 " + tag},
+        {"name", "Erable nx2 " + tag},
         {"prerelease", true},
         {"assets",
          {{{"browser_download_url",
@@ -26,7 +26,7 @@ Common::Net::Release MakeRelease(std::string tag, std::string filename) {
 
 } // namespace
 
-TEST_CASE("Lichii updates compare build numbers, not tag strings", "[updater]") {
+TEST_CASE("Erable updates compare build numbers, not tag strings", "[updater]") {
     const auto releases = std::array{
         MakeRelease("build-9", "erable-windows-x86_64.zip"),
         MakeRelease("build-100", "erable-windows-x86_64.zip"),
@@ -40,7 +40,7 @@ TEST_CASE("Lichii updates compare build numbers, not tag strings", "[updater]") 
     CHECK_FALSE(UpdateChecker::SelectUpdate({}, "build-70", "windows-x86_64"));
 }
 
-TEST_CASE("Lichii ignores dev builds and malformed release tags", "[updater]") {
+TEST_CASE("Erable ignores dev builds and malformed release tags", "[updater]") {
     const std::string tag =
         GENERATE("", "nx2", "v0.2.0", "abc123-nx2", "nx2-build-71", "build-", "build-0", "build--1",
                  "build-+71", "build-71junk", "build- 71", "build-18446744073709551616");
@@ -53,7 +53,7 @@ TEST_CASE("Lichii ignores dev builds and malformed release tags", "[updater]") {
     CHECK_FALSE(UpdateChecker::SelectUpdate(invalid, "build-70", "windows-x86_64"));
 }
 
-TEST_CASE("Lichii selects only the matching platform and PGO variant", "[updater]") {
+TEST_CASE("Erable selects only the matching platform and PGO variant", "[updater]") {
     const std::string platform =
         GENERATE("windows-x86_64", "windows-x86_64-pgo", "linux-x86_64", "linux-x86_64-pgo",
                  "linux-aarch64", "linux-aarch64-pgo", "macos-arm64");
@@ -64,13 +64,13 @@ TEST_CASE("Lichii selects only the matching platform and PGO variant", "[updater
           "macos-arm64.zip", "linux-x86_64.AppImage", "linux-x86_64-pgo.AppImage",
           "linux-aarch64.AppImage", "linux-aarch64-pgo.AppImage"}) {
         release.assets.push_back(
-            "https://github.com/zortos293/Lichii/releases/download/build-71/lichii-" +
+            "https://github.com/zortos293/Lichii/releases/download/build-71/erable-" +
             std::string{name});
     }
     const auto selected = release.GetPlatformAssets(platform);
     REQUIRE(selected.size() == 1);
     CHECK(selected[0].filename ==
-          "lichii-" + platform + (platform.starts_with("linux-") ? ".AppImage" : ".zip"));
+          "erable-" + platform + (platform.starts_with("linux-") ? ".AppImage" : ".zip"));
     CHECK(selected[0].url == "https://github.com");
     CHECK(selected[0].path ==
           "/zortos293/Lichii/releases/download/build-71/" + selected[0].filename);
@@ -78,7 +78,7 @@ TEST_CASE("Lichii selects only the matching platform and PGO variant", "[updater
     CHECK_FALSE(release.GetPlatformAssets("").size());
 }
 
-TEST_CASE("Lichii skips releases without its asset and falls back to Linux archives", "[updater]") {
+TEST_CASE("Erable skips releases without its asset and falls back to Linux archives", "[updater]") {
     const auto releases = std::array{
         MakeRelease("build-73", "erable-linux-x86_64.AppImage"),
         MakeRelease("build-71", "erable-linux-x86_64-pgo.tar.gz"),
@@ -180,7 +180,7 @@ TEST_CASE("Failed release requests are classified by status", "[updater]") {
     CHECK(UpdateChecker::ClassifyFailure(200) == UpdateChecker::Failure::Network);
 }
 
-TEST_CASE("Lichii does not select Eden or lookalike download URLs", "[updater]") {
+TEST_CASE("Erable does not select Eden or lookalike download URLs", "[updater]") {
     const std::string url = GENERATE(
         "https://github.com/eden-emu/eden/releases/download/build-71/erable-windows-x86_64.zip",
         "https://github.com/zortos293/Lichii/releases/download/build-70/erable-windows-x86_64.zip",
@@ -217,7 +217,7 @@ TEST_CASE("Release requests handle HTTP failures without throwing", "[updater]")
     httplib::Server server;
     server.Get("/releases", [status](const httplib::Request& request, httplib::Response& response) {
         response.status =
-            request.get_header_value("User-Agent") == "Lichii" &&
+            request.get_header_value("User-Agent") == "Erable" &&
                     request.get_header_value("Accept") == "application/vnd.github+json"
                 ? status
                 : 400;

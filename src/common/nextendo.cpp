@@ -28,7 +28,7 @@
 #include "common/nextendo.h"
 #include "common/settings.h"
 
-#ifdef LICHII_BUNDLED_OPENSSL
+#ifdef ERABLE_BUNDLED_OPENSSL
 #include <openssl/cert.h>
 #endif
 
@@ -131,7 +131,7 @@ void ConfigureClient(httplib::Client& client, time_t timeout_seconds) {
     client.set_read_timeout(timeout_seconds);
     client.set_write_timeout(timeout_seconds);
     client.set_follow_location(true);
-#ifdef LICHII_BUNDLED_OPENSSL
+#ifdef ERABLE_BUNDLED_OPENSSL
     client.load_ca_cert_store(kCert, sizeof(kCert));
 #endif
 }
@@ -253,7 +253,7 @@ std::optional<Account> LoadAccountLocked() {
 
 // The file holds the refresh token, so only its owner may read it. It is written beside the old
 // one and renamed over it, so a crash mid-write keeps the previous session. The session stays in
-// memory when the write fails, so a rotated refresh token isn't lost until Lichii exits.
+// memory when the write fails, so a rotated refresh token isn't lost until Erable exits.
 bool WriteAccountLocked(const Account& account) {
     cached_account = account;
     account_loaded = true;
@@ -507,7 +507,7 @@ SignInResult SignIn(std::string_view client_id,
         }
         response.set_content(parsed.error.empty()
                                  ? "Signed in to Nextendo. You can close this tab and go back "
-                                   "to Lichii."
+                                   "to Erable."
                                  : "Nextendo sign-in failed: " + parsed.error,
                              "text/plain; charset=utf-8");
         {

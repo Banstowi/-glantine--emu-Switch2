@@ -1,0 +1,12 @@
+<!--
+SPDX-FileCopyrightText: 2021 yuzu Emulator Project
+SPDX-License-Identifier: GPL-2.0-or-later
+-->
+
+<RCC>
+    <qresource prefix="/img">
+        <file alias="erable.ico">../../dist/erable.ico</file>
+        <file alias="erable_wordmark.png">../../dist/erable_wordmark.png</file>
+        <file alias="erable_wordmark@2x.png">../../dist/erable_wordmark@2x.png</file>
+    </qresource>
+</RCC>

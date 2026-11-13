@@ -11,13 +11,13 @@ WORD = r"(?<![./\w-]){}(?![/\w-]|\.\w)"
 
 TEXT = [
     # The Qt frontend's CMake target.
-    (r"build target remains `yuzu`", "build target is `lichii`", {"files": MD}),
-    (r"`yuzu`", "`lichii`", {"files": MD}),
-    (r"--target yuzu\b", "--target lichii", {"files": MD}),
+    (r"build target remains `yuzu`", "build target is `erable`", {"files": MD}),
+    (r"`yuzu`", "`erable`", {"files": MD}),
+    (r"--target yuzu\b", "--target erable", {"files": MD}),
     # The project name in prose.
-    (r"\bfor Yuzu Qt frontend\b", "for the Lichii Qt frontend", {"files": MD}),
-    (WORD.format("yuzu"), "Lichii", {"files": MD}),
-    (WORD.format("Yuzu"), "Lichii", {"files": MD}),
+    (r"\bfor Yuzu Qt frontend\b", "for the Erable Qt frontend", {"files": MD}),
+    (WORD.format("yuzu"), "Erable", {"files": MD}),
+    (WORD.format("Yuzu"), "Erable", {"files": MD}),
 ]
 
 KEEP = [

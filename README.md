@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="dist/lichii.png" alt="Erable" width="160">
+  <img src="dist/erable.png" alt="Erable" width="160">
 </p>
 
 # SPDX-FileCopyrightText: 2018 yuzu Emulator Project

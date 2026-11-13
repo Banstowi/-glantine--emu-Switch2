@@ -14,8 +14,8 @@ endfunction()
 
 get_timestamp(BUILD_DATE)
 
-if (LICHII_BUILD_TAG MATCHES "^build-[0-9]+$")
-    set(BUILD_VERSION "${LICHII_BUILD_TAG}")
+if (ERABLE_BUILD_TAG MATCHES "^build-[0-9]+$")
+    set(BUILD_VERSION "${ERABLE_BUILD_TAG}")
     set(IS_DEV_BUILD false)
 elseif (DEFINED GIT_RELEASE)
     set(BUILD_VERSION "${GIT_TAG}")

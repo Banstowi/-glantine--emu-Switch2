@@ -82,8 +82,8 @@ public:
     explicit EmulatedConsole();
     ~EmulatedConsole();
 
-    LICHII_NON_COPYABLE(EmulatedConsole);
-    LICHII_NON_MOVEABLE(EmulatedConsole);
+    ERABLE_NON_COPYABLE(EmulatedConsole);
+    ERABLE_NON_MOVEABLE(EmulatedConsole);
 
     /// Removes all callbacks created from input devices
     void UnloadInput();

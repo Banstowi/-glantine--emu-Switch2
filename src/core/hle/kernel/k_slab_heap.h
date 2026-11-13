@@ -20,8 +20,8 @@ class KernelCore;
 namespace impl {
 
 class KSlabHeapImpl {
-    LICHII_NON_COPYABLE(KSlabHeapImpl);
-    LICHII_NON_MOVEABLE(KSlabHeapImpl);
+    ERABLE_NON_COPYABLE(KSlabHeapImpl);
+    ERABLE_NON_MOVEABLE(KSlabHeapImpl);
 
 public:
     struct Node {
@@ -74,8 +74,8 @@ private:
 
 template <bool SupportDynamicExpansion>
 class KSlabHeapBase : protected impl::KSlabHeapImpl {
-    LICHII_NON_COPYABLE(KSlabHeapBase);
-    LICHII_NON_MOVEABLE(KSlabHeapBase);
+    ERABLE_NON_COPYABLE(KSlabHeapBase);
+    ERABLE_NON_MOVEABLE(KSlabHeapBase);
 
 private:
     size_t m_obj_size{};

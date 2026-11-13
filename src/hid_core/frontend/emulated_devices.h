@@ -84,8 +84,8 @@ public:
     explicit EmulatedDevices();
     ~EmulatedDevices();
 
-    LICHII_NON_COPYABLE(EmulatedDevices);
-    LICHII_NON_MOVEABLE(EmulatedDevices);
+    ERABLE_NON_COPYABLE(EmulatedDevices);
+    ERABLE_NON_MOVEABLE(EmulatedDevices);
 
     /// Removes all callbacks created from input devices
     void UnloadInput();

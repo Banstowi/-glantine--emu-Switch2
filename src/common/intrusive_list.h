@@ -16,7 +16,7 @@ class IntrusiveListImpl;
 }
 
 class IntrusiveListNode {
-    LICHII_NON_COPYABLE(IntrusiveListNode);
+    ERABLE_NON_COPYABLE(IntrusiveListNode);
 
 private:
     friend class impl::IntrusiveListImpl;
@@ -96,7 +96,7 @@ private:
 namespace impl {
 
 class IntrusiveListImpl {
-    LICHII_NON_COPYABLE(IntrusiveListImpl);
+    ERABLE_NON_COPYABLE(IntrusiveListImpl);
 
 private:
     IntrusiveListNode m_root_node;
@@ -302,7 +302,7 @@ private:
 
 template <class T, class Traits>
 class IntrusiveList {
-    LICHII_NON_COPYABLE(IntrusiveList);
+    ERABLE_NON_COPYABLE(IntrusiveList);
 
 private:
     impl::IntrusiveListImpl m_impl;

@@ -20,7 +20,7 @@
 #include "core/hle/service/nvdrv/devices/nvmap.h"
 #include "core/memory.h"
 
-using Core::Memory::LICHII_PAGESIZE;
+using Core::Memory::ERABLE_PAGESIZE;
 
 namespace Service::Nvidia::Devices {
 
@@ -85,7 +85,7 @@ NvResult nvmap::IocCreate(IocCreateParams& params) {
 
     std::shared_ptr<NvCore::NvMap::Handle> handle_description{};
     auto result =
-        file.CreateHandle(Common::AlignUp(params.size, LICHII_PAGESIZE), handle_description);
+        file.CreateHandle(Common::AlignUp(params.size, ERABLE_PAGESIZE), handle_description);
     if (result != NvResult::Success) {
         LOG_CRITICAL(Service_NVDRV, "Failed to create Object");
         return result;
@@ -111,8 +111,8 @@ NvResult nvmap::IocAlloc(IocAllocParams& params, DeviceFD fd) {
     }
 
     // Force page size alignment at a minimum
-    if (params.align < LICHII_PAGESIZE) {
-        params.align = LICHII_PAGESIZE;
+    if (params.align < ERABLE_PAGESIZE) {
+        params.align = ERABLE_PAGESIZE;
     }
 
     auto handle_description{file.GetHandle(params.handle)};

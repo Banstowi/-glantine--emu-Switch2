@@ -11,8 +11,8 @@
 namespace FileSys {
 
 class SparseStorage : public IndirectStorage {
-    LICHII_NON_COPYABLE(SparseStorage);
-    LICHII_NON_MOVEABLE(SparseStorage);
+    ERABLE_NON_COPYABLE(SparseStorage);
+    ERABLE_NON_MOVEABLE(SparseStorage);
 
 private:
     class ZeroStorage : public IReadOnlyStorage {

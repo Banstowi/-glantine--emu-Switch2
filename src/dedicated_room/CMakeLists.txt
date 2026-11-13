@@ -4,24 +4,24 @@
 # SPDX-FileCopyrightText: 2017 Citra Emulator Project
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-add_library(lichii-room STATIC EXCLUDE_FROM_ALL
-    lichii_room.cpp
-    lichii_room.h
-    lichii_room.rc)
+add_library(erable-room STATIC EXCLUDE_FROM_ALL
+    erable_room.cpp
+    erable_room.h
+    erable_room.rc)
 
-target_link_libraries(lichii-room PRIVATE common network)
+target_link_libraries(erable-room PRIVATE common network)
 if (ENABLE_WEB_SERVICE)
-    target_compile_definitions(lichii-room PRIVATE ENABLE_WEB_SERVICE)
-    target_link_libraries(lichii-room PRIVATE web_service)
+    target_compile_definitions(erable-room PRIVATE ENABLE_WEB_SERVICE)
+    target_link_libraries(erable-room PRIVATE web_service)
 endif()
 
-target_link_libraries(lichii-room PRIVATE
+target_link_libraries(erable-room PRIVATE
     OpenSSL::SSL
     OpenSSL::Crypto)
 
 if (MSVC)
-    target_link_libraries(lichii-room PRIVATE getopt)
+    target_link_libraries(erable-room PRIVATE getopt)
 endif()
-target_link_libraries(lichii-room PRIVATE ${PLATFORM_LIBRARIES} Threads::Threads)
+target_link_libraries(erable-room PRIVATE ${PLATFORM_LIBRARIES} Threads::Threads)
 
-create_target_directory_groups(lichii-room)
+create_target_directory_groups(erable-room)

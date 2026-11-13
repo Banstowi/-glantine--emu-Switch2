@@ -106,14 +106,14 @@ jfieldID GetPlayerInputButtonColorRightField();
 jfieldID GetPlayerInputProfileNameField();
 jfieldID GetPlayerInputUseSystemVibratorField();
 
-jclass GetLichiiInputDeviceInterface();
-jmethodID GetLichiiDeviceGetName();
-jmethodID GetLichiiDeviceGetGUID();
-jmethodID GetLichiiDeviceGetPort();
-jmethodID GetLichiiDeviceGetSupportsVibration();
-jmethodID GetLichiiDeviceVibrate();
-jmethodID GetLichiiDeviceGetAxes();
-jmethodID GetLichiiDeviceHasKeys();
+jclass GetErableInputDeviceInterface();
+jmethodID GetErableDeviceGetName();
+jmethodID GetErableDeviceGetGUID();
+jmethodID GetErableDeviceGetPort();
+jmethodID GetErableDeviceGetSupportsVibration();
+jmethodID GetErableDeviceVibrate();
+jmethodID GetErableDeviceGetAxes();
+jmethodID GetErableDeviceHasKeys();
 jmethodID GetAddNetPlayMessage();
 jmethodID ClearChat();
 

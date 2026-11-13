@@ -198,8 +198,8 @@ public:
     explicit EmulatedController(NpadIdType npad_id_type_);
     ~EmulatedController();
 
-    LICHII_NON_COPYABLE(EmulatedController);
-    LICHII_NON_MOVEABLE(EmulatedController);
+    ERABLE_NON_COPYABLE(EmulatedController);
+    ERABLE_NON_MOVEABLE(EmulatedController);
 
     /// Converts the controller type from settings to npad type
     static NpadStyleIndex MapSettingsTypeToNPad(Settings::ControllerType type);

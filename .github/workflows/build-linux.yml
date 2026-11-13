@@ -148,13 +148,13 @@ jobs:
           flags=(
             -DCMAKE_BUILD_TYPE=Release
             -DBUILD_TESTING=OFF
-            -DLICHII_TESTS=OFF
-            -DLICHII_CMD=ON
-            -DLICHII_ROOM=OFF
-            -DLICHII_ROOM_STANDALONE=OFF
-            -DLICHII_USE_BUNDLED_QT=OFF
+            -DERABLE_TESTS=OFF
+            -DERABLE_CMD=ON
+            -DERABLE_ROOM=OFF
+            -DERABLE_ROOM_STANDALONE=OFF
+            -DERABLE_USE_BUNDLED_QT=OFF
             "-DCMAKE_PREFIX_PATH=$QT_ROOT_DIR"
-            -DLICHII_USE_BUNDLED_SDL3=ON
+            -DERABLE_USE_BUNDLED_SDL3=ON
             -DVulkanHeaders_FORCE_BUNDLED=ON
             -DVulkanUtilityLibraries_FORCE_BUNDLED=ON
             -DENABLE_QT_TRANSLATION=ON
@@ -180,7 +180,7 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          cmake --build build/release --target lichii lichii-cmd --parallel
+          cmake --build build/release --target erable erable-cmd --parallel
           ccache --show-stats
 
       # Plain tar.gz with the two programs. GitHub artifacts drop the executable bit, so a tar is

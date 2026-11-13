@@ -48,8 +48,8 @@ class DeinterlaceFilter;
 // Wraps an AVPacket, a container for compressed bitstream data.
 class Packet {
 public:
-    LICHII_NON_COPYABLE(Packet);
-    LICHII_NON_MOVEABLE(Packet);
+    ERABLE_NON_COPYABLE(Packet);
+    ERABLE_NON_MOVEABLE(Packet);
 
     explicit Packet(std::span<const u8> data);
     ~Packet();
@@ -65,8 +65,8 @@ private:
 // Wraps an AVFrame, a container for audio and video stream data.
 class Frame {
 public:
-    LICHII_NON_COPYABLE(Frame);
-    LICHII_NON_MOVEABLE(Frame);
+    ERABLE_NON_COPYABLE(Frame);
+    ERABLE_NON_MOVEABLE(Frame);
 
     explicit Frame();
     ~Frame();
@@ -130,8 +130,8 @@ private:
 // Wraps an AVCodec, a type containing information about a codec.
 class Decoder {
 public:
-    LICHII_NON_COPYABLE(Decoder);
-    LICHII_NON_MOVEABLE(Decoder);
+    ERABLE_NON_COPYABLE(Decoder);
+    ERABLE_NON_MOVEABLE(Decoder);
 
     explicit Decoder(Tegra::Host1x::NvdecCommon::VideoCodec codec);
     ~Decoder() = default;
@@ -149,8 +149,8 @@ private:
 // Wraps AVBufferRef for an accelerated decoder.
 class HardwareContext {
 public:
-    LICHII_NON_COPYABLE(HardwareContext);
-    LICHII_NON_MOVEABLE(HardwareContext);
+    ERABLE_NON_COPYABLE(HardwareContext);
+    ERABLE_NON_MOVEABLE(HardwareContext);
 
     static std::vector<AVHWDeviceType> GetSupportedDeviceTypes();
 
@@ -172,8 +172,8 @@ private:
 // Wraps an AVCodecContext.
 class DecoderContext {
 public:
-    LICHII_NON_COPYABLE(DecoderContext);
-    LICHII_NON_MOVEABLE(DecoderContext);
+    ERABLE_NON_COPYABLE(DecoderContext);
+    ERABLE_NON_MOVEABLE(DecoderContext);
 
     explicit DecoderContext(const Decoder& decoder);
     ~DecoderContext();
@@ -212,8 +212,8 @@ struct FrameDimensions {
 
 class DecodeApi {
 public:
-    LICHII_NON_COPYABLE(DecodeApi);
-    LICHII_NON_MOVEABLE(DecodeApi);
+    ERABLE_NON_COPYABLE(DecodeApi);
+    ERABLE_NON_MOVEABLE(DecodeApi);
 
     DecodeApi() = default;
     ~DecodeApi() = default;

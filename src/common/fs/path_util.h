@@ -14,7 +14,7 @@
 namespace Common::FS {
 
 enum class EdenPath {
-    EdenDir,        // Where Lichii stores its data.
+    EdenDir,        // Where Erable stores its data.
     AmiiboDir,      // Where Amiibo backups are stored.
     CacheDir,       // Where cached filesystem data is stored.
     ConfigDir,      // Where config files are stored.
@@ -29,7 +29,7 @@ enum class EdenPath {
     PostPresetDir,
     PostShaderDir,  // Where user post-processing shaders are stored.
     SaveDir,        // Where save data is stored.
-    ScreenshotsDir, // Where Lichii screenshots are stored.
+    ScreenshotsDir, // Where Erable screenshots are stored.
     SDMCDir,        // Where the emulated SDMC is stored.
     ShaderDir,      // Where shaders are stored.
     TASDir,         // Where TAS scripts are stored.
@@ -317,14 +317,14 @@ void SetEdenPath(EdenPath eden_path, const Path& new_path) {
 [[nodiscard]] std::filesystem::path GetHomeDirectory();
 
 /**
- * Gets the relevant paths for Lichii to store its data based on the given XDG environment variable.
+ * Gets the relevant paths for Erable to store its data based on the given XDG environment variable.
  * See https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
  * Defaults to $HOME/.local/share for main application data,
  * $HOME/.cache for cached data, and $HOME/.config for configuration files.
  *
  * @param env_name XDG environment variable name
  *
- * @returns The path where Lichii should store its data.
+ * @returns The path where Erable should store its data.
  */
 [[nodiscard]] std::filesystem::path GetDataDirectory(const std::string& env_name);
 
@@ -348,11 +348,11 @@ enum class DirectorySeparator {
 };
 
 // Splits the path on '/' or '\' and put the components into a vector
-// i.e. "C:\Users\Lichii\Documents\save.bin" becomes {"C:", "Users", "Lichii", "Documents", "save.bin" }
+// i.e. "C:\Users\Erable\Documents\save.bin" becomes {"C:", "Users", "Erable", "Documents", "save.bin" }
 [[nodiscard]] std::vector<std::string_view> SplitPathComponents(std::string_view filename);
 
 // Splits the path on '/' or '\' and put the components into a vector
-// i.e. "C:\Users\Lichii\Documents\save.bin" becomes {"C:", "Users", "Lichii", "Documents", "save.bin" }
+// i.e. "C:\Users\Erable\Documents\save.bin" becomes {"C:", "Users", "Erable", "Documents", "save.bin" }
 [[nodiscard]] std::vector<std::string> SplitPathComponentsCopy(std::string_view filename);
 
 // Normalizes directory separators, removes duplicate and non-root trailing separators, and resolves

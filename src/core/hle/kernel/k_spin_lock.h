@@ -16,8 +16,8 @@ class KSpinLock {
 public:
     explicit KSpinLock() = default;
 
-    LICHII_NON_COPYABLE(KSpinLock);
-    LICHII_NON_MOVEABLE(KSpinLock);
+    ERABLE_NON_COPYABLE(KSpinLock);
+    ERABLE_NON_MOVEABLE(KSpinLock);
 
     void Lock();
     void Unlock();

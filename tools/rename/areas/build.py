@@ -4,9 +4,9 @@
 
 NOT_ANDROID = ["src/android/*"]
 
-# Every tracked path outside Android: src/lichii -> src/lichii, yuzu_cmd -> lichii_cmd, dist/lichii.manifest ...
+# Every tracked path outside Android: src/erable -> src/erable, yuzu_cmd -> erable_cmd, dist/erable.manifest ...
 PATHS = [
-    (r"yuzu", "lichii", {"exclude": NOT_ANDROID}),
+    (r"yuzu", "erable", {"exclude": NOT_ANDROID}),
 ]
 
 # CMake options and the compile definitions they produce. The old -DYUZU_* spellings
@@ -31,28 +31,28 @@ BUILD_FILES = [
 
 TEXT = [
     # Paths to the renamed directories and files, in any file.
-    (r"\bsrc/yuzu(_cmd|_room_standalone)?\b", r"src/lichii\1"),
-    (r"\btests/yuzu_cmd\b", "tests/lichii_cmd"),
-    (r"(?<=[\"<])yuzu(_cmd)?/", r"lichii\1/"),
-    (r"(?<=<header>)yuzu/", "lichii/"),
-    (r"(#include\s*[\"<][^\">]*)", lambda m: m.group(1).replace("yuzu", "lichii")),
-    (r"\byuzu(_room_standalone|_room|_icon)?\.(rc|qrc|cpp|h|manifest|bmp)\b", r"lichii\1.\2"),
+    (r"\bsrc/yuzu(_cmd|_room_standalone)?\b", r"src/erable\1"),
+    (r"\btests/yuzu_cmd\b", "tests/erable_cmd"),
+    (r"(?<=[\"<])yuzu(_cmd)?/", r"erable\1/"),
+    (r"(?<=<header>)yuzu/", "erable/"),
+    (r"(#include\s*[\"<][^\">]*)", lambda m: m.group(1).replace("yuzu", "erable")),
+    (r"\byuzu(_room_standalone|_room|_icon)?\.(rc|qrc|cpp|h|manifest|bmp)\b", r"erable\1.\2"),
     # CMake option and definition names, wherever they appear (C++ #ifdef, docs, CI).
-    (r"YUZU_(" + "|".join(OPTIONS) + r")(?![A-Za-z0-9_])", r"LICHII_\1",
+    (r"YUZU_(" + "|".join(OPTIONS) + r")(?![A-Za-z0-9_])", r"ERABLE_\1",
      {"files": ["*", "externals/CMakeLists.txt", "externals/*/CMakeLists.txt", "externals/*/*.cmake"]}),
     # Targets.
-    (r"\byuzu-cmd\b", "lichii-cmd"),
-    (r"\byuzu-room\b", "lichii-room"),
-    (r"\byuzu_cmd\b", "lichii_cmd"),
-    (r"\byuzu-android\b", "lichii-android"),
-    (r"\byuzu_room_standalone\b", "lichii_room_standalone"),
+    (r"\byuzu-cmd\b", "erable-cmd"),
+    (r"\byuzu-room\b", "erable-room"),
+    (r"\byuzu_cmd\b", "erable_cmd"),
+    (r"\byuzu-android\b", "erable-android"),
+    (r"\byuzu_room_standalone\b", "erable_room_standalone"),
     # Everything else in build files and in the small frontends this area moves.
-    (r"\byuzu\b", "lichii", {"files": BUILD_FILES}),
-    (r"\bYuzu\b", "Lichii", {"files": BUILD_FILES}),
-    (r"yuzu", "lichii", {"files": ["src/lichii_cmd/*", "src/lichii_room_standalone/*", "src/dedicated_room/*",
-                                   "src/tests/lichii_cmd/*"]}),
-    (r"Yuzu", "Lichii", {"files": ["src/lichii_cmd/*", "src/lichii_room_standalone/*", "src/dedicated_room/*",
-                                   "src/tests/lichii_cmd/*"]}),
+    (r"\byuzu\b", "erable", {"files": BUILD_FILES}),
+    (r"\bYuzu\b", "Erable", {"files": BUILD_FILES}),
+    (r"yuzu", "erable", {"files": ["src/erable_cmd/*", "src/erable_room_standalone/*", "src/dedicated_room/*",
+                                   "src/tests/erable_cmd/*"]}),
+    (r"Yuzu", "Erable", {"files": ["src/erable_cmd/*", "src/erable_room_standalone/*", "src/dedicated_room/*",
+                                   "src/tests/erable_cmd/*"]}),
 ]
 
 KEEP = [

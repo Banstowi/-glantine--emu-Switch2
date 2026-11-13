@@ -18,8 +18,8 @@ namespace FileSys {
 using namespace Common::Literals;
 
 class AesCtrCounterExtendedStorage : public IReadOnlyStorage {
-    LICHII_NON_COPYABLE(AesCtrCounterExtendedStorage);
-    LICHII_NON_MOVEABLE(AesCtrCounterExtendedStorage);
+    ERABLE_NON_COPYABLE(AesCtrCounterExtendedStorage);
+    ERABLE_NON_MOVEABLE(AesCtrCounterExtendedStorage);
 
 public:
     static constexpr size_t BlockSize = 0x10;

@@ -12,8 +12,8 @@
 namespace FileSys {
 
 class HierarchicalSha256Storage : public IReadOnlyStorage {
-    LICHII_NON_COPYABLE(HierarchicalSha256Storage);
-    LICHII_NON_MOVEABLE(HierarchicalSha256Storage);
+    ERABLE_NON_COPYABLE(HierarchicalSha256Storage);
+    ERABLE_NON_MOVEABLE(HierarchicalSha256Storage);
 
 public:
     static constexpr s32 LayerCount = 3;
