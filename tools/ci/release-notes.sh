@@ -19,7 +19,7 @@ macos_ver="${macos_ver#macos-}"
 
 link() { if [[ -e "$dir/$2" ]]; then printf '[%s](%s/%s)' "$1" "$base" "$2"; fi; return 0; }
 join() { if [[ -n "$1" && -n "$2" ]]; then printf '%s · %s' "$1" "$2"; else printf '%s%s' "$1" "$2"; fi; }
-linux_cell() { join "$(link AppImage "banstdog-$1.AppImage")" "$(link tar.gz "banstdog-$1.tar.gz")"; }
+linux_cell() { join "$(link AppImage "erable-$1.AppImage")" "$(link tar.gz "erable-$1.tar.gz")"; }
 row() { if [[ -n "$2$3" ]]; then printf '| %s | %s | %s | %s |\n' "$1" "$2" "$3" "${4:-}"; fi; }
 commits() { git log --no-merges --pretty='- %s (`%h`)' "$@" 2>/dev/null | head -n 100 || true; }
 
@@ -54,7 +54,7 @@ commits() { git log --no-merges --pretty='- %s (`%h`)' "$@" 2>/dev/null | head -
         commits -n 30 "$sha"
         printf '\n'
       fi
-      printf '# Packages\n\nBanst Family %s, built from `%s` at `%s`.\n\n' "$tag" "$main" "$short"
+      printf '# Packages\n\nErable %s, built from `%s` at `%s`.\n\n' "$tag" "$main" "$short"
       ;;
     branch)
       printf 'Test build of branch `%s` at `%s`.\n\n**This is not a release.** It is for testing, and the next push to the branch replaces it.\n\n## Commits on top of %s\n\n' "${BRANCH:-?}" "$short" "$main"
@@ -85,13 +85,13 @@ EOF2
     printf '\n'
   fi
 
-  w_msvc=$(link 'MSVC zip' banstdog-windows-x86_64.zip)
-  w_pgo=$(link 'MinGW PGO zip' banstdog-windows-x86_64-pgo.zip)
+  w_msvc=$(link 'MSVC zip' erable-windows-x86_64.zip)
+  w_pgo=$(link 'MinGW PGO zip' erable-windows-x86_64-pgo.zip)
   if [[ -n "$w_msvc$w_pgo" ]]; then
     cat <<'EOF2'
 ## Windows
 
-Windows packages are in-place zip files: extract and run `banstdog.exe`, or `eden-cli.exe` from a terminal.
+Windows packages are in-place zip files: extract and run `erable.exe`, or `eden-cli.exe` from a terminal.
 
 | Build Type | Standard | PGO (Recommended) | Notes |
 | --- | --- | --- | --- |
@@ -101,11 +101,11 @@ EOF2
     printf '\n'
   fi
 
-  m_zip=$(link zip banstdog-macos-arm64.zip)
-  m_dmg=$(link dmg banstdog-macos-arm64.dmg)
+  m_zip=$(link zip erable-macos-arm64.zip)
+  m_dmg=$(link dmg erable-macos-arm64.dmg)
   if [[ -n "$m_zip$m_dmg" ]]; then
     printf '## macOS\n\n| Build Type | Standard | PGO (Recommended) | Notes |\n| --- | --- | --- | --- |\n'
-    row 'arm64 (Apple Silicon)' "$(join "$m_zip" "$m_dmg")" '' "macOS ${macos_ver} or newer. Not notarized: right-click and choose Open the first time, or run `xattr -dr com.apple.quarantine banstdog.app`. `eden-cli` is inside the app, in `Contents/MacOS`."
+    row 'arm64 (Apple Silicon)' "$(join "$m_zip" "$m_dmg")" '' "macOS ${macos_ver} or newer. Not notarized: right-click and choose Open the first time, or run `xattr -dr com.apple.quarantine erable.app`. `eden-cli` is inside the app, in `Contents/MacOS`."
     printf '\n'
   fi
 

@@ -260,7 +260,7 @@ add_executable(lichii
     game/carousel.h game/carousel.cpp
 )
 
-set_target_properties(lichii PROPERTIES OUTPUT_NAME "banstdog")
+set_target_properties(lichii PROPERTIES OUTPUT_NAME "erable")
 
 # Shipped next to the executable: the NX2 switches a GUI launch cannot set another way. Read at
 # startup (LoadNx2Switches in main.cpp); a user copy in %APPDATA%\lichii overrides it.

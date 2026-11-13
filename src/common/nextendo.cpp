@@ -137,7 +137,7 @@ void ConfigureClient(httplib::Client& client, time_t timeout_seconds) {
 }
 
 httplib::Headers BaseHeaders(std::string_view client_id) {
-    return {{"User-Agent", "Banst Family"}, {"X-Nextendo-Client-Id", std::string{client_id}}};
+    return {{"User-Agent", "Erable"}, {"X-Nextendo-Client-Id", std::string{client_id}}};
 }
 
 httplib::Headers BearerHeaders(std::string_view client_id, const std::string& token) {
@@ -480,7 +480,7 @@ SignInResult SignIn(std::string_view client_id,
     const auto pkce = MakePkce();
     const auto state = RandomToken();
     if (!pkce || !state) {
-        out.error = "Banst Family could not generate a random sign-in key.";
+        out.error = "Erable could not generate a random sign-in key.";
         return out;
     }
 
@@ -519,7 +519,7 @@ SignInResult SignIn(std::string_view client_id,
         cv.notify_all();
     });
     if (!server.bind_to_port("127.0.0.1", CallbackPort)) {
-        out.error = fmt::format("Banst Family could not listen on 127.0.0.1:{}. Close whatever uses "
+        out.error = fmt::format("Erable could not listen on 127.0.0.1:{}. Close whatever uses "
                                 "that port and try again.",
                                 CallbackPort);
         return out;

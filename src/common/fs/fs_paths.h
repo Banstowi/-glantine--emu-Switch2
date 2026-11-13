@@ -8,7 +8,9 @@
 
 // Lichii data directories
 
-#define EDEN_DIR "banstdog"
+#define EDEN_DIR "erable"
+// The data folder before Erable was renamed; moved to EDEN_DIR at the first launch
+#define FORMER_EDEN_DIR "banstdog"
 #define EDEN_LEGACY_DIR "eden"
 #define PORTABLE_DIR "user"
 

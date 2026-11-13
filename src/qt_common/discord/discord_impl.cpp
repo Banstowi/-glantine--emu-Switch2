@@ -60,7 +60,7 @@ std::optional<std::string> FetchFromCovers(const std::string& file_name, bool wa
 
 DiscordImpl::DiscordImpl(Core::System& system_) : system{system_} {
     DiscordEventHandlers handlers{};
-    // Banst Family's Discord application: Discord shows its name and icon. Not registered as a
+    // Erable's Discord application: Discord shows its name and icon. Not registered as a
     // launch protocol, so nothing is written to the registry.
     Discord_Initialize("1570177706472120340", &handlers, 0, nullptr);
 }
@@ -100,7 +100,7 @@ std::string DiscordImpl::GetGameString(const std::string& title) {
     return icon_name;
 }
 
-static constexpr char DEFAULT_DISCORD_TEXT[] = "Banst Family, émulateur Nintendo Switch 2";
+static constexpr char DEFAULT_DISCORD_TEXT[] = "Erable, émulateur Nintendo Switch 2";
 static constexpr char DEFAULT_DISCORD_IMAGE[] =
     "https://raw.githubusercontent.com/Banstowi/-glantine--emu-Switch2/ccr-88d1adf7-3obcpe/dist/"
     "lichii.png";

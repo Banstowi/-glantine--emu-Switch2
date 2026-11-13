@@ -2,17 +2,17 @@
 <component type="desktop-application">
   <id>io.github.zortos293.lichii</id>
   <metadata_license>CC0-1.0</metadata_license>
-  <name>Banst Family</name>
+  <name>Erable</name>
   <summary>Experimental Nintendo Switch and Switch 2 emulator</summary>
   <description>
-    <p>Banst Family is an experimental open-source emulator fork based on Lichii, Eglantine and Eden, with work inherited from yuzu and Sudachi. Compatibility and performance vary by game and hardware.</p>
+    <p>Erable is an experimental open-source emulator fork based on Lichii, Eglantine and Eden, with work inherited from yuzu and Sudachi. Compatibility and performance vary by game and hardware.</p>
   </description>
   <launchable type="desktop-id">io.github.zortos293.lichii.desktop</launchable>
-  <provides><binary>banstdog</binary></provides>
+  <provides><binary>erable</binary></provides>
   <categories><category>Game</category><category>Emulator</category></categories>
   <url type="homepage">https://github.com/zortos293/Eglantine</url>
   <url type="bugtracker">https://github.com/zortos293/Eglantine/issues</url>
   <project_license>GPL-3.0-or-later</project_license>
-  <developer_name>Banst Family contributors</developer_name>
+  <developer_name>Erable contributors</developer_name>
   <content_rating type="oars-1.0"/>
 </component>

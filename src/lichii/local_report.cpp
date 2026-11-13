@@ -98,7 +98,7 @@ Dialog::Dialog(const CompatibilityReporting::Session& session_, QWidget* parent)
 }
 
 QString Dialog::ReportText() const {
-    QString text = QStringLiteral("Rapport de compatibilité Banst Family\n");
+    QString text = QStringLiteral("Rapport de compatibilité Erable\n");
     text += Line(QStringLiteral("Date"),
                  QDateTime::currentDateTime().toString(QStringLiteral("dd/MM/yyyy HH:mm")));
     text += Line(QStringLiteral("Jeu"), session.title);
@@ -106,7 +106,7 @@ QString Dialog::ReportText() const {
     text += Line(QStringLiteral("Version du jeu"), session.game_version);
     text += Line(QStringLiteral("Résultat"), outcome->currentText());
     text += QStringLiteral("\nCommentaires :\n%1\n\n").arg(notes->toPlainText().trimmed());
-    text += Line(QStringLiteral("Version de Banst Family"), session.build);
+    text += Line(QStringLiteral("Version d'Erable"), session.build);
     text += Line(QStringLiteral("Processeur"), session.cpu);
     text += Line(QStringLiteral("Carte graphique"), session.gpu);
     text += Line(QStringLiteral("Pilote"), session.driver);
@@ -152,7 +152,7 @@ void Dialog::SendByEmail() {
     }
     QUrlQuery query;
     query.addQueryItem(QStringLiteral("subject"),
-                       QStringLiteral("Rapport Banst Family : %1").arg(session.title));
+                       QStringLiteral("Rapport Erable : %1").arg(session.title));
     query.addQueryItem(QStringLiteral("body"), body);
     QUrl url(QStringLiteral("mailto:"));
     url.setQuery(query);

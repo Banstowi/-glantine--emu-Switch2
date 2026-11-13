@@ -105,10 +105,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          app=build/release/bin/banstdog.app
-          test -x "$app/Contents/MacOS/banstdog"
+          app=build/release/bin/erable.app
+          test -x "$app/Contents/MacOS/erable"
           test -x build/release/bin/eden-cli
-          for binary in "$app/Contents/MacOS/banstdog" build/release/bin/eden-cli; do
+          for binary in "$app/Contents/MacOS/erable" build/release/bin/eden-cli; do
             test "$(lipo -archs "$binary")" = arm64
           done
           cp build/release/bin/eden-cli "$app/Contents/MacOS/eden-cli"
@@ -126,7 +126,7 @@ jobs:
               done
           done
           # Libraries that load their dependencies through @rpath find them in the bundle.
-          for program in banstdog eden-cli; do
+          for program in erable eden-cli; do
             install_name_tool -add_rpath @executable_path/../Frameworks \
               "$app/Contents/MacOS/$program" 2> /dev/null
           done
@@ -149,24 +149,24 @@ jobs:
             codesign --force --sign - --entitlements dist/eglantine.entitlements "$app"
           fi
           codesign --verify --deep --strict "$app"
-          ditto -c -k --keepParent "$app" "banstdog-${SHA}-${PLATFORM}.zip"
-          ls -la "banstdog-${SHA}-${PLATFORM}.zip"
-          # Also ship a .dmg (drag banstdog.app onto Applications).
+          ditto -c -k --keepParent "$app" "erable-${SHA}-${PLATFORM}.zip"
+          ls -la "erable-${SHA}-${PLATFORM}.zip"
+          # Also ship a .dmg (drag erable.app onto Applications).
           dmgdir=$(mktemp -d)
-          ditto "$app" "$dmgdir/banstdog.app"
+          ditto "$app" "$dmgdir/erable.app"
           ln -s /Applications "$dmgdir/Applications"
-          hdiutil create -volname "Banst Family" -srcfolder "$dmgdir" -ov -format UDZO \
-            "banstdog-${SHA}-${PLATFORM}.dmg"
-          ls -la "banstdog-${SHA}-${PLATFORM}.dmg"
+          hdiutil create -volname "Erable" -srcfolder "$dmgdir" -ov -format UDZO \
+            "erable-${SHA}-${PLATFORM}.dmg"
+          ls -la "erable-${SHA}-${PLATFORM}.dmg"
 
       # Zipped with ditto beforehand: the bundle's framework symlinks don't survive artifact zipping.
       - name: Upload macOS app
         uses: actions/upload-artifact@v7
         with:
-          name: banstdog-${{ env.PLATFORM }}-${{ inputs.sha }}
+          name: erable-${{ env.PLATFORM }}-${{ inputs.sha }}
           path: |
-            banstdog-${{ inputs.sha }}-${{ env.PLATFORM }}.zip
-            banstdog-${{ inputs.sha }}-${{ env.PLATFORM }}.dmg
+            erable-${{ inputs.sha }}-${{ env.PLATFORM }}.zip
+            erable-${{ inputs.sha }}-${{ env.PLATFORM }}.dmg
           if-no-files-found: error
           compression-level: 0
           retention-days: 7

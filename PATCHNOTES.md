@@ -1,9 +1,15 @@
-# Notes de version de Banst Family
+# Notes de version d'Erable
 
 La première section ci-dessous est affichée dans la fenêtre de mise à jour et sur la page de la
 version. Les sections suivantes gardent l'historique.
 
 ## Nouveautés de cette version
+
+**Banst Family devient Erable**
+- Le programme s'appelle maintenant erable.exe et ses données sont dans `%APPDATA%\erable`.
+  L'ancien dossier `%APPDATA%\banstdog` est déplacé automatiquement au premier lancement :
+  sauvegardes, réglages, clés et cache de shaders sont conservés.
+- Les anciens raccourcis vers banstdog.exe continuent de marcher : banstdog.exe ouvre erable.exe.
 
 **Zelda Ocarina of Time**
 - Correction des zones sombres en forme de grille sur l'eau et le sol (ombres des lumières).
@@ -29,13 +35,13 @@ version. Les sections suivantes gardent l'historique.
   Zelda Ocarina of Time, les images lentes sont trois fois moins nombreuses, et la part des
   gels de chargement due à l'émulateur est fortement réduite.
 
-**Fermer un jeu sans quitter Banst Family**
+**Fermer un jeu sans quitter Erable**
 - Le bouton ✕ de la fenêtre propose maintenant « Fermer le jeu » : le jeu s'arrête proprement et
-  la liste des jeux revient. « Quitter Banst Family » ferme tout, comme avant.
+  la liste des jeux revient. « Quitter Erable » ferme tout, comme avant.
 - Autres moyens : Émulation > Arrêter (F5), ou L + Plus + Moins sur la manette.
 
 **Nouvelle interface**
-- Thème Banst Family : sombre, gris chauds et couleur érable de notre feuille. Il s'applique au
+- Thème Erable : sombre, gris chauds et couleur érable de notre feuille. Il s'applique au
   premier lancement ; les anciens thèmes restent dans Configurer > Général > Interface.
 - Liste de jeux redessinée, avec favoris, et fenêtres de réglages qui tiennent à l'écran.
 - Une fenêtre « Quoi de neuf » présente les changements (Aide > Quoi de neuf).
@@ -55,7 +61,7 @@ version. Les sections suivantes gardent l'historique.
   nombreuses. Un objet peut apparaître avec un très léger retard la première fois.
 
 **Discord**
-- Banst Family affiche le jeu en cours dans votre statut Discord. Pour ne pas l'afficher,
+- Erable affiche le jeu en cours dans votre statut Discord. Pour ne pas l'afficher,
   décochez « Afficher le jeu en cours dans le Statut Discord » dans
   Émulation → Configurer → Général → Web.
 
@@ -74,7 +80,7 @@ version. Les sections suivantes gardent l'historique.
 
 ## build-13
 
-- Banst Family applique ses propres réglages recommandés par défaut : précision GPU basse,
+- Erable applique ses propres réglages recommandés par défaut : précision GPU basse,
   présentation asynchrone, décodage vidéo par la carte graphique et shaders compilés en
   arrière-plan. Sur nos PC, Zelda Ocarina of Time passe d'environ 25 à 40-55 images par seconde.
 - Ils s'appliquent tout seuls aux réglages jamais modifiés. Le menu Aide → Appliquer les
@@ -89,7 +95,7 @@ version. Les sections suivantes gardent l'historique.
 - Correction du grésillement du son de l'ocarina.
 
 **Tous les jeux**
-- Au premier lancement d'un jeu, Banst Family propose de précompiler ses shaders : quelques
+- Au premier lancement d'un jeu, Erable propose de précompiler ses shaders : quelques
   minutes d'attente une seule fois, puis beaucoup moins de saccades en jouant.
 - Nouveau cache de shaders, plus rapide à charger. Il se reconstruit une fois : quelques
   saccades sont normales à la première partie après cette mise à jour.

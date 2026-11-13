@@ -424,7 +424,7 @@ MainWindow::MainWindow(bool has_broken_vulkan)
 
     default_theme_paths = QIcon::themeSearchPaths();
 
-    // The first launch after an interface update switches to Banst Family's theme and explains
+    // The first launch after an interface update switches to Erable's theme and explains
     // what moved.
     const bool whats_new_pending =
         UISettings::values.whats_new_version.GetValue() < WhatsNewDialog::Version;
@@ -471,7 +471,7 @@ MainWindow::MainWindow(bool has_broken_vulkan)
         connect(&nextendo_session_watcher, &QFutureWatcher<bool>::finished, this, [this] {
             if (nextendo_session_watcher.result()) {
                 QMessageBox::warning(this, tr("Signed out of Nextendo"),
-                                     tr("Your session was ended on nextendo.network, so Banst Family "
+                                     tr("Your session was ended on nextendo.network, so Erable "
                                         "signed you out. Sign in again in Configure > Network."));
             }
         });
@@ -2020,7 +2020,7 @@ bool MainWindow::LoadROM(const QString& filename, Service::AM::FrontendAppletPar
         case Core::SystemResultStatus::ErrorMemoryAllocation:
             QMessageBox::critical(
                 this, tr("Not enough memory to start the game"),
-                tr("Banst Family could not allocate the game's memory. Close other applications and "
+                tr("Erable could not allocate the game's memory. Close other applications and "
                    "check that your system has enough available memory and paging-file space, "
                    "then try again."));
             break;
@@ -2169,7 +2169,7 @@ void MainWindow::BootGame(const QString& filename, Service::AM::FrontendAppletPa
     if (close_pending) {
         return;
     }
-    LOG_INFO(Frontend, "Banst Family starting...");
+    LOG_INFO(Frontend, "Erable starting...");
     report_session.reset();
     game_list->SetReportableProgramId(0);
 
@@ -2310,7 +2310,7 @@ void MainWindow::BootGame(const QString& filename, Service::AM::FrontendAppletPa
         }
         session.mods = CompatibilityReporting::SummarizeEnabledAddons(mods);
         session.updates = CompatibilityReporting::SummarizeEnabledAddons(updates);
-        session.build = QStringLiteral("Banst Family %1 (%2)")
+        session.build = QStringLiteral("Erable %1 (%2)")
                             .arg(QString::fromUtf8(Common::g_build_version),
                                  QString::fromUtf8(Common::g_scm_rev).left(12));
 #ifdef ARCHITECTURE_x86_64
@@ -5118,7 +5118,7 @@ void MainWindow::OnEmulatorUpdateAvailable() {
     const auto result = update_future.result();
     if (result.failure == UpdateChecker::Failure::RateLimited) {
         statusBar()->showMessage(
-            tr("Could not check for updates: GitHub rate limit reached. Banst Family will try again at "
+            tr("Could not check for updates: GitHub rate limit reached. Erable will try again at "
                "the next start."),
             15000);
         return;
@@ -5680,7 +5680,7 @@ void MainWindow::OnCheckGraphicsBackend() {
         UISettings::values.gui_force_x11.SetValue(true);
         GraphicsBackend::SetForceX11(true);
         QMessageBox::information(this, tr("Restart Required"),
-                                 tr("Restart Banst Family to apply the X11 backend."));
+                                 tr("Restart Erable to apply the X11 backend."));
     }
 }
 #endif
@@ -5799,20 +5799,20 @@ bool MainWindow::ConfirmClose() {
         UISettings::values.confirm_before_stopping.GetValue() == ConfirmStop::Ask_Based_On_Game)
         return true;
 
-    const auto text = tr("Are you sure you want to close Banst Family?");
-    return question(this, tr("Banst Family"), text);
+    const auto text = tr("Are you sure you want to close Erable?");
+    return question(this, tr("Erable"), text);
 }
 
 void MainWindow::closeEvent(QCloseEvent* event) {
     // Closing the window during a game offers to close only the game and stay in the game list.
     if (!close_pending && !boot_in_progress && QtCommon::emu_thread && emulation_running &&
         UISettings::values.confirm_before_stopping.GetValue() != ConfirmStop::Ask_Never) {
-        QMessageBox box(QMessageBox::Question, tr("Banst Family"),
+        QMessageBox box(QMessageBox::Question, tr("Erable"),
                         tr("Close only the game and go back to the game list, or quit Banst "
                            "Family?"),
                         QMessageBox::NoButton, this);
         QPushButton* const close_game = box.addButton(tr("Close the game"), QMessageBox::AcceptRole);
-        QPushButton* const quit = box.addButton(tr("Quit Banst Family"), QMessageBox::DestructiveRole);
+        QPushButton* const quit = box.addButton(tr("Quit Erable"), QMessageBox::DestructiveRole);
         box.addButton(QMessageBox::Cancel);
         box.setDefaultButton(close_game);
         box.exec();
@@ -5941,7 +5941,7 @@ bool MainWindow::ConfirmChangeGame() {
 
     // Use custom question to link controller navigation
     return question(
-        this, tr("Banst Family"),
+        this, tr("Erable"),
         tr("Are you sure you want to stop the emulation? Any unsaved progress will be lost."),
         QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
 }
@@ -5950,10 +5950,10 @@ bool MainWindow::ConfirmForceLockedExit() {
     if (QtCommon::emu_thread == nullptr)
         return true;
 
-    const auto text = tr("The currently running application has requested Banst Family to not exit.\n\n"
+    const auto text = tr("The currently running application has requested Erable to not exit.\n\n"
                          "Would you like to bypass this and exit anyway?");
 
-    return question(this, tr("Banst Family"), text);
+    return question(this, tr("Erable"), text);
 }
 
 void MainWindow::RequestGameExit() {
@@ -5983,7 +5983,7 @@ static void AdjustLinkColor() {
         qApp->setPalette(new_pal);
 }
 
-// The Banst Family theme styles most widgets through its stylesheet; the palette covers what Qt
+// The Erable theme styles most widgets through its stylesheet; the palette covers what Qt
 // draws without one: item view text, disabled text, links and the native parts of dialogs.
 static QPalette BanstPalette() {
     QPalette palette;
@@ -6088,7 +6088,7 @@ void MainWindow::UpdateUITheme() {
     if (current_theme.isEmpty())
         current_theme = default_theme;
 
-    // Lichii Dark, which builds before Banst Family had, became the Banst Family theme.
+    // Lichii Dark, which builds before Erable had, became the Erable theme.
     if (current_theme == QStringLiteral("lichii")) {
         current_theme = default_theme;
         UISettings::values.theme = default_theme.toStdString();

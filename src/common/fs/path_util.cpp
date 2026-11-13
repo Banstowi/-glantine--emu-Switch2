@@ -5,7 +5,10 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <algorithm>
+#include <array>
 #include <cctype>
+#include <fstream>
+#include <iterator>
 #include <iostream>
 #include <sstream>
 #include "common/container/unordered_map.h"
@@ -59,6 +62,75 @@
 namespace Common::FS {
 
 namespace fs = std::filesystem;
+
+namespace {
+
+/// Points the absolute paths the settings files kept under `former` at `current`.
+void RewriteFormerPaths(const fs::path& config_dir, const fs::path& former, const fs::path& current) {
+    std::error_code ec;
+    if (!fs::is_directory(config_dir, ec)) {
+        return;
+    }
+    const std::array<std::pair<std::string, std::string>, 2> roots{{
+        {former.generic_string(), current.generic_string()},
+        {former.string(), current.string()},
+    }};
+    for (auto it = fs::recursive_directory_iterator(config_dir, ec);
+         !ec && it != fs::recursive_directory_iterator(); it.increment(ec)) {
+        if (it->path().extension() != ".ini" || !it->is_regular_file(ec)) {
+            continue;
+        }
+        std::string data;
+        {
+            std::ifstream input{it->path(), std::ios::binary};
+            data.assign(std::istreambuf_iterator<char>{input}, {});
+            if (!input && !input.eof()) {
+                continue;
+            }
+        }
+        bool changed = false;
+        for (const auto& [from, to] : roots) {
+            for (size_t pos = data.find(from); pos != std::string::npos;
+                 pos = data.find(from, pos)) {
+                const size_t end = pos + from.size();
+                const char next = end < data.size() ? data[end] : '\n';
+                if (next != '/' && next != '\\' && next != '"' && next != '\r' && next != '\n') {
+                    pos = end;
+                    continue;
+                }
+                data.replace(pos, from.size(), to);
+                pos += to.size();
+                changed = true;
+            }
+        }
+        if (changed) {
+            std::ofstream output{it->path(), std::ios::binary | std::ios::trunc};
+            output << data;
+        }
+    }
+}
+
+/// Erable kept its data in a "banstdog" folder before it was renamed: moves that folder to
+/// `base / EDEN_DIR` once, setting `moved`. If the move fails (a file in it is open), the old
+/// folder stays in use.
+fs::path AdoptFormerDataDir(const fs::path& base, bool* moved = nullptr) {
+    const auto current = base / EDEN_DIR;
+    const auto former = base / FORMER_EDEN_DIR;
+    std::error_code ec;
+    if (fs::exists(current, ec) || !fs::is_directory(former, ec)) {
+        return current;
+    }
+    fs::rename(former, current, ec);
+    if (ec) {
+        return former;
+    }
+    if (moved) {
+        *moved = true;
+    }
+    return current;
+}
+
+} // Anonymous namespace
 
 /**
  * The PathManagerImpl is a singleton allowing to manage the mapping of
@@ -120,7 +192,12 @@ public:
         eden_path = GetExeDirectory() / PORTABLE_DIR;
         portable = IsDir(eden_path);
         if (!Exists(eden_path) || !IsDir(eden_path)) {
-            eden_path = GetAppDataRoamingDirectory() / EDEN_DIR;
+            const auto roaming = GetAppDataRoamingDirectory();
+            bool moved = false;
+            eden_path = AdoptFormerDataDir(roaming, &moved);
+            if (moved) {
+                RewriteFormerPaths(eden_path / CONFIG_DIR, roaming / FORMER_EDEN_DIR, eden_path);
+            }
         }
         eden_path_cache = eden_path / CACHE_DIR;
         eden_path_config = eden_path / CONFIG_DIR;
@@ -142,9 +219,14 @@ public:
         eden_path = GetCurrentDir() / PORTABLE_DIR;
         portable = IsDir(eden_path);
         if (!Exists(eden_path) || !IsDir(eden_path)) {
-            eden_path = GetDataDirectory("XDG_DATA_HOME") / EDEN_DIR;
-            eden_path_cache = GetDataDirectory("XDG_CACHE_HOME") / EDEN_DIR;
-            eden_path_config = GetDataDirectory("XDG_CONFIG_HOME") / EDEN_DIR;
+            const auto data_home = GetDataDirectory("XDG_DATA_HOME");
+            bool moved = false;
+            eden_path = AdoptFormerDataDir(data_home, &moved);
+            eden_path_cache = AdoptFormerDataDir(GetDataDirectory("XDG_CACHE_HOME"));
+            eden_path_config = AdoptFormerDataDir(GetDataDirectory("XDG_CONFIG_HOME"));
+            if (moved) {
+                RewriteFormerPaths(eden_path_config, data_home / FORMER_EDEN_DIR, eden_path);
+            }
         } else {
             eden_path_cache = eden_path / CACHE_DIR;
             eden_path_config = eden_path / CONFIG_DIR;

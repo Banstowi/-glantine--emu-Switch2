@@ -10,7 +10,7 @@
 
 namespace Settings {
 
-/// Banst Family's recommended settings, started from the Lichii developer's. This table is the only place that lists them:
+/// Erable's recommended settings, started from the Lichii developer's. This table is the only place that lists them:
 /// change a value here to change what "Use recommended settings" writes. Personal and hardware
 /// choices (language, region, resolution, upscaler, backend, device) stay out of it.
 template <typename Func>
@@ -37,7 +37,7 @@ void ForEachRecommendedSetting(Values& settings, Func&& func) {
     entry(settings.use_vulkan_driver_pipeline_cache, true);
     entry(settings.native_async_draws, NativeAsyncDraws::Bounded);
     entry(settings.native_pipeline_wait_ms, 8);
-    // Banst Family asks: precaching removes most first-session stutter.
+    // Erable asks: precaching removes most first-session stutter.
     entry(settings.precache_shaders, PrecacheShaders::Ask);
     entry(settings.use_video_framerate, false);
     entry(settings.mkw_30fps, false);

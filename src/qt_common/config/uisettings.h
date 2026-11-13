@@ -41,10 +41,10 @@ namespace UISettings {
 
 bool IsDarkTheme();
 
-/// The Banst Family theme (Lichii Dark recoloured), which has custom widgets and icons.
+/// The Erable theme (Lichii Dark recoloured), which has custom widgets and icons.
 bool IsLichiiStyle();
 
-/// The resource path of a Banst Family theme icon ("reset.png" -> ":/banst/icons/reset.png").
+/// The resource path of a Erable theme icon ("reset.png" -> ":/banst/icons/reset.png").
 QString StyleIcon(const QString& file);
 
 struct ContextualShortcut {

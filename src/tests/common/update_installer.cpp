@@ -43,9 +43,9 @@ std::string Read(const fs::path& file) {
 } // namespace
 
 TEST_CASE("Staged and previous files sit beside the target", "[updater]") {
-    const fs::path target = "/opt/lichii/banstdog-linux-x86_64.AppImage";
-    CHECK(UpdateInstaller::StagedPath(target) == "/opt/lichii/banstdog-linux-x86_64.AppImage.new");
-    CHECK(UpdateInstaller::PreviousPath(target) == "/opt/lichii/banstdog-linux-x86_64.AppImage.prev");
+    const fs::path target = "/opt/lichii/erable-linux-x86_64.AppImage";
+    CHECK(UpdateInstaller::StagedPath(target) == "/opt/lichii/erable-linux-x86_64.AppImage.new");
+    CHECK(UpdateInstaller::PreviousPath(target) == "/opt/lichii/erable-linux-x86_64.AppImage.prev");
 }
 
 TEST_CASE("Swap replaces the target and keeps one previous copy", "[updater]") {

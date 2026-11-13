@@ -62,7 +62,7 @@ ConfigureNetwork::ConfigureNetwork(const Core::System& system_, QWidget* parent,
     RetranslateUI();
     this->SetConfiguration();
 
-    // Banst Family hides the Nextendo sign-in until the service has been looked into.
+    // Erable hides the Nextendo sign-in until the service has been looked into.
     constexpr bool ShowNextendo = false;
     ui->nextendo_group->setVisible(ShowNextendo && !per_game);
     // Global settings: per-game configuration doesn't offer them.

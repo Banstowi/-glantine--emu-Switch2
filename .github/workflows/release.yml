@@ -74,7 +74,7 @@ jobs:
       - name: Download binaries
         uses: actions/download-artifact@v8
         with:
-          pattern: banstdog-*-${{ inputs.sha }}
+          pattern: erable-*-${{ inputs.sha }}
           path: artifacts
 
       # Asset names drop the commit sha: the tag already identifies the build, and stable names let
@@ -87,9 +87,9 @@ jobs:
           mkdir -p release-assets
           # When the pattern matches a single artifact (a one-OS build), download-artifact extracts it
           # straight into artifacts/ instead of artifacts/<name>/: put it back in its folder.
-          if ! compgen -G 'artifacts/banstdog-*/' > /dev/null; then
+          if ! compgen -G 'artifacts/erable-*/' > /dev/null; then
             name=$(gh api --paginate "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts" \
-              --jq ".artifacts[].name | select(startswith(\"banstdog-\") and endswith(\"-$SHA\"))")
+              --jq ".artifacts[].name | select(startswith(\"erable-\") and endswith(\"-$SHA\"))")
             [[ -n "$name" && "$name" != *$'\n'* ]] || {
               echo "Cannot tell which artifact was downloaded: '$name'" >&2
               exit 1
@@ -122,6 +122,11 @@ jobs:
               # Windows: upload-artifact stores the bin folder; zip it once for the release.
               (cd "$artifact" && zip -qr "${GITHUB_WORKSPACE}/release-assets/$(strip_sha "$name").zip" .)
             fi
+          done
+          # Versions from before the rename to Erable look for banstdog-windows-*.zip: the same zip
+          # under that name lets them update (its banstdog.exe starts erable.exe).
+          for file in release-assets/erable-windows-*.zip; do
+            cp "$file" "release-assets/banstdog-${file#release-assets/erable-}"
           done
           files=(release-assets/*)
           ((${#files[@]} > 0)) || { echo "Build artifacts contained no release files" >&2; exit 1; }

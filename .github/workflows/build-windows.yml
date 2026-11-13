@@ -116,25 +116,25 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          cmake --build build/release --target lichii lichii-cmd banstdog-updater --parallel
+          cmake --build build/release --target lichii lichii-cmd erable-updater erable-legacy-launcher --parallel
           sccache --show-stats
 
       - name: Package Windows binary
         shell: pwsh
         run: |
-          foreach ($exe in 'banstdog.exe', 'eden-cli.exe') {
+          foreach ($exe in 'erable.exe', 'eden-cli.exe', 'erable-updater.exe', 'banstdog.exe') {
             if (-not (Test-Path "build/release/bin/$exe")) {
               throw "build/release/bin/$exe was not produced"
             }
           }
-          windeployqt --release --no-translations build/release/bin/banstdog.exe
+          windeployqt --release --no-translations build/release/bin/erable.exe
 
       # The artifact is the bin folder itself: GitHub zips artifacts on download, and uploading a
       # zip gave a zip inside a zip. The release job zips it once for the release.
       - name: Upload Windows binary
         uses: actions/upload-artifact@v7
         with:
-          name: banstdog-windows-x86_64-${{ inputs.sha }}
+          name: erable-windows-x86_64-${{ inputs.sha }}
           path: build/release/bin/
           if-no-files-found: error
           retention-days: 7
@@ -223,7 +223,7 @@ jobs:
       - name: Build
         shell: msys2 {0}
         run: |
-          cmake --build build/release --target lichii lichii-cmd --parallel
+          cmake --build build/release --target lichii lichii-cmd erable-legacy-launcher --parallel
           ccache --show-stats
 
       # A dynamic MinGW build is not portable on its own: windeployqt6 brings the Qt libraries and
@@ -235,10 +235,11 @@ jobs:
           set -euo pipefail
           export PATH="/ucrt64/bin:$PATH"
           cd build/release/bin
-          test -f banstdog.exe
+          test -f erable.exe
           test -f eden-cli.exe
+          test -f banstdog.exe
           windeployqt6 --no-translations --no-compiler-runtime --no-opengl-sw \
-            --no-system-dxc-compiler --no-system-d3d-compiler banstdog.exe
+            --no-system-dxc-compiler --no-system-d3d-compiler erable.exe
           deps() {
             objdump -p "$1" | awk '/DLL Name:/ {print $3}' | while read -r dll; do
               [ -z "$dll" ] && continue
@@ -254,7 +255,7 @@ jobs:
               fi
             done
           }
-          for exe in banstdog.exe eden-cli.exe; do
+          for exe in erable.exe eden-cli.exe; do
             deps "$exe"
           done
           find . -name '*.dll' | while read -r dll; do
@@ -264,7 +265,7 @@ jobs:
       - name: Upload MinGW binary
         uses: actions/upload-artifact@v7
         with:
-          name: banstdog-windows-x86_64-pgo-${{ inputs.sha }}
+          name: erable-windows-x86_64-pgo-${{ inputs.sha }}
           path: build/release/bin/
           if-no-files-found: error
           retention-days: 7

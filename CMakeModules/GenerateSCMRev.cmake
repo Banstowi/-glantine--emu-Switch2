@@ -43,9 +43,9 @@ set(BUILD_AUTO_UPDATE_API_PATH "/repos/Banstowi/-glantine--emu-Switch2/releases?
 set(BUILD_AUTO_UPDATE_WEBSITE "https://github.com")
 set(BUILD_AUTO_UPDATE_REPO "Banstowi/-glantine--emu-Switch2")
 if (NIGHTLY_BUILD)
-    set(REPO_NAME "Banst Family Nightly")
+    set(REPO_NAME "Erable Nightly")
 else()
-    set(REPO_NAME "Banst Family")
+    set(REPO_NAME "Erable")
 endif()
 
 set(BUILD_ID ${GIT_REFSPEC})

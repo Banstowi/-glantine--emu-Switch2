@@ -1,11 +1,11 @@
 <p align="center">
-  <img src="dist/lichii.png" alt="Banst Family" width="160">
+  <img src="dist/lichii.png" alt="Erable" width="160">
 </p>
 
 # SPDX-FileCopyrightText: 2018 yuzu Emulator Project
-# Banst Family
+# Erable
 
-Banst Family est l'émulateur Nintendo Switch 2 de la famille, en français, avec ses propres
+Erable est l'émulateur Nintendo Switch 2 de la famille, en français, avec ses propres
 réglages, son thème et ses optimisations pour nos jeux, en particulier The Legend of Zelda:
 Ocarina of Time.
 
@@ -14,14 +14,14 @@ votre propre console : rien de tout cela n'est fourni.
 
 ## Télécharger
 
-Téléchargez Banst Family uniquement depuis la
+Téléchargez Erable uniquement depuis la
 [page des versions](https://github.com/Banstowi/-glantine--emu-Switch2/releases) de ce dépôt.
-Sous Windows, extrayez tout le zip puis lancez **banstdog.exe**. Les mises à jour sont ensuite
+Sous Windows, extrayez tout le zip puis lancez **erable.exe**. Les mises à jour sont ensuite
 proposées automatiquement au démarrage, avec leurs notes de version en français.
 
 ## Tutoriels
 
-- [Installer Banst Family](docs/tutoriel/index.html) : installation, firmware et clés de votre
+- [Installer Erable](docs/tutoriel/index.html) : installation, firmware et clés de votre
   console, jeux en français, manette.
 - [Optimiser Zelda Ocarina of Time](docs/tutoriel/zelda-ocarina.html) : réglages, DLSS,
   précompilation des shaders et partage du cache entre PC.
@@ -29,12 +29,12 @@ proposées automatiquement au démarrage, avec leurs notes de version en frança
 
 ## Vos données
 
-Banst Family garde ses données dans `%APPDATA%\banstdog` : réglages, sauvegardes, cache de
+Erable garde ses données dans `%APPDATA%\erable` : réglages, sauvegardes, cache de
 shaders, journaux et rapports de compatibilité.
 
-## Ce que Banst Family ajoute
+## Ce qu'Erable ajoute
 
-- Interface en français et thème Banst Family.
+- Interface en français et thème Erable.
 - Réglages par défaut choisis pour nos PC.
 - Traduction des nouveaux shaders hors du fil graphique, pour moins de saccades à la découverte
   d'une zone.
@@ -49,15 +49,15 @@ performances dans [docs/banst-pistes.md](docs/banst-pistes.md).
 
 Clic droit sur le jeu, puis **Rapport de compatibilité…**, ou ouvrez une
 [issue](https://github.com/Banstowi/-glantine--emu-Switch2/issues) en joignant `eden_log.txt`
-(dossier `%APPDATA%\banstdog\log`, une fois l'émulateur fermé).
+(dossier `%APPDATA%\erable\log`, une fois l'émulateur fermé).
 
 ## Crédits et licence
 
-**Banst Family** est créé et maintenu par Banstowi pour la famille.
+**Erable** est créé et maintenu par Banstowi pour la famille.
 
-Banst Family est construit sur [Lichii](https://github.com/zortos293/Lichii), lui-même issu
+Erable est construit sur [Lichii](https://github.com/zortos293/Lichii), lui-même issu
 d'Eglantine, Eden, yuzu et Sudachi. Leurs mentions de copyright et les licences des
 bibliothèques tierces sont conservées dans les fichiers sources, comme l'exige la licence GPL.
 
-Banst Family est distribué sous licence GPL : voir [LICENSE.txt](LICENSE.txt) et le dossier
+Erable est distribué sous licence GPL : voir [LICENSE.txt](LICENSE.txt) et le dossier
 [LICENSES](LICENSES).

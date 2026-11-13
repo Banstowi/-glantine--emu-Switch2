@@ -4,12 +4,12 @@
     <message>
         <location filename="../../src/lichii/aboutdialog.ui" line="14"/>
         <source>About Eden</source>
-        <translation>À propos de Banst Family</translation>
+        <translation>À propos d'Erable</translation>
     </message>
     <message>
         <location filename="../../src/lichii/aboutdialog.ui" line="72"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:28pt;&quot;&gt;Eden&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:28pt;&quot;&gt;Banst Family&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:28pt;&quot;&gt;Erable&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../src/lichii/aboutdialog.ui" line="85"/>
@@ -33,7 +33,7 @@ hr { height: 1px; border-width: 0; }
 li.unchecked::marker { content: &quot;\2610&quot;; }
 li.checked::marker { content: &quot;\2612&quot;; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Noto Sans&apos;; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt;&quot;&gt;Banst Family est un émulateur expérimental open source pour la Nintendo Switch, sous licence GPLv3.0+, basé sur l’émulateur Banst Family, dont le développement s’est arrêté en Mars 2024. &lt;br /&gt;&lt;br /&gt;Ce logiciel ne doit pas être utilisé pour jouer à des jeux que vous n’avez pas obtenus légalement.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:12pt;&quot;&gt;Erable est un émulateur expérimental open source pour la Nintendo Switch, sous licence GPLv3.0+, basé sur l’émulateur Erable, dont le développement s’est arrêté en Mars 2024. &lt;br /&gt;&lt;br /&gt;Ce logiciel ne doit pas être utilisé pour jouer à des jeux que vous n’avez pas obtenus légalement.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../src/lichii/aboutdialog.ui" line="131"/>
@@ -43,13 +43,13 @@ li.checked::marker { content: &quot;\2612&quot;; }
     <message>
         <location filename="../../src/lichii/aboutdialog.ui" line="147"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;&amp;quot;Nintendo Switch&amp;quot; is a trademark of Nintendo. Eden is not affiliated with Nintendo in any way.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;&amp;quot;Nintendo Switch&amp;quot; est une marque déposée de Nintendo. Banst Family n’est en aucun cas affilié à Nintendo.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:7pt;&quot;&gt;&amp;quot;Nintendo Switch&amp;quot; est une marque déposée de Nintendo. Erable n’est en aucun cas affilié à Nintendo.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Banst Family is the family's Nintendo Switch 2 emulator, created and maintained by Banstowi. Built on Lichii.
+        <source>Erable is the family's Nintendo Switch 2 emulator, created and maintained by Banstowi. Built on Lichii.
 
 This software should not be used to play games you have not legally obtained.</source>
-        <translation>Banst Family est l'émulateur Nintendo Switch 2 de la famille, créé et maintenu par Banstowi. Construit sur Lichii.
+        <translation>Erable est l'émulateur Nintendo Switch 2 de la famille, créé et maintenu par Banstowi. Construit sur Lichii.
 
 Ce logiciel ne doit pas servir à jouer à des jeux que vous n'avez pas obtenus légalement.</translation>
     </message>
@@ -2660,8 +2660,8 @@ L’activer permet de contourner ces confirmations et de quitter directement l�
     </message>
     <message>
         <location filename="../../src/lichii/configuration/configure_debug.ui" line="449"/>
-        <source>When checked, Banst Family will log statistics about the compiled pipeline cache</source>
-        <translation>Lorsque la case est cochée, Banst Family enregistrera les journaux de statistiques à propos de la cache de pipeline compilée</translation>
+        <source>When checked, Erable will log statistics about the compiled pipeline cache</source>
+        <translation>Lorsque la case est cochée, Erable enregistrera les journaux de statistiques à propos de la cache de pipeline compilée</translation>
     </message>
     <message>
         <location filename="../../src/lichii/configuration/configure_debug.ui" line="452"/>
@@ -2695,8 +2695,8 @@ L’activer permet de contourner ces confirmations et de quitter directement l�
     </message>
     <message>
         <location filename="../../src/lichii/configuration/configure_debug.ui" line="488"/>
-        <source>Enables Banst Family to check for a working Vulkan environment when the program starts up. Disable this if this is causing issues with external programs seeing Banst Family.</source>
-        <translation>Active Banst Family pour chercher pour un environnement Vulkan fonctionnel quand le programme démarre. Desactiver ceci si cela cause des problèmes avec des programmes externes.</translation>
+        <source>Enables Erable to check for a working Vulkan environment when the program starts up. Disable this if this is causing issues with external programs seeing Erable.</source>
+        <translation>Active Erable pour chercher pour un environnement Vulkan fonctionnel quand le programme démarre. Desactiver ceci si cela cause des problèmes avec des programmes externes.</translation>
     </message>
     <message>
         <location filename="../../src/lichii/configuration/configure_debug.ui" line="491"/>
@@ -2806,7 +2806,7 @@ L’activer permet de contourner ces confirmations et de quitter directement l�
     <message>
         <location filename="../../src/lichii/configuration/configure_debug.ui" line="787"/>
         <source>**This will be reset automatically when Eden closes.</source>
-        <translation>**Ceci sera automatiquement réinitialisé à la fermeture de Banst Family.</translation>
+        <translation>**Ceci sera automatiquement réinitialisé à la fermeture d'Erable.</translation>
     </message>
 </context>
 <context>
@@ -2851,7 +2851,7 @@ L’activer permet de contourner ces confirmations et de quitter directement l�
     <message>
         <location filename="../../src/lichii/configuration/configure.ui" line="20"/>
         <source>Eden Configuration</source>
-        <translation>Configuration de Banst Family</translation>
+        <translation>Configuration d'Erable</translation>
     </message>
     <message>
         <location filename="../../src/lichii/configuration/configure.ui" line="67"/>
@@ -3203,7 +3203,7 @@ Would you like to delete the old save data?</source>
     <message>
         <location filename="../../src/lichii/configuration/configure_general.cpp" line="101"/>
         <source>Eden</source>
-        <translation>Banst Family</translation>
+        <translation>Erable</translation>
     </message>
     <message>
         <location filename="../../src/lichii/configuration/configure_general.cpp" line="102"/>
@@ -3764,7 +3764,7 @@ Would you like to delete the old save data?</source>
         <location filename="../../src/lichii/configuration/configure_input_advanced.ui" line="2701"/>
         <location filename="../../src/lichii/configuration/configure_input_advanced.ui" line="2717"/>
         <source>Requires restarting Eden</source>
-        <translation>Nécessite de redémarrer Banst Family.</translation>
+        <translation>Nécessite de redémarrer Erable.</translation>
     </message>
     <message>
         <location filename="../../src/lichii/configuration/configure_input_advanced.ui" line="2668"/>
@@ -4482,7 +4482,7 @@ Pour inverser les axes, bougez d&apos;abord votre joystick verticalement, puis h
         <location filename="../../src/lichii/configuration/configure_motion_touch.cpp" line="186"/>
         <location filename="../../src/lichii/configuration/configure_motion_touch.cpp" line="280"/>
         <source>Eden</source>
-        <translation>Banst Family</translation>
+        <translation>Erable</translation>
     </message>
     <message>
         <location filename="../../src/lichii/configuration/configure_motion_touch.cpp" line="166"/>
@@ -5478,7 +5478,7 @@ Faites glisser les points pour modifier la position ou double-cliquez sur les ce
     <message>
         <location filename="../../src/lichii/configuration/configure_touchscreen_advanced.ui" line="26"/>
         <source>Warning: The settings in this page affect the inner workings of Eden&apos;s emulated touchscreen. Changing them may result in undesirable behavior, such as the touchscreen partially or not working. You should only use this page if you know what you are doing.</source>
-        <translation>Avertissement : Les paramètres de cette page affectent le fonctionnement interne de l&apos;écran tactile émulé de Banst Family. Les modifier peut entraîner un comportement indésirable, comme un écran tactile partiellement fonctionnel, voire complètement inutilisable. Vous ne devez utiliser cette page que si vous savez ce que vous faites.</translation>
+        <translation>Avertissement : Les paramètres de cette page affectent le fonctionnement interne de l&apos;écran tactile émulé d'Erable. Les modifier peut entraîner un comportement indésirable, comme un écran tactile partiellement fonctionnel, voire complètement inutilisable. Vous ne devez utiliser cette page que si vous savez ce que vous faites.</translation>
     </message>
     <message>
         <location filename="../../src/lichii/configuration/configure_touchscreen_advanced.ui" line="52"/>
@@ -5769,7 +5769,7 @@ Faites glisser les points pour modifier la position ou double-cliquez sur les ce
     <message>
         <location filename="../../src/lichii/configuration/configure_web.ui" line="25"/>
         <source>Eden Web Service</source>
-        <translation>Service Web de Banst Family.</translation>
+        <translation>Service Web d'Erable.</translation>
     </message>
     <message>
         <location filename="../../src/lichii/configuration/configure_web.ui" line="33"/>
@@ -5915,17 +5915,17 @@ Faites glisser les points pour modifier la position ou double-cliquez sur les ce
     <message>
         <location filename="../../src/lichii/deps_dialog.ui" line="14"/>
         <source>Eden Dependencies</source>
-        <translation>Dépendances de Banst Family</translation>
+        <translation>Dépendances d'Erable</translation>
     </message>
     <message>
         <location filename="../../src/lichii/deps_dialog.ui" line="72"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:28pt;&quot;&gt;Eden Dependencies&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:28pt;&quot;&gt;Dépendances de Banst Family&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:28pt;&quot;&gt;Dépendances d'Erable&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../src/lichii/deps_dialog.ui" line="85"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The projects that make Eden possible&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Les projets qui rendent Banst Family possible&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Les projets qui rendent Erable possible&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../../src/lichii/deps_dialog.cpp" line="22"/>
@@ -6044,7 +6044,7 @@ Faites glisser les points pour modifier la position ou double-cliquez sur les ce
     <message>
         <location filename="../../src/lichii/multiplayer/message.cpp" line="32"/>
         <source>Creating a room failed. Please retry. Restarting Eden might be necessary.</source>
-        <translation>La création du salon a échoué. Veuillez réessayer. Il peut être nécessaire de redémarrer Banst Family.</translation>
+        <translation>La création du salon a échoué. Veuillez réessayer. Il peut être nécessaire de redémarrer Erable.</translation>
     </message>
     <message>
         <location filename="../../src/lichii/multiplayer/message.cpp" line="34"/>
@@ -6054,7 +6054,7 @@ Faites glisser les points pour modifier la position ou double-cliquez sur les ce
     <message>
         <location filename="../../src/lichii/multiplayer/message.cpp" line="37"/>
         <source>Version mismatch! Please update to the latest version of Eden. If the problem persists, contact the room host and ask them to update the server.</source>
-        <translation>Mise à jour requise ! Veuillez mettre à jour vers la dernière version de Banst Family. Si le problème persiste, contactez l&apos;hôte du salon et demandez-lui de mettre à jour le serveur.</translation>
+        <translation>Mise à jour requise ! Veuillez mettre à jour vers la dernière version d'Erable. Si le problème persiste, contactez l&apos;hôte du salon et demandez-lui de mettre à jour le serveur.</translation>
     </message>
     <message>
         <location filename="../../src/lichii/multiplayer/message.cpp" line="39"/>
@@ -6122,7 +6122,7 @@ Veuillez aller dans Configurer -&gt; Système -&gt; Réseau puis en choisir une.
     <message>
         <location filename="../../src/lichii/bootmanager.cpp" line="863"/>
         <source>Eden has not been compiled with OpenGL support.</source>
-        <translation>Banst Family n&apos;a pas été compilé avec le support OpenGL</translation>
+        <translation>Erable n&apos;a pas été compilé avec le support OpenGL</translation>
     </message>
     <message>
         <location filename="../../src/lichii/bootmanager.cpp" line="887"/>
@@ -6527,7 +6527,7 @@ Veuillez aller dans Configurer -&gt; Système -&gt; Réseau puis en choisir une.
         <location filename="../../src/lichii/multiplayer/host_room.cpp" line="187"/>
         <source>Failed to announce the room to the public lobby. In order to host a room publicly, you must have a valid Eden account configured in Emulation -&gt; Configure -&gt; Web. If you do not want to publish a room in the public lobby, then select Unlisted instead.
 Debug Message: </source>
-        <translation>Échec de l&apos;annonce du salon dans le hall public. Pour héberger un salon publiquement, vous devez configurer un compte Banst Family valide dans Émulation -&gt; Configuration -&gt; Web. Si vous ne souhaitez pas publier le salon dans le hall public, sélectionnez &quot;Non répertorié&quot; à la place.
+        <translation>Échec de l&apos;annonce du salon dans le hall public. Pour héberger un salon publiquement, vous devez configurer un compte Erable valide dans Émulation -&gt; Configuration -&gt; Web. Si vous ne souhaitez pas publier le salon dans le hall public, sélectionnez &quot;Non répertorié&quot; à la place.
 Message de débogage :</translation>
     </message>
 </context>
@@ -6628,7 +6628,7 @@ Message de débogage :</translation>
     <message>
         <location filename="../../src/qt_common/config/uisettings.cpp" line="45"/>
         <source>Exit Eden</source>
-        <translation>Fermer Banst Family</translation>
+        <translation>Fermer Erable</translation>
     </message>
     <message>
         <location filename="../../src/qt_common/config/uisettings.cpp" line="46"/>
@@ -6895,8 +6895,8 @@ Message de débogage :</translation>
     <name>MainWindow</name>
     <message>
         <location filename="../../src/lichii/main.ui" line="14"/>
-        <source>Banst Family</source>
-        <translation>Banst Family</translation>
+        <source>Erable</source>
+        <translation>Erable</translation>
     </message>
     <message>
         <location filename="../../src/lichii/main.ui" line="53"/>
@@ -6911,7 +6911,7 @@ Message de débogage :</translation>
     <message>
         <location filename="../../src/lichii/main.ui" line="62"/>
         <source>Open &amp;Eden Folders</source>
-        <translation>Ouvrir &amp;les dossiers Banst Family</translation>
+        <translation>Ouvrir &amp;les dossiers Erable</translation>
     </message>
     <message>
         <location filename="../../src/lichii/main.ui" line="85"/>
@@ -7052,7 +7052,7 @@ Message de débogage :</translation>
     <message>
         <location filename="../../src/lichii/main.ui" line="295"/>
         <source>&amp;About Eden</source>
-        <translation>&amp;À propos de Banst Family</translation>
+        <translation>&amp;À propos d'Erable</translation>
     </message>
     <message>
         <location filename="../../src/lichii/main.ui" line="303"/>
@@ -7264,7 +7264,7 @@ Message de débogage :</translation>
     <message>
         <location filename="../../src/lichii/main.ui" line="558"/>
         <source>&amp;Eden Dependencies</source>
-        <translation>Dépendances d&apos;&amp;Banst Family</translation>
+        <translation>Dépendances d&apos;&amp;Erable</translation>
     </message>
     <message>
         <location filename="../../src/lichii/main.ui" line="563"/>
@@ -8111,7 +8111,7 @@ Would you like to force it for future launches?</source>
         <location filename="../../src/lichii/main_window.cpp" line="4608"/>
         <location filename="../../src/lichii/main_window.cpp" line="4620"/>
         <source>Eden</source>
-        <translation>Banst Family</translation>
+        <translation>Erable</translation>
     </message>
     <message>
         <location filename="../../src/lichii/main_window.cpp" line="4609"/>
@@ -8284,16 +8284,16 @@ Ce choix se modifie dans Configurer, Graphismes, Avancé.</translation>
         <translation>&amp;Quoi de neuf</translation>
     </message>
     <message>
-        <source>Close only the game and go back to the game list, or quit Banst Family?</source>
-        <translation>Fermer seulement le jeu et revenir à la liste des jeux, ou quitter Banst Family ?</translation>
+        <source>Close only the game and go back to the game list, or quit Erable?</source>
+        <translation>Fermer seulement le jeu et revenir à la liste des jeux, ou quitter Erable ?</translation>
     </message>
     <message>
         <source>Close the game</source>
         <translation>Fermer le jeu</translation>
     </message>
     <message>
-        <source>Quit Banst Family</source>
-        <translation>Quitter Banst Family</translation>
+        <source>Quit Erable</source>
+        <translation>Quitter Erable</translation>
     </message>
 </context>
 <context>
@@ -9463,7 +9463,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../../src/qt_common/util/content.cpp" line="328"/>
         <source>UNEXPECTED BAD THINGS MAY HAPPEN IF YOU DON&apos;T READ THIS!&lt;br&gt;Eden has detected the following save directories with no attached profile:&lt;br&gt;%1&lt;br&gt;&lt;br&gt;The following profiles are valid:&lt;br&gt;%2&lt;br&gt;&lt;br&gt;Click &quot;OK&quot; to open your save folder and fix up your profiles.&lt;br&gt;Hint: copy the contents of the largest or last-modified folder elsewhere, delete all orphaned profiles, and move your copied contents to the good profile.&lt;br&gt;&lt;br&gt;Still confused? See the &lt;a href=&apos;https://git.eden-emu.dev/eden-emu/eden/src/branch/master/docs/user/Orphaned.md&apos;&gt;help page&lt;/a&gt;.&lt;br&gt;</source>
-        <translation>DES CHOSES GRAVES INATTENDUES PEUVENT SURVENIR SI VOUS NE LISEZ PAS CECI !&lt;br&gt;Banst Family a détecté les répertoires de sauvegarde suivants sans profil associé :&lt;br&gt;%1&lt;br&gt;&lt;br&gt;Les profils suivants sont valides :&lt;br&gt;%2&lt;br&gt;&lt;br&gt;Cliquez sur « OK » pour ouvrir votre dossier de sauvegarde et corriger vos profils.&lt;br&gt;Astuce : copiez le contenu du dossier le plus volumineux ou le plus récemment modifié ailleurs, supprimez tous les profils orphelins et déplacez le contenu copié vers le profil correct.&lt;br&gt;&lt;br&gt;Toujours confus ? Consultez la &lt;a href=&apos;https://git.eden-emu.dev/eden-emu/eden/src/branch/master/docs/user/Orphaned.md&apos;&gt;page d’aide&lt;/a&gt;.&lt;br&gt;</translation>
+        <translation>DES CHOSES GRAVES INATTENDUES PEUVENT SURVENIR SI VOUS NE LISEZ PAS CECI !&lt;br&gt;Erable a détecté les répertoires de sauvegarde suivants sans profil associé :&lt;br&gt;%1&lt;br&gt;&lt;br&gt;Les profils suivants sont valides :&lt;br&gt;%2&lt;br&gt;&lt;br&gt;Cliquez sur « OK » pour ouvrir votre dossier de sauvegarde et corriger vos profils.&lt;br&gt;Astuce : copiez le contenu du dossier le plus volumineux ou le plus récemment modifié ailleurs, supprimez tous les profils orphelins et déplacez le contenu copié vers le profil correct.&lt;br&gt;&lt;br&gt;Toujours confus ? Consultez la &lt;a href=&apos;https://git.eden-emu.dev/eden-emu/eden/src/branch/master/docs/user/Orphaned.md&apos;&gt;page d’aide&lt;/a&gt;.&lt;br&gt;</translation>
     </message>
     <message>
         <location filename="../../src/qt_common/util/content.cpp" line="347"/>
@@ -10096,7 +10096,7 @@ Most mods are RomFS mods, but patches (.pchtxt) are typically ExeFS mods.</sourc
     <message>
         <location filename="../../src/qt_common/qt_string_lookup.h" line="96"/>
         <source>Firmware installation cancelled, firmware may be in a bad state or corrupted. Restart Eden or re-install firmware.</source>
-        <translation>Installation du Firmware annulée, le firmware peut être corrompu ou dans un état incorrect. Redémarrez Banst Family ou réinstallez le Firmware.</translation>
+        <translation>Installation du Firmware annulée, le firmware peut être corrompu ou dans un état incorrect. Redémarrez Erable ou réinstallez le Firmware.</translation>
     </message>
     <message>
         <location filename="../../src/qt_common/qt_string_lookup.h" line="101"/>
@@ -10111,14 +10111,14 @@ Most mods are RomFS mods, but patches (.pchtxt) are typically ExeFS mods.</sourc
     <message>
         <location filename="../../src/qt_common/qt_string_lookup.h" line="110"/>
         <source>Eden has detected user data for the following emulators:</source>
-        <translation>Banst Family a détecté des données utilisateur pour les émulateurs suivants :</translation>
+        <translation>Erable a détecté des données utilisateur pour les émulateurs suivants :</translation>
     </message>
     <message>
         <location filename="../../src/qt_common/qt_string_lookup.h" line="112"/>
         <source>Would you like to migrate your data for use in Eden?
 Select the corresponding button to migrate data from that emulator.
 This may take a while.</source>
-        <translation>Voulez‑vous migrer vos données pour les utiliser dans Banst Family ?
+        <translation>Voulez‑vous migrer vos données pour les utiliser dans Erable ?
 Sélectionnez le bouton correspondant pour migrer les données depuis cet émulateur.
 Cette opération peut prendre un certain temps.</translation>
     </message>
@@ -10146,7 +10146,7 @@ Ceci est recommandé sur les appareils disposant de peu d’espace.</translation
         <location filename="../../src/qt_common/qt_string_lookup.h" line="124"/>
         <source>Creates a filesystem link between the old directory and Eden directory.
 This is recommended if you want to share data between emulators.</source>
-        <translation>Crée un lien de système de fichiers entre l’ancien répertoire et le répertoire Banst Family.
+        <translation>Crée un lien de système de fichiers entre l’ancien répertoire et le répertoire Erable.
 Ceci est recommandé si vous souhaitez partager les données entre les émulateurs.</translation>
     </message>
     <message>
@@ -10608,14 +10608,14 @@ p, li { white-space: pre-wrap; }
         <source>Linking save data to Ryujinx lets both Ryujinx and Eden reference the same save files for your games.
 
 By selecting &quot;From Eden&quot;, previous save data stored in Ryujinx will be deleted, and vice versa for &quot;From Ryujinx&quot;.</source>
-        <translation>Lier les données de sauvegarde à Ryujinx permet à la fois à Ryujinx et à Banst Family de référencer les mêmes fichiers de sauvegarde pour vos jeux.
+        <translation>Lier les données de sauvegarde à Ryujinx permet à la fois à Ryujinx et à Erable de référencer les mêmes fichiers de sauvegarde pour vos jeux.
 
-En sélectionnant « Depuis Banst Family », les données de sauvegarde précédemment stockées dans Ryujinx seront supprimées, et inversement pour « Depuis Ryujinx ».</translation>
+En sélectionnant « Depuis Erable », les données de sauvegarde précédemment stockées dans Ryujinx seront supprimées, et inversement pour « Depuis Ryujinx ».</translation>
     </message>
     <message>
         <location filename="../../src/lichii/ryujinx_dialog.ui" line="40"/>
         <source>From Eden</source>
-        <translation>Depuis Banst Family</translation>
+        <translation>Depuis Erable</translation>
     </message>
     <message>
         <location filename="../../src/lichii/ryujinx_dialog.ui" line="47"/>
@@ -10821,24 +10821,24 @@ Error code: %3</source>
 <context>
     <name>WhatsNewDialog</name>
     <message>
-        <source>What's New in Banst Family</source>
-        <translation>Quoi de neuf dans Banst Family</translation>
+        <source>What's New in Erable</source>
+        <translation>Quoi de neuf dans Erable</translation>
     </message>
     <message>
-        <source>Banst Family has a new look</source>
-        <translation>Banst Family change de look</translation>
+        <source>Erable has a new look</source>
+        <translation>Erable change de look</translation>
     </message>
     <message>
         <source>Here is what changed. Menus and shortcuts are where they were.</source>
         <translation>Voici ce qui change. Les menus et les raccourcis restent à leur place.</translation>
     </message>
     <message>
-        <source>Banst Family theme</source>
-        <translation>Thème Banst Family</translation>
+        <source>Erable theme</source>
+        <translation>Thème Erable</translation>
     </message>
     <message>
-        <source>A dark theme with warm greys and the maple accent of the Banst Family leaf. The older themes are still in Configure &gt; General &gt; UI.</source>
-        <translation>Un thème sombre aux gris chauds, avec la couleur érable de la feuille Banst Family. Les anciens thèmes restent dans Configurer &gt; Général &gt; Interface.</translation>
+        <source>A dark theme with warm greys and the maple accent of the Erable leaf. The older themes are still in Configure &gt; General &gt; UI.</source>
+        <translation>Un thème sombre aux gris chauds, avec la couleur érable de la feuille Erable. Les anciens thèmes restent dans Configurer &gt; Général &gt; Interface.</translation>
     </message>
     <message>
         <source>Settings that fit your screen</source>

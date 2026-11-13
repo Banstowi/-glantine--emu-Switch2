@@ -3,7 +3,7 @@ SPDX-FileCopyrightText: Copyright 2026 Lichii Project
 SPDX-License-Identifier: GPL-3.0-or-later
 -->
 
-<!-- Lichii Dark recoloured for Banst Family (maple accent, warm greys). -->
+<!-- Lichii Dark recoloured for Erable (maple accent, warm greys). -->
 <RCC>
     <qresource prefix="icons/banst">
         <file alias="index.theme">index.theme</file>

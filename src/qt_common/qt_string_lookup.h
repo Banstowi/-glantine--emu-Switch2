@@ -108,9 +108,9 @@ static const constexpr frozen::map<StringKey, frozen::string, 29> strings = {
     // migrator
     // 17-22
     {MigrationPromptPrefix,
-     QT_TR_NOOP("Banst Family has detected user data for the following emulators:")},
+     QT_TR_NOOP("Erable has detected user data for the following emulators:")},
     {MigrationPrompt,
-     QT_TR_NOOP("Would you like to migrate your data for use in Banst Family?\n"
+     QT_TR_NOOP("Would you like to migrate your data for use in Erable?\n"
                 "Select the corresponding button to migrate data from that emulator.\n"
                 "This may take a while.")},
     {MigrationTooltipClearShader, QT_TR_NOOP("Clearing shader cache is recommended when migrating "
@@ -123,7 +123,7 @@ static const constexpr frozen::map<StringKey, frozen::string, 29> strings = {
                                           "free space for a full copy. Keep the backup until "
                                           "you have checked your saves.")},
     {MigrationTooltipLinkOld,
-     QT_TR_NOOP("Creates a filesystem link between the old directory and Banst Family directory.\n"
+     QT_TR_NOOP("Creates a filesystem link between the old directory and Erable directory.\n"
                 "This is recommended if you want to share data between emulators.")},
 
     // why am I writing these comments again

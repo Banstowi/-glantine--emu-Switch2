@@ -1,4 +1,4 @@
-# Raccourcis Banst Family
+# Raccourcis Erable
 
 Chemins et réglages utiles sous Windows. Collez un chemin dans la barre d'adresse de
 l'Explorateur, ou dans Exécuter (Win + R).
@@ -7,22 +7,22 @@ l'Explorateur, ou dans Exécuter (Win + R).
 
 | Quoi | Chemin |
 |---|---|
-| Journaux (`eden_log.txt`) | `%APPDATA%\banstdog\log` |
-| Réglages (`qt-config.ini`) | `%APPDATA%\banstdog\config` |
-| Cache de shaders, un dossier par jeu | `%APPDATA%\banstdog\shader` |
-| Cache de shaders de Zelda Ocarina of Time | `%APPDATA%\banstdog\shader\0400486024dec000` |
-| Rapports de compatibilité | `%APPDATA%\banstdog\reports` |
-| Toutes les données | `%APPDATA%\banstdog` |
+| Journaux (`eden_log.txt`) | `%APPDATA%\erable\log` |
+| Réglages (`qt-config.ini`) | `%APPDATA%\erable\config` |
+| Cache de shaders, un dossier par jeu | `%APPDATA%\erable\shader` |
+| Cache de shaders de Zelda Ocarina of Time | `%APPDATA%\erable\shader\0400486024dec000` |
+| Rapports de compatibilité | `%APPDATA%\erable\reports` |
+| Toutes les données | `%APPDATA%\erable` |
 
-Le journal n'est complet qu'une fois Banst Family fermé.
+Le journal n'est complet qu'une fois Erable fermé.
 
 ## Lanceur de diagnostic
 
-Fichier `banstdog-trace.bat`, à côté de `banstdog.exe` :
+Fichier `erable-trace.bat`, à côté de `erable.exe` :
 
 ```bat
 set EDEN_NX2_STUTTER_TRACE=1
-start "" banstdog.exe
+start "" erable.exe
 ```
 
 Lignes à ajouter avant `start` selon le test :

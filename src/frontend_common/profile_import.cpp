@@ -39,7 +39,7 @@ bool NeedsLegacyProfileImport() {
     if (state != Migration::State::Unresolved) {
         return false;
     }
-    // Banst Family has used its own data folder since its first builds: an existing profile there
+    // Erable has used its own data folder since its first builds: an existing profile there
     // is the user's, so nothing is offered for import over it.
     std::error_code error;
     if (fs::exists(GetEdenPath(EdenPath::ConfigDir) / "qt-config.ini", error)) {
@@ -62,7 +62,7 @@ bool NeedsLegacyProfileImport() {
 void CheckLegacyProfileBeforeConfig() {
     if (NeedsLegacyProfileImport()) {
         throw std::runtime_error("Legacy emulator data or an unfinished import was found. "
-                                 "Open the Banst Family GUI to import it or explicitly start fresh "
+                                 "Open the Erable GUI to import it or explicitly start fresh "
                                  "before using eden-cli. No configuration was created.");
     }
 }

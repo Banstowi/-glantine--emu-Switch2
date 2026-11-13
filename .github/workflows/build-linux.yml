@@ -190,12 +190,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -x build/release/bin/banstdog
+          test -x build/release/bin/erable
           test -x build/release/bin/eden-cli
-          strip build/release/bin/banstdog build/release/bin/eden-cli
-          tar -czf "banstdog-${SHA}-${PLATFORM}.tar.gz" \
-            -C build/release/bin banstdog eden-cli
-          ls -la "banstdog-${SHA}-${PLATFORM}.tar.gz"
+          strip build/release/bin/erable build/release/bin/eden-cli
+          tar -czf "erable-${SHA}-${PLATFORM}.tar.gz" \
+            -C build/release/bin erable eden-cli
+          ls -la "erable-${SHA}-${PLATFORM}.tar.gz"
 
       # A self-contained AppImage: linuxdeploy bundles every library the two programs need except
       # the base system ones (glibc, X11/Wayland client libraries, the GPU driver and Vulkan loader),
@@ -206,7 +206,7 @@ jobs:
           VERSION_LABEL: ${{ inputs.version }}
         run: |
           set -euo pipefail
-          test -x build/release/bin/banstdog
+          test -x build/release/bin/erable
           test -x build/release/bin/eden-cli
           tools="$RUNNER_TEMP/linuxdeploy"
           mkdir -p "$tools"
@@ -226,11 +226,11 @@ jobs:
           export EXTRA_PLATFORM_PLUGINS='libqwayland-egl.so;libqwayland-generic.so'
           # Embedded in the AppImage metadata: the version label of this build.
           export LDAI_VERSION="$VERSION_LABEL"
-          export LDAI_OUTPUT="banstdog-${SHA}-${PLATFORM}.AppImage"
+          export LDAI_OUTPUT="erable-${SHA}-${PLATFORM}.AppImage"
           export OUTPUT="$LDAI_OUTPUT"
           export ARCH="$arch"
           "$tools/linuxdeploy-$arch.AppImage" --appdir AppDir \
-            --executable build/release/bin/banstdog \
+            --executable build/release/bin/erable \
             --executable build/release/bin/eden-cli \
             --desktop-file dist/dev.eden_emu.eden.desktop \
             --icon-file "$icon" \
@@ -243,10 +243,10 @@ jobs:
       - name: Upload Linux binary
         uses: actions/upload-artifact@v7
         with:
-          name: banstdog-${{ env.PLATFORM }}-${{ inputs.sha }}
+          name: erable-${{ env.PLATFORM }}-${{ inputs.sha }}
           path: |
-            banstdog-${{ inputs.sha }}-${{ env.PLATFORM }}.tar.gz
-            banstdog-${{ inputs.sha }}-${{ env.PLATFORM }}.AppImage
+            erable-${{ inputs.sha }}-${{ env.PLATFORM }}.tar.gz
+            erable-${{ inputs.sha }}-${{ env.PLATFORM }}.AppImage
           if-no-files-found: error
           compression-level: 0
           retention-days: 7
