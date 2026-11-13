@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <array>
 #include <atomic>
+#include <chrono>
 #include <cstdlib>
 #include <memory>
 #include <span>
@@ -36,6 +37,30 @@ void SinkStream::AppendBuffer(SinkBuffer& buffer, std::span<s16> samples) {
     if (yuzu_volume > 1.0f)
         yuzu_volume = 0.6f + 20.0f * std::log10(yuzu_volume);
     auto const volume = system_volume * device_volume * yuzu_volume;
+    // EDEN_NX2_AUDIO_LEVEL also logs, every 10 s, how loud what the game sends to an audio out
+    // is and what it is multiplied by: tells a game that sends silence from samples lost on the
+    // way.
+    static const bool out_meter = std::getenv("EDEN_NX2_AUDIO_LEVEL") != nullptr;
+    if (out_meter && type == StreamType::Out) {
+        s32 peak = 0;
+        for (const s16 sample : samples) {
+            peak = (std::max)(peak, sample < 0 ? -s32{sample} : s32{sample});
+        }
+        out_peak = (std::max)(out_peak, peak);
+        ++out_buffers;
+        const auto now = std::chrono::steady_clock::now();
+        if (now - out_window >= std::chrono::seconds{10}) {
+            LOG_INFO(Audio_Sink,
+                     "Audio out '{}' in the last 10 s: {} buffers, loudest sample {} of 32767, "
+                     "volume {:.2f} (game {:.2f} x device {:.2f} x setting {:.2f}), {} to {} "
+                     "channels",
+                     name, out_buffers, out_peak, volume, system_volume, device_volume,
+                     yuzu_volume, system_channels, device_channels);
+            out_peak = 0;
+            out_buffers = 0;
+            out_window = now;
+        }
+    }
     std::size_t pushed{};
     const auto device_samples = samples.size() / system_channels * device_channels;
 

@@ -99,6 +99,11 @@ Result IAudioOutManager::OpenAudioOutAuto(
                                   .channel_count = out_system.GetChannelCount(),
                                   .sample_format = static_cast<u32>(out_system.GetSampleFormat()),
                                   .state = static_cast<u32>(out_system.GetState())};
+    LOG_INFO(Service_Audio,
+             "AudioOut {} opened on '{}': asked {} Hz {} channels, got {} Hz {} channels format {}",
+             new_session_id, device_name, parameter.sample_rate, parameter.channel_count,
+             out_parameter_internal->sample_rate, out_parameter_internal->channel_count,
+             out_parameter_internal->sample_format);
 
     R_SUCCEED();
 }

@@ -4,6 +4,7 @@
 // SPDX-FileCopyrightText: Copyright 2024 yuzu Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <atomic>
 #include "audio_core/audio_core.h"
 #include "common/string_util.h"
 #include "core/hle/service/audio/audio_device.h"
@@ -98,7 +99,11 @@ Result IAudioDevice::SetAudioDeviceOutputVolumeAuto(
     R_UNLESS(!name.empty(), Audio::ResultInsufficientBuffer);
 
     const std::string device_name = Common::StringFromBuffer(name[0].name);
-    LOG_DEBUG(Service_Audio, "called. name={}, volume={}", device_name, volume);
+    static std::atomic<u32> logged{};
+    if (logged.fetch_add(1, std::memory_order_relaxed) < 32) {
+        LOG_INFO(Service_Audio, "Device output volume of '{}' set to {}{}", device_name, volume,
+                 device_name == "AudioTvOutput" ? "" : " (not applied: only AudioTvOutput is)");
+    }
 
     if (device_name == "AudioTvOutput") {
         impl->SetDeviceVolumes(volume);

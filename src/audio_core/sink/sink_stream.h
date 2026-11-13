@@ -307,6 +307,10 @@ private:
     std::chrono::nanoseconds last_sample_count_update_time{};
     /// Set by the audio render/in/out system which uses this stream
     f32 system_volume{1.0f};
+    /// Audio out level log (AppendBuffer)
+    s32 out_peak{};
+    u64 out_buffers{};
+    std::chrono::steady_clock::time_point out_window{std::chrono::steady_clock::now()};
     /// Set via IAudioDevice service calls
     f32 device_volume{1.0f};
     /// Signalled when ring buffer entries are consumed
