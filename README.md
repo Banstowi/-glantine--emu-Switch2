@@ -2,6 +2,7 @@
   <img src="dist/lichii.png" alt="Banst Family" width="160">
 </p>
 
+# SPDX-FileCopyrightText: 2018 yuzu Emulator Project
 # Banst Family
 
 Banst Family est l'émulateur Nintendo Switch 2 de la famille, en français, avec ses propres

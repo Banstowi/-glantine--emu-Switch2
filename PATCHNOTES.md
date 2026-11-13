@@ -19,6 +19,10 @@ version. Les sections suivantes gardent l'historique.
   reconnus.
 - Moins de mémoire perdue et moins de plantages par manque de mémoire Windows.
 - Vibrations améliorées, y compris la DualSense en USB.
+- Rendu plus léger sur le processeur (états graphiques, rapports, textures calculées) et processeur émulé plus rapide.
+- Fermer un jeu avec un très gros cache de shaders attend la fin de l'enregistrement au lieu de couper l'émulateur.
+- Précompilation des effets de Mario Kart World et Fire Emblem, et reconstruction des précompilations périmées au lancement.
+- Moins de mémoire utilisée en arrière-plan quand la RAM du PC est juste.
 
 **Chargements plus fluides**
 - Les grosses textures sont préparées sur plusieurs cœurs du processeur. Sur nos mesures dans

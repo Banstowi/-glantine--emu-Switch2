@@ -33,10 +33,10 @@ void SinkStream::AppendBuffer(SinkBuffer& buffer, std::span<s16> samples) {
     constexpr s32 min = (std::numeric_limits<s16>::min)();
     constexpr s32 max = (std::numeric_limits<s16>::max)();
 
-    auto yuzu_volume = Settings::Volume();
-    if (yuzu_volume > 1.0f)
-        yuzu_volume = 0.6f + 20.0f * std::log10(yuzu_volume);
-    auto const volume = system_volume * device_volume * yuzu_volume;
+    auto lichii_volume = Settings::Volume();
+    if (lichii_volume > 1.0f)
+        lichii_volume = 0.6f + 20.0f * std::log10(lichii_volume);
+    auto const volume = system_volume * device_volume * lichii_volume;
     // EDEN_NX2_AUDIO_LEVEL also logs, every 10 s, how loud what the game sends to an audio out
     // is and what it is multiplied by: tells a game that sends silence from samples lost on the
     // way.
@@ -55,7 +55,7 @@ void SinkStream::AppendBuffer(SinkBuffer& buffer, std::span<s16> samples) {
                      "volume {:.2f} (game {:.2f} x device {:.2f} x setting {:.2f}), {} to {} "
                      "channels",
                      name, out_buffers, out_peak, volume, system_volume, device_volume,
-                     yuzu_volume, system_channels, device_channels);
+                     lichii_volume, system_channels, device_channels);
             out_peak = 0;
             out_buffers = 0;
             out_window = now;
